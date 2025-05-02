@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c49a92ef1771844b9c93a4037158cd, type: 3}
+  m_Name: MaterialOverride
+  m_EditorClassIdentifier: 
+  overrideList:
+  - name: _DustSizeMin
+    displayName: _DustSizeMin
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 2
+    value: {x: 0.03, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _DustDensity
+    displayName: _DustDensity
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 2
+    value: {x: 1, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _DustTileDensity
+    displayName: _DustTileDensity
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 2
+    value: {x: 1, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _DustSizeMax
+    displayName: _DustSizeMax
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 2
+    value: {x: 0.01, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _ScrollSpeed
+    displayName: _ScrollSpeed
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 1
+    value: {x: 1, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _BackgroundColor
+    displayName: _BackgroundColor
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 0
+    value: {x: 0, y: 0, z: 0, w: 1}
+    instanceOverride: 0
+  - name: _DustColorMax
+    displayName: _DustColorMax
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 0
+    value: {x: 1, y: 1, z: 1, w: 1}
+    instanceOverride: 0
+  - name: _DustColorMin
+    displayName: _DustColorMin
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 0
+    value: {x: 0.7, y: 0.7, z: 0.7, w: 1}
+    instanceOverride: 0
+  - name: _UVScale
+    displayName: _UVScale
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 1
+    value: {x: 75, y: 100, z: 0, w: 0}
+    instanceOverride: 0
+  - name: _RandomSeed
+    displayName: _RandomSeed
+    shaderName: Assets/Scripts/Background/Dust/Shader/BackgroundDust.shader
+    materialName: BackgroundDustMaterial
+    type: 2
+    value: {x: 0, y: 0, z: 0, w: 0}
+    instanceOverride: 0
+  material: {fileID: 2100000, guid: 96ce08c485920444e87304569546d007, type: 2}
