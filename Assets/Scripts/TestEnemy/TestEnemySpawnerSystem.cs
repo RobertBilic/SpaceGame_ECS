@@ -14,7 +14,7 @@ partial struct TestEnemySpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         enemyQuery = state.GetEntityQuery(ComponentType.ReadOnly<Team2Tag>());
-        desiredEnemies = 100;
+        desiredEnemies = 200;
     }
 
     [BurstCompile]
@@ -40,7 +40,7 @@ partial struct TestEnemySpawnerSystem : ISystem
                 {
                     Position = new Unity.Mathematics.float3(x, y, 0.0f),
                     Rotation = quaternion.identity,
-                    Scale = 1
+                    Scale = 1.0f,
                 });
 
             }

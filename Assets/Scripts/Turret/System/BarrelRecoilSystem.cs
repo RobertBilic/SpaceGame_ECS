@@ -1,3 +1,4 @@
+using SpaceGame.Animations.Components;
 using SpaceGame.Combat.Systems;
 using Unity.Burst;
 using Unity.Entities;

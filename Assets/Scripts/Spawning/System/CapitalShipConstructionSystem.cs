@@ -21,12 +21,14 @@ public partial struct CapitalShipConstructionSystem : ISystem
                 Rotation = quaternion.identity,
                 Scale = request.ValueRO.Scale
             };
-
+            
             ecb.AddComponent(capitalShip, capitalShipTransform);
-            ecb.AddComponent<Team1Tag>(capitalShip);
-            ecb.AddComponent(capitalShip, new TeamTag() { Team = 0 });
-            ecb.AddComponent(capitalShip, new IsAlive() { Value = true });
+            ecb.AddComponent(capitalShip, new TeamTag() { Team = 1 });
+            ecb.AddComponent(capitalShip, new IsAlive() { });
             ecb.AddComponent(capitalShip, new SceneMovementData() { Value = 100.0f });
+            ecb.AddComponent(capitalShip, new TargetableTag());
+            ecb.AddComponent(capitalShip, new SpatialDatabaseCellIndex());
+            ecb.AddComponent(capitalShip, new Health() { Value = 99999999 });
 
             var buffer = ecb.AddBuffer<Waypoint>(capitalShip);
             buffer.Add(new Waypoint() { Position = new float3(10, 0, 0) });
@@ -53,8 +55,7 @@ public partial struct CapitalShipConstructionSystem : ISystem
                         Scale = turretBuffer[i].Scale
                     });
 
-                    ecb.AddComponent<Team1Tag>(turret);
-                    ecb.AddComponent(turret, new TeamTag() { Team = 0 });
+                    ecb.AddComponent(turret, new TeamTag() { Team = 1 });
 
                 }
             }

@@ -1,7 +1,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct FlowFieldCell : IBufferElementData
+namespace SpaceGame.Movement.Flowfield.Components
 {
-    public float2 Direction;  
+    public struct FlowFieldCell : IBufferElementData
+    {
+        public float2 Direction;
+    }
 }

@@ -13,6 +13,7 @@ namespace SpaceGame.Combat.Systems
         public bool isEnemyHit;
         public Entity HitEntity;
 
+        private int team;
         private EntityManager em;
 
         private float3 startR;
@@ -28,8 +29,9 @@ namespace SpaceGame.Combat.Systems
         private float3 endD;
 
 
-        public BulletCollisionDetector(EntityManager manager, float3 startR, float3 endR, float3 startL, float3 endL, float3 startU, float3 endU, float3 startD, float3 endD) : this()
+        public BulletCollisionDetector(EntityManager manager, int team, float3 startR, float3 endR, float3 startL, float3 endL, float3 startU, float3 endU, float3 startD, float3 endD) : this()
         {
+            this.team = team;
             this.em = manager;
             this.startR = startR;
             this.endR = endR;
@@ -49,10 +51,16 @@ namespace SpaceGame.Combat.Systems
             {
                 var element = elements[i];
 
+                if (em.HasComponent<TeamTag>(element.Entity))
+                {
+                    var targetTeam = em.GetComponentData<TeamTag>(element.Entity);
+                    if (targetTeam.Team == team)
+                        continue;
+                }
+
                 var shipTransform = em.GetComponentData<LocalTransform>(element.Entity);
                 var hitboxes = em.GetBuffer<HitBoxElement>(element.Entity);
                 var worldTransform = em.GetComponentData<LocalToWorld>(element.Entity);
-
 
                 float3 shipWorldPos = shipTransform.Position;
                 quaternion shipWorldRot = shipTransform.Rotation;
@@ -133,8 +141,6 @@ namespace SpaceGame.Combat.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-
-
             if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
             {
                 _CachedSpatialDatabase = new CachedSpatialDatabaseRO
@@ -155,8 +161,8 @@ namespace SpaceGame.Combat.Systems
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            foreach (var (bulletTransform, prevPos, bulletRadius, damage, bulletEntity)
-                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>>()
+            foreach (var (bulletTransform, prevPos, bulletRadius, damage, onHitPrefab, teamTag, bulletEntity)
+                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<OnHitEffectPrefab>, RefRO<TeamTag>>()
                          .WithAll<BulletTag>()
                          .WithEntityAccess())
             {
@@ -186,14 +192,25 @@ namespace SpaceGame.Combat.Systems
                 float3 endD = bulletEnd - upOffset;
 
 
-                var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, startR, endR, startL, endL, startU, endU, startD, endD);
+                var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, teamTag.ValueRO.Team, startR, endR, startL, endL, startU, endU, startD, endD);
                 SpatialDatabase.QueryAABB(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, bulletEnd, new float3(1.0f, 1.0f, 1.0f), ref bulletCollisionDetector);
 
                 if (bulletCollisionDetector.isEnemyHit)
                 {
-
                     var health = SystemAPI.GetComponentRW<Health>(bulletCollisionDetector.HitEntity);
                     health.ValueRW.Value -= damage.ValueRO.Value;
+
+                    var impactParticleRequest = ecb.CreateEntity();
+
+                    ecb.AddComponent(impactParticleRequest, new ImpactSpawnRequest()
+                    {
+                        Count = 10,
+                        Normal = math.up(),
+                        Position = bulletEnd,
+                        Prefab = onHitPrefab.ValueRO.Value,
+                        Scale = 3.0f
+                    }); 
+
 
                     ecb.DestroyEntity(bulletEntity);
                 }

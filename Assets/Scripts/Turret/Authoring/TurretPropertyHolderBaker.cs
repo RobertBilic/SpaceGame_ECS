@@ -1,40 +1,44 @@
+using SpaceGame.Animations.Components;
+using SpaceGame.Combat.Components;
 using Unity.Entities;
-using UnityEngine;
 
-
-class TurretPropertyHolderBakerBaker : Baker<TurretPropertyHolder>
+namespace SpaceGame.Combat.Authoring
 {
-    public override void Bake(TurretPropertyHolder authoring)
+    class TurretPropertyHolderBakerBaker : Baker<TurretPropertyHolder>
     {
-        var entity = GetEntity(TransformUsageFlags.Dynamic);
-
-        AddComponent(entity, new IsAlive() { Value = true });
-        AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
-        AddComponent(entity, new Range() { Value = authoring.Range });
-        AddComponent(entity, new Damage() { Value = authoring.Damage });
-        AddComponent(entity, new FiringRate() { Value = authoring.FiringRate });
-        AddComponent(entity, new LastFireTime() { Value = 0.0f });
-        AddComponent(entity, new Cooldown() { Value = 0 });
-        AddComponent(entity, new TurretTag());
-        AddComponent(entity, new TurretRotationBaseReference() { RotationBase = GetEntity(authoring.RotationBase, TransformUsageFlags.Dynamic) });
-        AddComponent(entity, new Heading() { Value = new Unity.Mathematics.float3(1, 0, 0)});
-        
-        if (authoring.RecoilTarget != null)
+        public override void Bake(TurretPropertyHolder authoring)
         {
-            AddComponent(entity, new BarrelRecoilReference()
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
+
+            AddComponent(entity, new IsAlive() { });
+            AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
+            AddComponent(entity, new Range() { Value = authoring.Range });
+            AddComponent(entity, new Damage() { Value = authoring.Damage });
+            AddComponent(entity, new FiringRate() { Value = authoring.FiringRate });
+            AddComponent(entity, new LastFireTime() { Value = 0.0f });
+            AddComponent(entity, new TurretTag());
+            AddComponent(entity, new RotationBaseReference() { RotationBase = GetEntity(authoring.RotationBase, TransformUsageFlags.Dynamic) });
+            AddComponent(entity, new Heading() { Value = new Unity.Mathematics.float3(1, 0, 0) });
+
+
+            AddComponent(entity, new BulletId() { Value = authoring.BulletId });
+            if (authoring.RecoilTarget != null)
             {
-                Duration = authoring.RecoilDuration,
-                MaxDistance = authoring.MaxRecoilDistance,
-                Entity = GetEntity(authoring.RecoilTarget, TransformUsageFlags.Dynamic),
-                DefaultPosition = authoring.RecoilTarget.transform.localPosition
-            });
-        }
+                AddComponent(entity, new BarrelRecoilReference()
+                {
+                    Duration = authoring.RecoilDuration,
+                    MaxDistance = authoring.MaxRecoilDistance,
+                    Entity = GetEntity(authoring.RecoilTarget, TransformUsageFlags.Dynamic),
+                    DefaultPosition = authoring.RecoilTarget.transform.localPosition
+                });
+            }
 
-        var spawnOffsetBuffer = AddBuffer<TurretProjectileSpawnOffset>(entity);
+            var spawnOffsetBuffer = AddBuffer<ProjectileSpawnOffset>(entity);
 
-        foreach(var offset in authoring.bulletSpawnPositionsLocal)
-        {
-            spawnOffsetBuffer.Add(new TurretProjectileSpawnOffset() { Value = offset });
+            foreach (var offset in authoring.bulletSpawnPositionsLocal)
+            {
+                spawnOffsetBuffer.Add(new ProjectileSpawnOffset() { Value = offset });
+            }
         }
     }
 }

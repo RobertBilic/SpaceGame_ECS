@@ -624,7 +624,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 731dab572f8525d4d9bd7b1e17fba0f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: {x: 3, y: 0}
+  speed: {x: 10, y: 0}
   dustLayers:
   - {fileID: 180328689}
   - {fileID: 399037580}

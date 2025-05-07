@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using SpaceGame.Combat.Components;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 

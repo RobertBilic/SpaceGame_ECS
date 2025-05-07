@@ -1,25 +1,29 @@
+using SpaceGame.Movement.Flowfield.Components;
 using Unity.Entities;
 using UnityEngine;
 
-public class FlowFieldAuthoring : MonoBehaviour
+namespace SpaceGame.Movement.Flowfield.Authoring
 {
-    [SerializeField]
-    private Vector2 WorldSize;
-    [SerializeField]
-    private float CellSize;
-
-    public class Baker : Baker<FlowFieldAuthoring>
+    public class FlowFieldAuthoring : MonoBehaviour
     {
-        public override void Bake(FlowFieldAuthoring authoring)
-        {
-            var entity = GetEntity(TransformUsageFlags.None);
-            AddComponent(entity, new FlowFieldSettings
-            {
-                WorldSize = authoring.WorldSize,
-                CellSize = authoring.CellSize
-            });
+        [SerializeField]
+        private Vector2 WorldSize;
+        [SerializeField]
+        private float CellSize;
 
-            AddBuffer<FlowFieldCell>(entity);
+        public class Baker : Baker<FlowFieldAuthoring>
+        {
+            public override void Bake(FlowFieldAuthoring authoring)
+            {
+                var entity = GetEntity(TransformUsageFlags.None);
+                AddComponent(entity, new FlowFieldSettings
+                {
+                    WorldSize = authoring.WorldSize,
+                    CellSize = authoring.CellSize
+                });
+
+                AddBuffer<FlowFieldCell>(entity);
+            }
         }
     }
 }

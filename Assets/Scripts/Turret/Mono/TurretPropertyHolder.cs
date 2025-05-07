@@ -4,20 +4,24 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-class TurretPropertyHolder : MonoBehaviour
+namespace SpaceGame.Combat.Authoring
 {
-    public GameObject RotationBase;
-    public float RotationSpeed;
+    class TurretPropertyHolder : MonoBehaviour
+    {
+        public GameObject RotationBase;
+        public float RotationSpeed;
 
-    public float Damage;
-    public float FiringRate;
-    public float Range;
+        public float Damage;
+        public float FiringRate;
+        public float Range;
 
-    [Header("Recoil")]
-    public GameObject RecoilTarget;
-    public float RecoilDuration;
-    public float MaxRecoilDistance;
+        [Header("Recoil")]
+        public GameObject RecoilTarget;
+        public float RecoilDuration;
+        public float MaxRecoilDistance;
 
-    [Header("Bullet Spawn Positions")]
-    public List<Vector3> bulletSpawnPositionsLocal;
+        [Header("Bullet")]
+        public string BulletId;
+        public List<Vector3> bulletSpawnPositionsLocal;
+    }
 }

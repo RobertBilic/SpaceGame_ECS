@@ -1,5 +1,7 @@
+using SpaceGame.Animations.Components;
 using SpaceGame.Combat.Components;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -11,32 +13,21 @@ namespace SpaceGame.Combat.Systems
     [UpdateAfter(typeof(TurretTargetingSystem))]
     partial struct TurretFiringSystem : ISystem
     {
-        BulletPrefabData prefabData;
-        bool isInitialized;
-
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<TurretTag>();
             state.RequireForUpdate<Target>();
+            state.RequireForUpdate<BulletPrefabLookupSingleton>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!isInitialized)
-            {
-                foreach (var bulletPrefabData in SystemAPI.Query<RefRO<BulletPrefabData>>().WithOptions(EntityQueryOptions.IncludePrefab))
-                {
-                    this.prefabData = bulletPrefabData.ValueRO;
-                    isInitialized = true;
-                    break;
-                }
-            }
-
-
-            if (!isInitialized)
+            if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
                 return;
+
+            ref var lookup = ref blobSingleton.Lookup.Value;
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
@@ -45,7 +36,6 @@ namespace SpaceGame.Combat.Systems
                     .WithEntityAccess())
             {
                 var lastFireTime = turretFiringAspect.LastFireTime;
-                var isAlive = turretFiringAspect.IsAlive;
                 var firingRate = turretFiringAspect.FiringRate;
                 var target = turretFiringAspect.Target;
                 var worldTransform = turretFiringAspect.WorldTransform;
@@ -54,11 +44,11 @@ namespace SpaceGame.Combat.Systems
                 var spawnOffset = turretFiringAspect.BulletSpawnOffsets;
                 var rotationBase = turretFiringAspect.RotationBaseReference;
                 var damage = turretFiringAspect.Damage;
+                var teamTag = turretFiringAspect.TeamTag.ValueRO;
+                var bulletId = turretFiringAspect.BulletId.ValueRO;
 
                 double elapsedSinceLastFire = SystemAPI.Time.ElapsedTime - lastFireTime.ValueRW.Value;
 
-                if (!isAlive.ValueRO.Value)
-                    continue;
 
                 if (elapsedSinceLastFire < (1f / firingRate.ValueRO.Value))
                     continue;
@@ -66,11 +56,22 @@ namespace SpaceGame.Combat.Systems
                 if (target.ValueRO.Value == Entity.Null || !SystemAPI.Exists(target.ValueRO.Value))
                     continue;
 
+                if (!SystemAPI.HasComponent<LocalToWorld>(target.ValueRO.Value))
+                    continue;
+
+                var prefabData = lookup.GetPrefab(bulletId.Value);
+
+                if(prefabData.Entity == Entity.Null || !state.EntityManager.Exists(prefabData.Entity))
+                {
+                    UnityEngine.Debug.LogWarning($"Bullet prefab doesn't exist: {bulletId.Value}");
+                    continue;
+                }
+
                 if (state.EntityManager.HasComponent<IsAlive>(target.ValueRO.Value))
                 {
-                    var targetIsAlive = state.EntityManager.GetComponentData<IsAlive>(target.ValueRO.Value);
+                    var targetIsAlive = state.EntityManager.HasComponent<IsAlive>(target.ValueRO.Value);
 
-                    if (!targetIsAlive.Value)
+                    if (!targetIsAlive)
                     {
                         continue;
                     }
@@ -88,7 +89,7 @@ namespace SpaceGame.Combat.Systems
                     continue;
 
 
-                var lifeTime = range.ValueRO.Value / prefabData.BulletSpeed;
+                var lifeTime = range.ValueRO.Value / prefabData.Speed;
                 lastFireTime.ValueRW.Value = SystemAPI.Time.ElapsedTime;
 
                 var rotationBaseLocalToWorld = SystemAPI.GetComponent<LocalToWorld>(rotationBase.ValueRO.RotationBase);
@@ -108,11 +109,13 @@ namespace SpaceGame.Combat.Systems
 
                     ecb.AddComponent(bulletEntity, new BulletTag());
                     ecb.AddComponent(bulletEntity, new Lifetime { Value = lifeTime });
-                    ecb.AddComponent(bulletEntity, new MoveSpeed() { Value = prefabData.BulletSpeed });
+                    ecb.AddComponent(bulletEntity, new MoveSpeed() { Value = prefabData.Speed });
                     ecb.AddComponent(bulletEntity, new Heading() { Value = heading.ValueRO.Value });
                     ecb.AddComponent(bulletEntity, new Radius() { Value = prefabData.Scale });
                     ecb.AddComponent(bulletEntity, new PreviousPosition() { Value = spawnPosition });
                     ecb.AddComponent(bulletEntity, new Damage() { Value = damage.ValueRO.Value });
+                    ecb.AddComponent(bulletEntity, new TeamTag() { Team = teamTag.Team });
+                    ecb.AddComponent(bulletEntity, new OnHitEffectPrefab() { Value = prefabData.OnHitEntity });
                 }
 
                 if (SystemAPI.HasComponent<BarrelRecoilReference>(entity))

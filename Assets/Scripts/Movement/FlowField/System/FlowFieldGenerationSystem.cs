@@ -1,74 +1,78 @@
+using SpaceGame.Movement.Flowfield.Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[BurstCompile]
-[UpdateInGroup(typeof(InitializationSystemGroup))]
-public partial struct FlowFieldGenerationSystem : ISystem
+namespace SpaceGame.Movement.Flowfield.Systems
 {
-    EntityQuery capitalShipQuery;
-    EntityQuery flowFieldQuery;
-
-    float3 lastTargetPosition;
-    float updateCooldown;
-    const float UpdateInterval = 1.0f; 
-    const float PositionThreshold = 1.0f; 
-
-    public void OnCreate(ref SystemState state)
+    [BurstCompile]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    public partial struct FlowFieldGenerationSystem : ISystem
     {
-        capitalShipQuery = state.GetEntityQuery(ComponentType.ReadOnly<CapitalShipTag>(), ComponentType.ReadOnly<LocalTransform>());
-        flowFieldQuery = state.GetEntityQuery(ComponentType.ReadWrite<FlowFieldSettings>(), ComponentType.ReadWrite<FlowFieldCell>());
-        updateCooldown = 0f;
-    }
+        EntityQuery capitalShipQuery;
+        EntityQuery flowFieldQuery;
 
-    public void OnUpdate(ref SystemState state) 
-    {
-        if (capitalShipQuery.IsEmptyIgnoreFilter || flowFieldQuery.IsEmptyIgnoreFilter)
-            return;
+        float3 lastTargetPosition;
+        float updateCooldown;
+        const float UpdateInterval = 1.0f;
+        const float PositionThreshold = 1.0f;
 
-        var capitalShip = capitalShipQuery.GetSingletonEntity();
-        var shipTransform = state.EntityManager.GetComponentData<LocalTransform>(capitalShip);
-        float3 targetPosition = shipTransform.Position;
-
-        updateCooldown -= SystemAPI.Time.DeltaTime;
-        if (updateCooldown > 0f)
-            return;
-
-        if (math.distance(targetPosition, lastTargetPosition) < PositionThreshold)
-            return; 
-
-        updateCooldown = UpdateInterval;
-        lastTargetPosition = targetPosition;
-
-        var flowFieldEntity = flowFieldQuery.GetSingletonEntity();
-        var settings = state.EntityManager.GetComponentData<FlowFieldSettings>(flowFieldEntity);
-        var buffer = state.EntityManager.GetBuffer<FlowFieldCell>(flowFieldEntity);
-
-        int gridX = (int)math.ceil(settings.WorldSize.x / settings.CellSize);
-        int gridY = (int)math.ceil(settings.WorldSize.y / settings.CellSize);
-
-        if (buffer.Length != gridX * gridY)
+        public void OnCreate(ref SystemState state)
         {
-            buffer.Clear();
-            for (int i = 0; i < gridX * gridY; i++)
-            {
-                buffer.Add(new FlowFieldCell { Direction = float2.zero });
-            }
+            capitalShipQuery = state.GetEntityQuery(ComponentType.ReadOnly<CapitalShipTag>(), ComponentType.ReadOnly<LocalTransform>());
+            flowFieldQuery = state.GetEntityQuery(ComponentType.ReadWrite<FlowFieldSettings>(), ComponentType.ReadWrite<FlowFieldCell>());
+            updateCooldown = 0f;
         }
 
-        for (int y = 0; y < gridY; y++)
+        public void OnUpdate(ref SystemState state)
         {
-            for (int x = 0; x < gridX; x++)
+            if (capitalShipQuery.IsEmptyIgnoreFilter || flowFieldQuery.IsEmptyIgnoreFilter)
+                return;
+
+            var capitalShip = capitalShipQuery.GetSingletonEntity();
+            var shipTransform = state.EntityManager.GetComponentData<LocalTransform>(capitalShip);
+            float3 targetPosition = shipTransform.Position;
+
+            updateCooldown -= SystemAPI.Time.DeltaTime;
+            if (updateCooldown > 0f)
+                return;
+
+            if (math.distance(targetPosition, lastTargetPosition) < PositionThreshold)
+                return;
+
+            updateCooldown = UpdateInterval;
+            lastTargetPosition = targetPosition;
+
+            var flowFieldEntity = flowFieldQuery.GetSingletonEntity();
+            var settings = state.EntityManager.GetComponentData<FlowFieldSettings>(flowFieldEntity);
+            var buffer = state.EntityManager.GetBuffer<FlowFieldCell>(flowFieldEntity);
+
+            int gridX = (int)math.ceil(settings.WorldSize.x / settings.CellSize);
+            int gridY = (int)math.ceil(settings.WorldSize.y / settings.CellSize);
+
+            if (buffer.Length != gridX * gridY)
             {
-                float2 worldPos = new float2(
-                    (x + 0.5f) * settings.CellSize - settings.WorldSize.x * 0.5f,
-                    (y + 0.5f) * settings.CellSize - settings.WorldSize.y * 0.5f
-                );
+                buffer.Clear();
+                for (int i = 0; i < gridX * gridY; i++)
+                {
+                    buffer.Add(new FlowFieldCell { Direction = float2.zero });
+                }
+            }
 
-                float2 dirToTarget = math.normalize(new float2(targetPosition.x, targetPosition.y) - worldPos);
+            for (int y = 0; y < gridY; y++)
+            {
+                for (int x = 0; x < gridX; x++)
+                {
+                    float2 worldPos = new float2(
+                        (x + 0.5f) * settings.CellSize - settings.WorldSize.x * 0.5f,
+                        (y + 0.5f) * settings.CellSize - settings.WorldSize.y * 0.5f
+                    );
 
-                buffer[y * gridX + x] = new FlowFieldCell { Direction = dirToTarget };
+                    float2 dirToTarget = math.normalize(new float2(targetPosition.x, targetPosition.y) - worldPos);
+
+                    buffer[y * gridX + x] = new FlowFieldCell { Direction = dirToTarget };
+                }
             }
         }
     }

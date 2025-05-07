@@ -1,11 +1,16 @@
+using Unity.Collections;
 using Unity.Entities;
 
 namespace SpaceGame.Combat.Components
 {
-    public struct BulletPrefabData : IComponentData
+    public struct BulletPrefab : IComponentData
     {
+        public FixedString32Bytes Id; 
+
         public Entity Entity;
-        public float BulletSpeed;
         public float Scale;
+        public float Speed;
+
+        public Entity OnHitEntity;
     }
 }

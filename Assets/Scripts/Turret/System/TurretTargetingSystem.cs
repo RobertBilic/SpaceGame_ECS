@@ -1,123 +1,146 @@
+using SpaceGame.Combat.Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[BurstCompile]
-[UpdateInGroup(typeof(CombatSystemGroup))]
-partial struct TurretTargetingSystem : ISystem
+namespace SpaceGame.Combat.Systems
 {
-
     [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    [UpdateInGroup(typeof(CombatSystemGroup))]
+    partial struct TurretTargetingSystem : ISystem
     {
-        state.RequireForUpdate<TurretTag>();
+        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
 
-    }
+        private ComponentLookup<SpatialDatabase> spatialDatabaseLookup;
+        private BufferLookup<SpatialDatabaseCell> spatialDatabaseCellLookup;
+        private BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
 
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
-    {
-        float deltaTime = SystemAPI.Time.DeltaTime;
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        foreach (var (transform, rotationSpeed, range, isAlive, rotationBase, entity)
-                 in SystemAPI.Query<RefRW<LocalTransform>, RefRO<RotationSpeed>, RefRO<Range>, RefRO<IsAlive>, RefRO<TurretRotationBaseReference>>()
-                     .WithAll<TurretTag, LocalToWorld>()
-                     .WithEntityAccess())
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
         {
-            if (!isAlive.ValueRO.Value)
-                continue;
+            state.RequireForUpdate<TurretTag>();
+            state.RequireForUpdate<SpatialDatabaseSingleton>();
 
-            float3 turretPosition = SystemAPI.GetComponent<LocalToWorld>(entity).Position;
+            spatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true);
+            spatialDatabaseCellLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true);
+            spatialDatabaseElementLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true);
+        }
 
-            bool alreadyHasTarget = SystemAPI.HasComponent<Target>(entity);
-            Entity targetEntity = Entity.Null;
-
-            if (alreadyHasTarget)
+        [BurstCompile]
+        public void OnUpdate(ref SystemState state)
+        {
+            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
             {
-                targetEntity = SystemAPI.GetComponent<Target>(entity).Value;
+                spatialDatabaseCellLookup.Update(ref state);
+                spatialDatabaseElementLookup.Update(ref state);
+                spatialDatabaseLookup.Update(ref state);
 
-                if (!SystemAPI.Exists(targetEntity) || !SystemAPI.GetComponent<IsAlive>(targetEntity).Value ||
-                    math.distancesq(turretPosition, SystemAPI.GetComponent<LocalToWorld>(targetEntity).Position) > range.ValueRO.Value * range.ValueRO.Value)
+                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
                 {
-                    ecb.RemoveComponent<Target>(entity);
-                    targetEntity = Entity.Null;
-                }
+                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
+                    SpatialDatabaseLookup = spatialDatabaseLookup,
+                    CellsBufferLookup = spatialDatabaseCellLookup,
+                    ElementsBufferLookup = spatialDatabaseElementLookup
+                };
+
+                _CachedSpatialDatabase.CacheData();
+            }
+            else
+            {
+                return;
             }
 
-            if (targetEntity == Entity.Null)
-            {
-                Entity closestEnemy = Entity.Null;
-                float closestDistanceSq = float.MaxValue;
+            float deltaTime = SystemAPI.Time.DeltaTime;
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-                foreach (var (enemyTransform, enemyIsAlive, enemyEntity) in SystemAPI.Query<RefRO<LocalToWorld>, RefRO<IsAlive>>()
-                         .WithAll<Team2Tag>()
+            foreach (var (transform, rotationSpeed, range, isAlive, rotationBase, teamTag, entity)
+                     in SystemAPI.Query<RefRW<LocalToWorld>, RefRO<RotationSpeed>, RefRO<Range>, RefRO<IsAlive>, RefRO<RotationBaseReference>, RefRO<TeamTag>>()
+                         .WithAll<TurretTag, LocalToWorld>()
                          .WithEntityAccess())
+            {
+                float3 turretPosition = transform.ValueRO.Position;
+
+                bool alreadyHasTarget = SystemAPI.HasComponent<Target>(entity);
+                Entity targetEntity = Entity.Null;
+
+                if (alreadyHasTarget)
                 {
-                    if (!enemyIsAlive.ValueRO.Value)
-                        continue;
+                    targetEntity = SystemAPI.GetComponent<Target>(entity).Value;
 
-                    float distanceSq = math.distancesq(turretPosition, enemyTransform.ValueRO.Position);
-
-                    if (distanceSq < closestDistanceSq && distanceSq <= range.ValueRO.Value * range.ValueRO.Value)
+                    if (targetEntity == Entity.Null || !SystemAPI.Exists(targetEntity)
+                        || (!SystemAPI.HasComponent<IsAlive>(targetEntity))
+                        || (SystemAPI.HasComponent<LocalToWorld>(targetEntity) && (math.distancesq(turretPosition, SystemAPI.GetComponent<LocalToWorld>(targetEntity).Position) > range.ValueRO.Value * range.ValueRO.Value)))
                     {
-                        closestDistanceSq = distanceSq;
-                        closestEnemy = enemyEntity;
+                        ecb.RemoveComponent<Target>(entity);
+                        targetEntity = Entity.Null;
                     }
                 }
 
-                if (closestEnemy != Entity.Null)
+                if (targetEntity == Entity.Null)
                 {
-                    targetEntity = closestEnemy;
-                    ecb.AddComponent(entity, new Target() { Value = targetEntity });
+
+                    var turretTargetingCollector = new RangeBasedTargetingCollector(state.EntityManager, turretPosition, range.ValueRO.Value, teamTag.ValueRO.Team);
+                    SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, turretPosition, range.ValueRO.Value,ref turretTargetingCollector);
+
+                    Entity closestEnemy = turretTargetingCollector.collectedEnemy;
+
+                    if (closestEnemy != Entity.Null)
+                    {
+                        targetEntity = closestEnemy;
+                        ecb.AddComponent(entity, new Target() { Value = targetEntity });
+                    }
+                }
+
+                if (targetEntity != Entity.Null)
+                {
+                    if (!SystemAPI.HasComponent<LocalToWorld>(targetEntity))
+                        continue;
+
+                    var enemyPosition = SystemAPI.GetComponent<LocalToWorld>(targetEntity).Position;
+                    quaternion parentWorldRotation = quaternion.identity;
+
+                    if (SystemAPI.HasComponent<Parent>(rotationBase.ValueRO.RotationBase))
+                    {
+                        var parent = SystemAPI.GetComponent<Parent>(rotationBase.ValueRO.RotationBase);
+                        parentWorldRotation = SystemAPI.GetComponent<LocalToWorld>(parent.Value).Rotation;
+                    }
+
+                    float3 direction = math.normalize(enemyPosition - turretPosition);
+                    float angle = math.atan2(direction.y, direction.x);
+                    quaternion desiredWorldRotation = quaternion.RotateZ(angle);
+
+                    quaternion desiredLocalRotation = desiredWorldRotation;
+
+                    if (!parentWorldRotation.Equals(quaternion.identity))
+                        desiredLocalRotation = math.mul(math.inverse(parentWorldRotation), desiredWorldRotation);
+
+
+                    var rotationTransform = SystemAPI.GetComponentRW<LocalTransform>(rotationBase.ValueRO.RotationBase);
+
+                    rotationTransform.ValueRW.Rotation = math.slerp(
+                        rotationTransform.ValueRW.Rotation,
+                        desiredLocalRotation,
+                        rotationSpeed.ValueRO.Value * deltaTime
+                    );
+
+                    quaternion worldRotation = parentWorldRotation.Equals(quaternion.identity) ? rotationTransform.ValueRW.Rotation
+                        : math.mul(parentWorldRotation, rotationTransform.ValueRW.Rotation);
+
+
+                    ecb.SetComponent(entity, new Heading() { Value = math.mul(worldRotation, new float3(1, 0, 0)) });
                 }
             }
 
-            if (targetEntity != Entity.Null)
-            {
-                var enemyPosition = SystemAPI.GetComponent<LocalToWorld>(targetEntity).Position;
-                quaternion parentWorldRotation = quaternion.identity;
-
-                if (SystemAPI.HasComponent<Parent>(rotationBase.ValueRO.RotationBase))
-                {
-                    var parent = SystemAPI.GetComponent<Parent>(rotationBase.ValueRO.RotationBase);
-                    parentWorldRotation = SystemAPI.GetComponent<LocalToWorld>(parent.Value).Rotation;
-                }
-
-                float3 direction = math.normalize(enemyPosition - turretPosition);
-                float angle = math.atan2(direction.y, direction.x);
-                quaternion desiredWorldRotation = quaternion.RotateZ(angle);
-
-                quaternion desiredLocalRotation = desiredWorldRotation;
-
-                if (!parentWorldRotation.Equals(quaternion.identity))
-                    desiredLocalRotation = math.mul(math.inverse(parentWorldRotation), desiredWorldRotation);
-
-
-                var rotationTransform = SystemAPI.GetComponentRW<LocalTransform>(rotationBase.ValueRO.RotationBase);
-
-                rotationTransform.ValueRW.Rotation = math.slerp(
-                    rotationTransform.ValueRW.Rotation,
-                    desiredLocalRotation,
-                    rotationSpeed.ValueRO.Value * deltaTime
-                );
-
-                quaternion worldRotation = parentWorldRotation.Equals(quaternion.identity) ? rotationTransform.ValueRW.Rotation
-                    : math.mul(parentWorldRotation, rotationTransform.ValueRW.Rotation);
-
-
-                ecb.SetComponent(entity, new Heading() { Value = math.mul(worldRotation, new float3(1, 0, 0)) });
-            }
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
 
-        ecb.Playback(state.EntityManager);
-        ecb.Dispose();
-    }
-
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state)
-    {
+        [BurstCompile]
+        public void OnDestroy(ref SystemState state)
+        {
+        }
     }
 }

@@ -76,12 +76,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 50
-  m_Sprite: {fileID: 3698323258275093248, guid: df4c26dc6e7b80549b2892d61e387dd4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: df4c26dc6e7b80549b2892d61e387dd4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 9.99, y: 13.98}
+  m_Size: {x: 10.24, y: 15.36}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -132,6 +132,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 844b36b2eab1d664ba8299b40d46bd70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Hitboxes: []
+  Hitboxes:
+  - LocalCenter: {x: 0.2, y: 0, z: 0}
+    HalfExtents: {x: 6.5, y: 1, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -0.6, y: 1.32, z: 0}
+    HalfExtents: {x: 6, y: 0.25, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -2.72, y: 2.28, z: 0}
+    HalfExtents: {x: 3.8, y: 0.77, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -1.77, y: 4.02, z: 0}
+    HalfExtents: {x: 1.64, y: 0.9, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -0.6, y: -1.32, z: 0}
+    HalfExtents: {x: 6, y: 0.25, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -2.72, y: -2.28, z: 0}
+    HalfExtents: {x: 3.8, y: 0.77, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
+  - LocalCenter: {x: -1.77, y: -4.02, z: 0}
+    HalfExtents: {x: 1.64, y: 0.9, z: 1}
+    LocalRotationEuler: {x: 0, y: 0, z: 0}
   MoveSpeed: 2
   RotationSpeed: 10

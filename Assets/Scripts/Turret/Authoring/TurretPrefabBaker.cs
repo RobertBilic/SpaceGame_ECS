@@ -1,28 +1,27 @@
+using SpaceGame.Combat.Components;
 using Unity.Entities;
 using UnityEngine;
 
-class TurretPrefabBaker : MonoBehaviour
+namespace SpaceGame.Combat.Authoring
 {
-    public TurretPropertyHolder Prefab;
-}
-
-class TurretPrefabBakerBaker : Baker<TurretPrefabBaker>
-{
-    public override void Bake(TurretPrefabBaker authoring)
+    class TurretPrefabBaker : MonoBehaviour
     {
-        var rootEntity = GetEntity(TransformUsageFlags.None);
-        var prefabEntity = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic);
-
-        AddComponent(rootEntity, new TurretPrefab() { 
-            PrefabEntity = prefabEntity
-        });
-
-        AddComponent<Prefab>(rootEntity);
+        public TurretPropertyHolder Prefab;
     }
-}
 
+    class TurretPrefabBakerBaker : Baker<TurretPrefabBaker>
+    {
+        public override void Bake(TurretPrefabBaker authoring)
+        {
+            var rootEntity = GetEntity(TransformUsageFlags.None);
+            var prefabEntity = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic);
 
-public struct TurretPrefab : IComponentData
-{
-    public Entity PrefabEntity;
+            AddComponent(rootEntity, new TurretPrefab()
+            {
+                PrefabEntity = prefabEntity
+            });
+
+            AddComponent<Prefab>(rootEntity);
+        }
+    }
 }

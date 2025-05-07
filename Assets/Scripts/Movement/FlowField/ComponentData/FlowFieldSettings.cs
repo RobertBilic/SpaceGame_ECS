@@ -1,8 +1,11 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct FlowFieldSettings : IComponentData
+namespace SpaceGame.Movement.Flowfield.Components
 {
-    public float2 WorldSize;    
-    public float CellSize;      
+    public struct FlowFieldSettings : IComponentData
+    {
+        public float2 WorldSize;
+        public float CellSize;
+    }
 }

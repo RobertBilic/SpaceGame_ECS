@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct TurretTag : IComponentData
+namespace SpaceGame.Combat.Components
 {
-    
+    public struct TurretTag : IComponentData
+    {
+
+    }
 }

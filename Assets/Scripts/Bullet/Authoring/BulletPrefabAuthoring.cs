@@ -6,9 +6,21 @@ namespace SpaceGame.Combat.Authoring
 {
     class BulletPrefabAuthoring : MonoBehaviour
     {
+        public string Id;
+
         public GameObject Prefab;
+        public GameObject OnEffectPrefab;
+
         public float BulletSpeed;
         public float Scale;
+
+        private void OnValidate()
+        {
+            if(Id.Length > 29)
+            {
+                UnityEngine.Debug.LogError("Strings must have less than 30 characters since we use FixedString32Bytes");
+            }
+        }
     }
 
     class BulletPrefabAuthoringBaker : Baker<BulletPrefabAuthoring>
@@ -18,14 +30,15 @@ namespace SpaceGame.Combat.Authoring
             var entity = GetEntity(TransformUsageFlags.None);
             var prefabEntity = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic);
 
-
             AddComponent<Prefab>(entity);
-            AddComponent(entity, new BulletPrefabData()
+            AddComponent(entity, new BulletPrefab()
             {
                 Entity = prefabEntity,
-                BulletSpeed = authoring.BulletSpeed,
-                Scale = authoring.Scale
-            });
+                Scale = authoring.Scale,
+                OnHitEntity = GetEntity(authoring.OnEffectPrefab, TransformUsageFlags.Dynamic),
+                Speed = authoring.BulletSpeed,
+                Id = authoring.Id
+            }); 
         }
     }
 }
