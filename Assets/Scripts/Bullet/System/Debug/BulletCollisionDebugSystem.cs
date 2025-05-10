@@ -29,7 +29,7 @@ namespace SpaceGame.Debug.Systems
                 UnityEngine.Debug.DrawLine(prevPos.ValueRO.Value, transform.ValueRO.Position, bulletColor);
             }
 
-            foreach (var (shipTransform, hitboxes) in SystemAPI.Query<RefRO<LocalTransform>, DynamicBuffer<HitBoxElement>>())
+            foreach (var (shipTransform, hitboxes) in SystemAPI.Query<RefRO<LocalToWorld>, DynamicBuffer<HitBoxElement>>())
             {
                 float3 shipWorldPos = shipTransform.ValueRO.Position;
 
@@ -42,18 +42,20 @@ namespace SpaceGame.Debug.Systems
 
                 foreach (var hitbox in hitboxes)
                 {
-                    DrawHitbox(shipWorldPos, flatRotation, hitbox, hitboxColor);
+                    DrawHitbox(shipTransform.ValueRO, shipWorldPos, flatRotation, hitbox, hitboxColor);
                 }
             }
         }
 
-        private void DrawHitbox(float3 shipPos, quaternion shipRot, HitBoxElement hitbox, Color color)
+        private void DrawHitbox(LocalToWorld worldTransform,float3 shipPos, quaternion shipRot, HitBoxElement hitbox, Color color)
         {
-            float3 centerWorld = shipPos + math.mul(shipRot, hitbox.LocalCenter);
+            float3 centerWorld = shipPos + math.mul(shipRot, hitbox.LocalCenter * worldTransform.Value.Scale());
             quaternion rotWorld = math.mul(shipRot, hitbox.Rotation);
 
-            float3 right = math.mul(rotWorld, new float3(1, 0, 0)) * hitbox.HalfExtents.x;
-            float3 up = math.mul(rotWorld, new float3(0, 1, 0)) * hitbox.HalfExtents.y;
+            float3 halfExtents = hitbox.HalfExtents * worldTransform.Value.Scale();
+
+            float3 right = math.mul(rotWorld, new float3(1, 0, 0)) * halfExtents.x;
+            float3 up = math.mul(rotWorld, new float3(0, 1, 0)) * halfExtents.y;
 
             UnityEngine.Debug.DrawLine(centerWorld - right - up, centerWorld + right - up, color);
             UnityEngine.Debug.DrawLine(centerWorld + right - up, centerWorld + right + up, color);

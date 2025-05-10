@@ -7,10 +7,11 @@ public class CameraFollow : MonoBehaviour
 {
     public Entity targetEntity;
     private EntityManager em;
-    private Camera cam; 
+    private Camera cam;
 
     public Vector3 offset = new Vector3(0, 0, -10);
     private Vector3 moveVelocity;
+    private Vector3 manualPanPosition;
 
     [SerializeField]
     private float followSmoothTime = 0.3f;
@@ -20,76 +21,98 @@ public class CameraFollow : MonoBehaviour
     private float minZoom = 20f;
     [SerializeField]
     private float maxZoom = 50f;
+    [SerializeField]
+    private float panSpeed = 50.0f;
+    [SerializeField]
+    private float recentreDelay = 3f;
 
     private float currentZoom = 30f;
+    private float timeSinceLastInput = 0f;
+    private bool isRecentering = false;
 
     private void Start()
     {
         em = World.DefaultGameObjectInjectionWorld.EntityManager;
-        cam = GetComponent<Camera>(); 
-        if (cam == null)
-        {
-            Debug.LogError("CameraFollow script must be attached to a Camera GameObject!");
-        }
+        cam = GetComponent<Camera>();
 
-        if (!cam.orthographic)
-        {
-            Debug.LogWarning("Camera is not orthographic! Zoom will still affect orthographicSize but perspective cameras behave differently.");
-        }
+        if (!cam) Debug.LogError("Attach to Camera!");
+        cam.orthographicSize = currentZoom;
 
-        cam.orthographicSize = currentZoom; 
+        manualPanPosition = transform.position;
+        timeSinceLastInput = float.PositiveInfinity;
     }
 
     private void LateUpdate()
     {
+        HandleZoom();
+        HandleManualPan();
+
         if (targetEntity == Entity.Null || !em.Exists(targetEntity))
         {
             EntityQuery query = em.CreateEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[] {
-                ComponentType.ReadOnly<MoveSpeed>(),
-                ComponentType.ReadOnly<CapitalShipTag>()
+                    ComponentType.ReadOnly<MoveSpeed>(),
+                    ComponentType.ReadOnly<CapitalShipTag>()
                 },
                 Options = EntityQueryOptions.Default
             });
 
-            if(query.CalculateEntityCount() == 1)
-            {
+            if (query.CalculateEntityCount() == 1)
                 targetEntity = query.GetSingletonEntity();
+        }
+
+        if (em.HasComponent<LocalTransform>(targetEntity))
+        {
+            var shipTransform = em.GetComponentData<LocalTransform>(targetEntity);
+            Vector3 targetPos = (Vector3)shipTransform.Position + offset.normalized;
+            targetPos.z = -20f;
+
+            if (isRecentering)
+            {
+                manualPanPosition = Vector3.SmoothDamp(
+                    manualPanPosition,
+                    targetPos,
+                    ref moveVelocity,
+                    followSmoothTime
+                );
+
+                if (Vector3.Distance(manualPanPosition, targetPos) < 0.1f)
+                    isRecentering = false;
             }
         }
 
-        if (!em.HasComponent<LocalTransform>(targetEntity))
-            return;
-
-        var shipTransform = em.GetComponentData<LocalTransform>(targetEntity);
-
-        HandleZoom();
-
-        Vector3 targetPosition = shipTransform.Position;
-        Vector3 desiredPosition = targetPosition + offset.normalized;
-        desiredPosition.z = -20.0f;
-
-        transform.position = Vector3.SmoothDamp(
-            transform.position,
-            desiredPosition,
-            ref moveVelocity,
-            followSmoothTime
-        );
+        transform.position = manualPanPosition;
     }
 
     private void HandleZoom()
     {
         float scroll = Input.mouseScrollDelta.y;
-
-        if (Mathf.Abs(scroll) > 0.01f) 
-        {
+        if (Mathf.Abs(scroll) > 0.01f)
             currentZoom = Mathf.Clamp(currentZoom - scroll * zoomSpeed, minZoom, maxZoom);
-        }
 
         if (cam != null)
+            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, currentZoom, Time.deltaTime * 10f);
+    }
+
+    private void HandleManualPan()
+    {
+        Vector2 input = new Vector2(
+            Input.GetKey(KeyCode.D) ? 1 : Input.GetKey(KeyCode.A) ? -1 : 0,
+            Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? -1 : 0
+        );
+
+        if (input != Vector2.zero)
         {
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, currentZoom, Time.deltaTime * 10f); 
+            manualPanPosition += (Vector3)(input * panSpeed * Time.deltaTime);
+            timeSinceLastInput = 0f;
+            isRecentering = false;
+        }
+        else
+        {
+            timeSinceLastInput += Time.deltaTime;
+            if (timeSinceLastInput > recentreDelay)
+                isRecentering = true;
         }
     }
 }

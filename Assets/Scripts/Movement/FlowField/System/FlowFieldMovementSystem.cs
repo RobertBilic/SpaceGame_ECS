@@ -8,7 +8,7 @@ using Unity.Transforms;
 
 namespace SpaceGame.Movement.Flowfield.Systems
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateInGroup(typeof(CombatMovementGroup))]
     public partial class ShipMovementSystem : SystemBase
     {
         private EntityQuery flowFieldQuery;
@@ -69,6 +69,8 @@ namespace SpaceGame.Movement.Flowfield.Systems
             Dependency = job.ScheduleParallel(Dependency);
             ecbSystem.AddJobHandleForProducer(Dependency);
             buffer.Dispose(Dependency);
+
+            Dependency.Complete();
         }
     }
 }

@@ -76,7 +76,7 @@ namespace SpaceGame.Combat.Systems
                 {
                     var hitbox = hitboxes[j];
 
-                    float3 hitboxWorldCenter = shipWorldPos + math.mul(flatRotation, hitbox.LocalCenter);
+                    float3 hitboxWorldCenter = shipWorldPos + math.mul(flatRotation, hitbox.LocalCenter * worldTransform.Value.Scale());
                     quaternion hitboxWorldRotation = math.mul(flatRotation, hitbox.Rotation);
 
                     float4x4 hitboxWorldToLocal = math.inverse(new float4x4(hitboxWorldRotation, hitboxWorldCenter));
@@ -126,7 +126,7 @@ namespace SpaceGame.Combat.Systems
 
 
     [BurstCompile]
-    [UpdateInGroup(typeof(CombatSystemGroup))]
+    [UpdateInGroup(typeof(CombatCollisionGroup))]
     [UpdateAfter(typeof(BulletMovementSystem))]
     partial struct BulletCollisionSystem : ISystem
     {

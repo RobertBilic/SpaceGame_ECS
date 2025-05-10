@@ -35,7 +35,7 @@ class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
             SmoothSpeed = authoring.BankingSmoothSpeed
         });
         AddComponent<TargetableTag>(entity);
-        AddComponent(entity, new SpatialDatabaseCellIndex());
+        AddBuffer<SpatialDatabaseCellIndex>(entity);
         AddComponent(entity, new Target());
         var weaponBuffer = AddBuffer<ForwardWeaponElement>(entity);
 

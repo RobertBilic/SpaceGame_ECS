@@ -63,6 +63,7 @@ public class CapitalShipSpawner : MonoBehaviour
                 });
 
                 var buffer = em.AddBuffer<CapitalShipTurret>(entity);
+            /*
                 buffer.Add(new CapitalShipTurret()
                 {
                     Position = new float3(5.0f, 0.0f, 0.0f),
@@ -93,6 +94,7 @@ public class CapitalShipSpawner : MonoBehaviour
                     Scale = 0.2f,
                     TurretPrefab = turretPrefabBakerData.PrefabEntity,
                 });
+            */
             }
         }
     }

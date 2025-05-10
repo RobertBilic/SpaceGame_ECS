@@ -1,8 +1,10 @@
 using SpaceGame.Combat.Components;
+using System;
 using Unity.Entities;
 
 namespace SpaceGame.Combat.Systems
 {
+   [UpdateInGroup(typeof(CombatTargetingGroup))]
     public partial struct ForwardWeaponTargetingSystem : ISystem
     {
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
@@ -13,7 +15,7 @@ namespace SpaceGame.Combat.Systems
         private ComponentLookup<ForwardWeapon> forwardWeaponLookup;
 
 
-        public void OnCreate(ref SystemState state)
+      public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<ForwardWeapon>();
 

@@ -9,7 +9,7 @@ using Unity.Transforms;
 namespace SpaceGame.Combat.Systems
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(CombatSystemGroup))]
+    [UpdateInGroup(typeof(CombatTargetingGroup))]
     partial struct TurretTargetingSystem : ISystem
     {
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;

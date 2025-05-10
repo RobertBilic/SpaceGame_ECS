@@ -32,7 +32,8 @@ public struct SpatialDatabaseElement : IBufferElementData
     public byte Team;
 }
 
-public struct SpatialDatabaseCellIndex : IComponentData
+[InternalBufferCapacity(32)]
+public struct SpatialDatabaseCellIndex : IBufferElementData
 {
     public int CellIndex;
 }

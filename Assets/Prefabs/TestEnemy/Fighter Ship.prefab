@@ -135,7 +135,7 @@ MonoBehaviour:
   Parent: {fileID: 7019599892175906231}
   RotationBase: {fileID: 6815324324912272788}
   TeamTag: 0
-  RotationSpeed: 15
+  RotationSpeed: 30
   MaximumRotationAngle: 45
   RotationPadding: 10
   Range: 100
@@ -442,7 +442,7 @@ MonoBehaviour:
   Parent: {fileID: 7019599892175906231}
   RotationBase: {fileID: 6995153746400742673}
   TeamTag: 0
-  RotationSpeed: 15
+  RotationSpeed: 30
   MaximumRotationAngle: 45
   RotationPadding: 10
   Range: 100

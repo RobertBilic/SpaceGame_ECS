@@ -8,8 +8,7 @@ using Unity.Transforms;
 namespace SpaceGame.Animations.Systems
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(CombatSystemGroup))]
-    [UpdateAfter(typeof(TurretFiringSystem))]
+    [UpdateInGroup(typeof(CombatAnimationGroup))]
     partial struct BarrelRecoilSystem : ISystem
     {
         [BurstCompile]

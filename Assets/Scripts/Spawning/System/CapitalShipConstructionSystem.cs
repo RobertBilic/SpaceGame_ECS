@@ -27,7 +27,7 @@ public partial struct CapitalShipConstructionSystem : ISystem
             ecb.AddComponent(capitalShip, new IsAlive() { });
             ecb.AddComponent(capitalShip, new SceneMovementData() { Value = 100.0f });
             ecb.AddComponent(capitalShip, new TargetableTag());
-            ecb.AddComponent(capitalShip, new SpatialDatabaseCellIndex());
+            ecb.AddBuffer<SpatialDatabaseCellIndex>(capitalShip);
             ecb.AddComponent(capitalShip, new Health() { Value = 99999999 });
 
             var buffer = ecb.AddBuffer<Waypoint>(capitalShip);

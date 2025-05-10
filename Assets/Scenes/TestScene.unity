@@ -595,6 +595,8 @@ MonoBehaviour:
   zoomSpeed: 5
   minZoom: 10
   maxZoom: 50
+  panSpeed: 70
+  recentreDelay: 3
 --- !u!1 &520429350
 GameObject:
   m_ObjectHideFlags: 0

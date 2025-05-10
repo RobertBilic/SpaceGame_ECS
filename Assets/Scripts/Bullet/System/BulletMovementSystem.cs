@@ -7,8 +7,7 @@ using Unity.Transforms;
 namespace SpaceGame.Combat.Systems
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(CombatSystemGroup))]
-    [UpdateAfter(typeof(TurretFiringSystem))]
+    [UpdateInGroup(typeof(CombatMovementGroup))]
     partial struct BulletMovementSystem : ISystem
     {
         [BurstCompile]
