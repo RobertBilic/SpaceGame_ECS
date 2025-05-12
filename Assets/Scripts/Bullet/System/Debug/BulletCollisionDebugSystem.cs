@@ -15,7 +15,7 @@ namespace SpaceGame.Debug.Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<EnableDebugTag>();
+            state.RequireForUpdate<EnableCollisionDebuggingTag>();
         }
 
         [BurstCompile]

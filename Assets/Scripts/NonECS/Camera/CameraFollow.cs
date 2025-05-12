@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Rendering.Universal;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -92,7 +93,15 @@ public class CameraFollow : MonoBehaviour
             currentZoom = Mathf.Clamp(currentZoom - scroll * zoomSpeed, minZoom, maxZoom);
 
         if (cam != null)
+        {
             cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, currentZoom, Time.deltaTime * 10f);
+
+            if(cam.TryGetComponent(out UniversalAdditionalCameraData cameraData))
+            {
+                foreach (var overlayCamera in cameraData.cameraStack)
+                    overlayCamera.orthographicSize = cam.orthographicSize;
+            }
+        }
     }
 
     private void HandleManualPan()

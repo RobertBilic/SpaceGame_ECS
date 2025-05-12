@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
-[UpdateAfter(typeof(CombatSystemGroup))]
+[UpdateInGroup(typeof(CombatLateUpdateGroup))]
 public partial struct DestructionDetectionSystem : ISystem
 {
     private bool isInitialized;
@@ -31,7 +31,7 @@ public partial struct DestructionDetectionSystem : ISystem
 
         foreach (var (localToWorld,health, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<Health>>().WithNone<PendingDestructionTag>().WithEntityAccess())
         {
-            if (health.ValueRO.Value <= 0f)
+            if (health.ValueRO.Current <= 0f)
             {
                 ecb.DestroyEntity(entity);
 

@@ -8,7 +8,6 @@ public struct CapitalShipConstructionRequest : IComponentData
     public float MoveSpeed;
     public float RotationSpeed;
 
-
     public float3 SpawnPosition;
     public float Scale;
 }

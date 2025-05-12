@@ -11,6 +11,7 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
 {
     [ReadOnly] public CachedSpatialDatabaseRO CachedDb;
     [ReadOnly] public ComponentLookup<ForwardWeapon> WeaponLookup;
+    [ReadOnly] public BufferLookup<HitBoxElement> HitboxElement;
 
     public void Execute(Entity entity,
                         ref Target target,
@@ -28,6 +29,7 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
         float maxAngle = 0;
         float3 heading = math.mul(localToWorld.Rotation, new float3(1.0f,0.0f,0.0f));
         heading.z = 0.0f;
+
         float3 position = localToWorld.Position;
 
         for (int i = 0; i < weaponRefs.Length; i++)

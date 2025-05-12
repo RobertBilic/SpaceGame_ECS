@@ -6,19 +6,21 @@ namespace SpaceGame.Debug.Authoring
 {
     class DebugModeAuthoring : MonoBehaviour
     {
-        public bool UseDebugMode;
+        public bool DebugCollisions;
+        public bool DebugForwardWeapons;
     }
 
     class DebugModeAuthoringBaker : Baker<DebugModeAuthoring>
     {
         public override void Bake(DebugModeAuthoring authoring)
         {
-            if (authoring.UseDebugMode)
-            {
-                var entity = GetEntity(TransformUsageFlags.None);
+            var entity = GetEntity(TransformUsageFlags.None);
 
-                AddComponent<EnableDebugTag>(entity);
-            }
+            if (authoring.DebugCollisions)
+                AddComponent<EnableCollisionDebuggingTag>(entity);
+
+            if (authoring.DebugForwardWeapons)
+                AddComponent<EnableForwardWeaponDebug>(entity);
         }
     }
 }

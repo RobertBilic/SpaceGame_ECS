@@ -13,13 +13,17 @@ class TestEnemy : MonoWithHitbox
     public float BankingSmoothSpeed;
 
     public List<ForwardWeaponAuthoring> Weapons;
+
+    [Header("Health")]
+    public GameObject HealthBarBackground;
+    public GameObject HealthBarProgress;
 }
 
 class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
 {
     protected override void BakeAdditionalData(Entity entity, TestEnemy authoring)
     {
-        AddComponent(entity, new Health() { Value = 100 });
+        AddComponent(entity, new Health() { Current = 100, Max = 100 });
         AddComponent(entity, new IsAlive() { });
         AddComponent(entity, new TeamTag() { Team = 2 });
         AddComponent(entity, new Team2Tag());
@@ -36,11 +40,18 @@ class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
         });
         AddComponent<TargetableTag>(entity);
         AddBuffer<SpatialDatabaseCellIndex>(entity);
+        AddBuffer<DamageHealthRequestBuffer>(entity);
         AddComponent(entity, new Target());
         var weaponBuffer = AddBuffer<ForwardWeaponElement>(entity);
 
         foreach (var weapon in authoring.Weapons)
             weaponBuffer.Add(new ForwardWeaponElement() { Ref = GetEntity(weapon, TransformUsageFlags.Dynamic) });
+
+        AddComponent(entity, new HealthBarReference()
+        {
+            BackgroundEntity = GetEntity(authoring.HealthBarBackground, TransformUsageFlags.Dynamic),
+            ProgressEntity = GetEntity(authoring.HealthBarProgress, TransformUsageFlags.Dynamic)
+        });
     }
 
     protected override TransformUsageFlags GetUsageFlags() => TransformUsageFlags.Dynamic;

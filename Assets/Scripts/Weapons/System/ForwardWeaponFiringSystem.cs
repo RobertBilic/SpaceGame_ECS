@@ -11,11 +11,21 @@ namespace SpaceGame.Combat.Systems
     [BurstCompile]
     public partial struct ForwardWeaponFiringSystem : ISystem
     {
+        private ComponentLookup<ForwardWeapon> weaponLookup;
+        private ComponentLookup<LocalTransform> localTransformLookup;
+        private ComponentLookup<LocalToWorld> localToWorldLookup;
+        private BufferLookup<ProjectileSpawnOffset> offsetBufferLookup;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Target>();
             state.RequireForUpdate<ForwardWeaponElement>();
+
+            weaponLookup = state.GetComponentLookup<ForwardWeapon>(false);
+            localTransformLookup = state.GetComponentLookup<LocalTransform>(false);
+            localToWorldLookup = state.GetComponentLookup<LocalToWorld>(true);
+            offsetBufferLookup = state.GetBufferLookup<ProjectileSpawnOffset>(true);
         }
 
         [BurstCompile]
@@ -24,16 +34,17 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
                 return;
 
+            weaponLookup.Update(ref state);
+            localTransformLookup.Update(ref state);
+            localToWorldLookup.Update(ref state);
+            offsetBufferLookup.Update(ref state);
+
             ref var lookup = ref blobSingleton.Lookup.Value;
 
             var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
             var deltaTime = SystemAPI.Time.DeltaTime;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            var weaponLookup = state.GetComponentLookup<ForwardWeapon>(false);
-            var localTransformLookup = state.GetComponentLookup<LocalTransform>(false);
-            var localToWorldLookup = state.GetComponentLookup<LocalToWorld>(true);
-            var offsetBufferLookup = state.GetBufferLookup<ProjectileSpawnOffset>(true);
 
             foreach (var (weaponBuffer, shipLtw, target, team, shipEntity) in SystemAPI.Query<
                          DynamicBuffer<ForwardWeaponElement>,
@@ -72,8 +83,8 @@ namespace SpaceGame.Combat.Systems
                         continue; 
 
                     float3 toTarget = math.normalize(toTargetRaw);
+                    float3 baseForward = math.mul(baseLtw.Rotation, new float3(1, 0, 0));
 
-                    float3 baseForward = math.normalize(baseLtw.Forward);
                     if (!math.isfinite(baseForward.x) || !math.isfinite(baseForward.y))
                         continue; 
 
@@ -116,17 +127,11 @@ namespace SpaceGame.Combat.Systems
                     float alignment = math.dot(finalForward, flatToTarget);
                     float maxDot = math.cos(math.radians(weapon.MaxRotationAngleDeg));
 
-                    if (alignment < maxDot)
-                    {
-                        UnityEngine.Debug.Log($"Alingment: {alignment} < maxDot: {maxDot}");
-                    //    continue;
-                    }
+                    if (alignment < 0.95)
+                        continue;
 
                     if ((elapsedTime - weapon.LastFireTime) < (1f / weapon.FiringRate))
-                    {
-                        UnityEngine.Debug.Log("Cooldown");
                         continue;
-                    }
 
                     weapon.LastFireTime = elapsedTime;
                     weaponLookup[weaponEntity] = weapon;

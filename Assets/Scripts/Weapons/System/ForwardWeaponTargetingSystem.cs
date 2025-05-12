@@ -13,6 +13,7 @@ namespace SpaceGame.Combat.Systems
         private BufferLookup<SpatialDatabaseCell> spatialDatabaseCellLookup;
         private BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
         private ComponentLookup<ForwardWeapon> forwardWeaponLookup;
+        private BufferLookup<HitBoxElement> hitboxElementLookup;
 
 
       public void OnCreate(ref SystemState state)
@@ -23,6 +24,7 @@ namespace SpaceGame.Combat.Systems
             spatialDatabaseCellLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true);
             spatialDatabaseElementLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true);
             forwardWeaponLookup = state.GetComponentLookup<ForwardWeapon>(true);
+            hitboxElementLookup = state.GetBufferLookup<HitBoxElement>(true);
         }
 
         public void OnUpdate(ref SystemState state)
@@ -49,11 +51,13 @@ namespace SpaceGame.Combat.Systems
             }
 
             forwardWeaponLookup.Update(ref state);
+            hitboxElementLookup.Update(ref state);
 
             var job = new ForwardWeaponTargetingJob
             {
                 CachedDb = _CachedSpatialDatabase,
-                WeaponLookup = forwardWeaponLookup
+                WeaponLookup = forwardWeaponLookup,
+                HitboxElement = hitboxElementLookup
             };
 
             state.Dependency = job.ScheduleParallel(state.Dependency);

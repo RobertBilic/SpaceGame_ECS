@@ -127,7 +127,6 @@ namespace SpaceGame.Combat.Systems
 
     [BurstCompile]
     [UpdateInGroup(typeof(CombatCollisionGroup))]
-    [UpdateAfter(typeof(BulletMovementSystem))]
     partial struct BulletCollisionSystem : ISystem
     {
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
@@ -160,6 +159,8 @@ namespace SpaceGame.Combat.Systems
 
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            var hitEntities = new NativeHashSet<Entity>(256, Allocator.Temp);
 
             foreach (var (bulletTransform, prevPos, bulletRadius, damage, onHitPrefab, teamTag, bulletEntity)
                      in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<OnHitEffectPrefab>, RefRO<TeamTag>>()
@@ -197,8 +198,20 @@ namespace SpaceGame.Combat.Systems
 
                 if (bulletCollisionDetector.isEnemyHit)
                 {
-                    var health = SystemAPI.GetComponentRW<Health>(bulletCollisionDetector.HitEntity);
-                    health.ValueRW.Value -= damage.ValueRO.Value;
+                    var damageRequestBuffer = SystemAPI.GetBuffer<DamageHealthRequestBuffer>(bulletCollisionDetector.HitEntity);
+                    damageRequestBuffer.Add(new DamageHealthRequestBuffer()
+                    {
+                        Source = bulletEntity,
+                        Value = damage.ValueRO.Value
+                    });
+
+                    if (!state.EntityManager.HasComponent<NeedHealthUpdateTag>(bulletCollisionDetector.HitEntity))
+                    {
+                        if (hitEntities.Count >= hitEntities.Capacity - 1)
+                            hitEntities.Capacity *= 2;
+
+                        hitEntities.Add(bulletCollisionDetector.HitEntity);
+                    }
 
                     var impactParticleRequest = ecb.CreateEntity();
 
@@ -216,8 +229,12 @@ namespace SpaceGame.Combat.Systems
                 }
             }
 
+            foreach (var entity in hitEntities)
+                ecb.AddComponent<NeedHealthUpdateTag>(entity);
+
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
+            hitEntities.Dispose();
         }
 
     }

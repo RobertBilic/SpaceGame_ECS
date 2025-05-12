@@ -20,4 +20,8 @@ public partial class CombatCollisionGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]
 [UpdateAfter(typeof(CombatCollisionGroup))]
+public partial class CombatLateUpdateGroup : ComponentSystemGroup { }
+
+[UpdateInGroup(typeof(CombatSystemGroup))]
+[UpdateAfter(typeof(CombatLateUpdateGroup))]
 public partial class CombatAnimationGroup : ComponentSystemGroup { }

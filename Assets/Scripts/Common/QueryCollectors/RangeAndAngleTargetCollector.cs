@@ -14,6 +14,8 @@ namespace SpaceGame.Combat
         public byte OwnTeam;
 
         public Entity FoundTarget;
+        public BufferLookup<HitBoxElement> HitboxLookup;
+        public ComponentLookup<LocalToWorld> LTWLookup;
 
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
@@ -25,6 +27,8 @@ namespace SpaceGame.Combat
 
                 if (element.Team == OwnTeam)
                     continue;
+
+                //TODO: Currently this only checks if the center of the entity is in the desired angle, look for the hitboxes of the entity and see if any of these extents is inside of the desired angle
 
                 float3 toTarget = element.Position - Position;
                 float distSq = math.lengthsq(toTarget);
@@ -42,6 +46,14 @@ namespace SpaceGame.Combat
                 shouldEarlyExit = true; 
                 return;
             }
+        }
+
+        private void CheckEntityHitboxes(SpatialDatabaseElement element)
+        {
+            if (!HitboxLookup.HasBuffer(element.Entity))
+                return;
+
+            var hitboxes = HitboxLookup[element.Entity];
         }
     }
 }

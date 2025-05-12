@@ -163,7 +163,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dffb8b1370435154eb905fa57d2530cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseDebugMode: 0
+  DebugCollisions: 0
+  DebugForwardWeapons: 0
 --- !u!1 &1773043831
 GameObject:
   m_ObjectHideFlags: 0
