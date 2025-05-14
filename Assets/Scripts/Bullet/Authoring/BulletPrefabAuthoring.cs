@@ -7,12 +7,7 @@ namespace SpaceGame.Combat.Authoring
     class BulletPrefabAuthoring : MonoBehaviour
     {
         public string Id;
-
         public GameObject Prefab;
-        public GameObject OnEffectPrefab;
-
-        public float BulletSpeed;
-        public float Scale;
 
         private void OnValidate()
         {
@@ -34,9 +29,6 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new BulletPrefab()
             {
                 Entity = prefabEntity,
-                Scale = authoring.Scale,
-                OnHitEntity = GetEntity(authoring.OnEffectPrefab, TransformUsageFlags.Dynamic),
-                Speed = authoring.BulletSpeed,
                 Id = authoring.Id
             }); 
         }

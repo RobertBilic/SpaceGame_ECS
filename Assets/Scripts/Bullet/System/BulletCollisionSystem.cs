@@ -51,6 +51,9 @@ namespace SpaceGame.Combat.Systems
             {
                 var element = elements[i];
 
+                if (element.Entity == Entity.Null || !em.Exists(element.Entity))
+                    continue;
+
                 if (em.HasComponent<TeamTag>(element.Entity))
                 {
                     var targetTeam = em.GetComponentData<TeamTag>(element.Entity);
@@ -162,8 +165,8 @@ namespace SpaceGame.Combat.Systems
 
             var hitEntities = new NativeHashSet<Entity>(256, Allocator.Temp);
 
-            foreach (var (bulletTransform, prevPos, bulletRadius, damage, onHitPrefab, teamTag, bulletEntity)
-                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<OnHitEffectPrefab>, RefRO<TeamTag>>()
+            foreach (var (bulletTransform, prevPos, bulletRadius, damage, onHitPrefab, teamTag, bulletId, bulletEntity)
+                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<OnHitEffectPrefab>, RefRO<TeamTag>, RefRO<BulletId>>()
                          .WithAll<BulletTag>()
                          .WithEntityAccess())
             {
@@ -223,7 +226,6 @@ namespace SpaceGame.Combat.Systems
                         Prefab = onHitPrefab.ValueRO.Value,
                         Scale = 3.0f
                     }); 
-
 
                     ecb.DestroyEntity(bulletEntity);
                 }

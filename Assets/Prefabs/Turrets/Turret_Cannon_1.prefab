@@ -169,7 +169,7 @@ MonoBehaviour:
   RotationBase: {fileID: 2233223112315394719}
   RotationSpeed: 2
   Damage: 10
-  FiringRate: 30
+  FiringRate: 2
   Range: 100
   RecoilTarget: {fileID: 5174824032697320485}
   RecoilDuration: 0.2

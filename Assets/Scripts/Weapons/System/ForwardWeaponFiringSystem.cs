@@ -143,26 +143,23 @@ namespace SpaceGame.Combat.Systems
                     foreach (var offset in spawnOffsets)
                     {
                         float3 spawnPosition = math.transform(baseLtw.Value, offset.Value);
-                        spawnPosition.z = 0.0f;
 
-                        var bulletEntity = ecb.Instantiate(prefabData.Entity);
-
-                        ecb.SetComponent(bulletEntity, new LocalTransform
+                        if (SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var buffer))
                         {
-                            Position = spawnPosition,
-                            Rotation = quaternion.identity,
-                            Scale = prefabData.Scale
-                        });
-
-                        ecb.AddComponent(bulletEntity, new BulletTag());
-                        ecb.AddComponent(bulletEntity, new Lifetime { Value = 3.0f });
-                        ecb.AddComponent(bulletEntity, new MoveSpeed() { Value = prefabData.Speed });
-                        ecb.AddComponent(bulletEntity, new Heading() { Value = finalForward });
-                        ecb.AddComponent(bulletEntity, new Radius() { Value = prefabData.Scale });
-                        ecb.AddComponent(bulletEntity, new PreviousPosition() { Value = spawnPosition });
-                        ecb.AddComponent(bulletEntity, new Damage() { Value = weapon.Damage });
-                        ecb.AddComponent(bulletEntity, new TeamTag() { Team = team.ValueRO.Team });
-                        ecb.AddComponent(bulletEntity, new OnHitEffectPrefab() { Value = prefabData.OnHitEntity });
+                            buffer.Add(new BulletSpawnRequest()
+                            {
+                                BulletId = weapon.BulletId,
+                                Damage = weapon.Damage,
+                                Heading = finalForward,
+                                Position = spawnPosition,
+                                Range =  weapon.Range,
+                                Team = team.ValueRO.Team
+                            });
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.LogWarning($"BulletSpawnRequest doesnt exist");
+                        }
                     }
                 }
             }

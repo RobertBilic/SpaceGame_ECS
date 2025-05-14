@@ -28,11 +28,11 @@ public partial struct CapitalShipConstructionSystem : ISystem
             ecb.AddComponent(capitalShip, new SceneMovementData() { Value = 100.0f });
             ecb.AddComponent(capitalShip, new TargetableTag());
             ecb.AddBuffer<SpatialDatabaseCellIndex>(capitalShip);
-            ecb.AddComponent(capitalShip, new Health() { Current = 3000, Max = 3000 });
+            ecb.AddComponent(capitalShip, new Health() { Current = 999999999, Max = 999999999 });
             ecb.AddBuffer<DamageHealthRequestBuffer>(capitalShip);
 
-            var buffer = ecb.AddBuffer<Waypoint>(capitalShip);
-            buffer.Add(new Waypoint() { Position = new float3(10, 0, 0) });
+            var waypointBuffer = ecb.AddBuffer<Waypoint>(capitalShip);
+            waypointBuffer.Add(new Waypoint() { Position = new float3(10, 0, 0) });
 
             ecb.AddComponent(capitalShip, new CurrentWaypointIndex() { Value = 0 });
 
@@ -57,7 +57,11 @@ public partial struct CapitalShipConstructionSystem : ISystem
                     });
 
                     ecb.AddComponent(turret, new TeamTag() { Team = 1 });
-
+                    ecb.AppendToBuffer<LinkedEntityGroup>(capitalShip, new LinkedEntityGroup()
+                    {
+                        Value = turret
+                    });
+                   
                 }
             }
 

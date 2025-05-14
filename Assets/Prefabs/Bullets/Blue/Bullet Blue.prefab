@@ -97,6 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4414912638745077267}
   - component: {fileID: 5324084707071364767}
+  - component: {fileID: 8398716135263999144}
   m_Layer: 0
   m_Name: Bullet Blue
   m_TagString: Untagged
@@ -132,4 +133,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 913a8a6b294ffc542ab786bf01eb8a4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 12
+  OnHitPrefab: {fileID: 7564430914591536725, guid: 1b8fbdc97a529694593f7ece1c44cda3, type: 3}
+  Speed: 100
+  Scale: 0.1
+--- !u!114 &8398716135263999144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8888681493565606068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16549610bfe4458aa9389201d072bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

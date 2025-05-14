@@ -14,7 +14,7 @@ partial struct TestEnemySpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         enemyQuery = state.GetEntityQuery(ComponentType.ReadOnly<Team2Tag>());
-        desiredEnemies = 1;
+        desiredEnemies = 200;
     }
 
     [BurstCompile]

@@ -196,7 +196,7 @@ MonoBehaviour:
   Id: bullet_basic_1
   Prefab: {fileID: 8888681493565606068, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
   OnEffectPrefab: {fileID: 7564430914591536725, guid: f7524391927a27442ae970a7381c629f, type: 3}
-  BulletSpeed: 120
+  BulletSpeed: 200
   Scale: 0.2
 --- !u!4 &302398009
 Transform:

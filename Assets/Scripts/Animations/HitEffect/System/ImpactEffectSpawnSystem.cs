@@ -5,8 +5,8 @@ using Unity.Collections;
 using Unity.Burst;
 using UnityEngine;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-public partial class ImpactSpawnSystem : SystemBase
+[UpdateInGroup(typeof(CombatLateUpdateGroup))]
+public partial class ImpactEffectSpawnSystem : SystemBase
 {
     private Unity.Mathematics.Random random;
 
@@ -18,7 +18,7 @@ public partial class ImpactSpawnSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         foreach (var (request, entity) in SystemAPI.Query<RefRO<ImpactSpawnRequest>>().WithEntityAccess())
         {
@@ -30,15 +30,15 @@ public partial class ImpactSpawnSystem : SystemBase
                 float speed = random.NextFloat(2f, 5f);
                 float3 velocity = randomDir * speed;
 
-                var particle = commandBuffer.Instantiate(request.ValueRO.Prefab);
+                var particle = ecb.Instantiate(request.ValueRO.Prefab);
                 var scale = request.ValueRO.Scale;
-                commandBuffer.SetComponent(particle, new LocalTransform
+                ecb.SetComponent(particle, new LocalTransform
                 {
                     Position = request.ValueRO.Position,
                     Rotation = random.NextQuaternionRotation(),
                     Scale = random.NextFloat(scale / 2, scale)
                 }); ;
-                commandBuffer.AddComponent(particle, new ImpactParticle
+                ecb.AddComponent(particle, new ImpactParticle
                 {
                     Lifetime = 0.5f,
                     Age = 0f,
@@ -46,10 +46,10 @@ public partial class ImpactSpawnSystem : SystemBase
                 });
             }
 
-            commandBuffer.DestroyEntity(entity);
+            ecb.DestroyEntity(entity);
         }
 
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

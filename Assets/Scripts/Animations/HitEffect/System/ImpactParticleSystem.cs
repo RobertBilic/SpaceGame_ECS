@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(CombatMovementGroup))]
 public partial class ImpactParticleSystem : SystemBase
 {
     protected override void OnUpdate()

@@ -17,17 +17,11 @@ namespace SpaceGame.Combat.Systems
         {
             state.RequireForUpdate<TurretTag>();
             state.RequireForUpdate<Target>();
-            state.RequireForUpdate<BulletPrefabLookupSingleton>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
-                return;
-
-            ref var lookup = ref blobSingleton.Lookup.Value;
-
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
             foreach (var (turretFiringAspect, entity) in SystemAPI.Query<TurretFiringAspect>()
@@ -58,14 +52,6 @@ namespace SpaceGame.Combat.Systems
                 if (!SystemAPI.HasComponent<LocalToWorld>(target.ValueRO.Value))
                     continue;
 
-                var prefabData = lookup.GetPrefab(bulletId.Value);
-
-                if(prefabData.Entity == Entity.Null || !state.EntityManager.Exists(prefabData.Entity))
-                {
-                    UnityEngine.Debug.LogWarning($"Bullet prefab doesn't exist: {bulletId.Value}");
-                    continue;
-                }
-
                 if (state.EntityManager.HasComponent<IsAlive>(target.ValueRO.Value))
                 {
                     var targetIsAlive = state.EntityManager.HasComponent<IsAlive>(target.ValueRO.Value);
@@ -87,8 +73,6 @@ namespace SpaceGame.Combat.Systems
                 if (alignment < 0.95f)
                     continue;
 
-
-                var lifeTime = range.ValueRO.Value / prefabData.Speed;
                 lastFireTime.ValueRW.Value = SystemAPI.Time.ElapsedTime;
 
                 var rotationBaseLocalToWorld = SystemAPI.GetComponent<LocalToWorld>(rotationBase.ValueRO.RotationBase);
@@ -97,24 +81,22 @@ namespace SpaceGame.Combat.Systems
                 {
                     float3 spawnPosition = math.transform(rotationBaseLocalToWorld.Value, offset.Value);
 
-                    var bulletEntity = ecb.Instantiate(prefabData.Entity);
-
-                    ecb.SetComponent(bulletEntity, new LocalTransform
+                    if (SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var buffer))
                     {
-                        Position = spawnPosition,
-                        Rotation = quaternion.identity,
-                        Scale = prefabData.Scale
-                    });
-
-                    ecb.AddComponent(bulletEntity, new BulletTag());
-                    ecb.AddComponent(bulletEntity, new Lifetime { Value = lifeTime });
-                    ecb.AddComponent(bulletEntity, new MoveSpeed() { Value = prefabData.Speed });
-                    ecb.AddComponent(bulletEntity, new Heading() { Value = heading.ValueRO.Value });
-                    ecb.AddComponent(bulletEntity, new Radius() { Value = prefabData.Scale });
-                    ecb.AddComponent(bulletEntity, new PreviousPosition() { Value = spawnPosition });
-                    ecb.AddComponent(bulletEntity, new Damage() { Value = damage.ValueRO.Value });
-                    ecb.AddComponent(bulletEntity, new TeamTag() { Team = teamTag.Team });
-                    ecb.AddComponent(bulletEntity, new OnHitEffectPrefab() { Value = prefabData.OnHitEntity });
+                        buffer.Add(new BulletSpawnRequest()
+                        {
+                            BulletId = bulletId.Value,
+                            Damage = damage.ValueRO.Value,
+                            Heading = heading.ValueRO.Value,
+                            Position = spawnPosition,
+                            Range = range.ValueRO.Value,
+                            Team = teamTag.Team
+                        });
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning($"BulletSpawnRequest doesnt exist");
+                    }
                 }
 
                 if (SystemAPI.HasComponent<BarrelRecoilReference>(entity))

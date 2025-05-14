@@ -140,7 +140,7 @@ MonoBehaviour:
   RotationPadding: 10
   Range: 100
   Damage: 10
-  FiringRate: 30
+  FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0
   MaxRecoilDistance: 0
@@ -450,7 +450,7 @@ MonoBehaviour:
   RotationPadding: 10
   Range: 100
   Damage: 10
-  FiringRate: 30
+  FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0
   MaxRecoilDistance: 0
@@ -618,7 +618,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7841054242483213298, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: Color.a

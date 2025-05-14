@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 partial struct GameInitializationSystem : ISystem
 {
     [BurstCompile]
@@ -23,6 +24,8 @@ partial struct GameInitializationSystem : ISystem
 
             float simulationCubeHalfExtents = config.GameSize;
             state.EntityManager.AddComponentData(state.EntityManager.CreateEntity(), new SpatialDatabaseSingleton());
+            state.EntityManager.CreateSingletonBuffer<BulletSpawnRequest>("Bullet Spawn Request Collector");
+            state.EntityManager.CreateSingletonBuffer<BulletPoolRequest>("Bullet Pool Request Collector");
             CreateTargetablesSpatialDatabase(ref state, in config, simulationCubeHalfExtents);
         }
     }
