@@ -14,7 +14,11 @@ namespace SpaceGame.Animations.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
+            float deltaTime = timeComp.DeltaTime;
+
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
             foreach (var (recoil, transform, entity) in SystemAPI.Query<RefRW<BarrelRecoil>, RefRW<LocalTransform>>().WithEntityAccess())

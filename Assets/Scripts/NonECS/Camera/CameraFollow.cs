@@ -19,15 +19,15 @@ public class CameraFollow : MonoBehaviour
     [SerializeField]
     private float zoomSpeed = 5f;
     [SerializeField]
-    private float minZoom = 20f;
+    private float minZoom = 50.0f;
     [SerializeField]
-    private float maxZoom = 50f;
+    private float maxZoom = 100.0f;
     [SerializeField]
     private float panSpeed = 50.0f;
     [SerializeField]
     private float recentreDelay = 3f;
 
-    private float currentZoom = 30f;
+    private float currentZoom = 50.0f;
     private float timeSinceLastInput = 0f;
     private bool isRecentering = false;
 

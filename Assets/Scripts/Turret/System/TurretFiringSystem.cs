@@ -22,6 +22,9 @@ namespace SpaceGame.Combat.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
             foreach (var (turretFiringAspect, entity) in SystemAPI.Query<TurretFiringAspect>()
@@ -40,7 +43,7 @@ namespace SpaceGame.Combat.Systems
                 var teamTag = turretFiringAspect.TeamTag.ValueRO;
                 var bulletId = turretFiringAspect.BulletId.ValueRO;
 
-                double elapsedSinceLastFire = SystemAPI.Time.ElapsedTime - lastFireTime.ValueRW.Value;
+                double elapsedSinceLastFire = timeComp.ElapsedTimeScaled - lastFireTime.ValueRW.Value;
 
 
                 if (elapsedSinceLastFire < (1f / firingRate.ValueRO.Value))
@@ -73,7 +76,7 @@ namespace SpaceGame.Combat.Systems
                 if (alignment < 0.95f)
                     continue;
 
-                lastFireTime.ValueRW.Value = SystemAPI.Time.ElapsedTime;
+                lastFireTime.ValueRW.Value = timeComp.ElapsedTimeScaled;
 
                 var rotationBaseLocalToWorld = SystemAPI.GetComponent<LocalToWorld>(rotationBase.ValueRO.RotationBase);
 

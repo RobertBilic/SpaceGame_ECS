@@ -30,14 +30,13 @@ partial struct HealthDamageSystem : ISystem
             {
                 var healthBarReference = SystemAPI.GetComponentRO<HealthBarReference>(entity).ValueRO;
 
-                if (!state.EntityManager.IsEnabled(healthBarReference.BackgroundEntity))
+                if (!state.EntityManager.IsEnabled(healthBarReference.Value))
                 {
-                    ecb.SetEnabled(healthBarReference.BackgroundEntity, true);
-                    ecb.SetEnabled(healthBarReference.ProgressEntity, true);
+                    ecb.SetEnabled(healthBarReference.Value, true);
                 }
                 else
                 {
-                    var materialFill = SystemAPI.GetComponentRW<FillMaterialOverrideComponent>(healthBarReference.ProgressEntity);
+                    var materialFill = SystemAPI.GetComponentRW<FillMaterialOverrideComponent>(healthBarReference.Value);
                     materialFill.ValueRW.Value = health.ValueRO.Current / health.ValueRO.Max;
                 }
             }

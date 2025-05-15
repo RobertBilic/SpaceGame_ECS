@@ -19,7 +19,10 @@ namespace SpaceGame.Combat.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
+            float deltaTime = timeComp.DeltaTimeScaled;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             foreach (var (transform, heading, speed, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<Heading>, RefRO<MoveSpeed>>().WithAll<BulletTag>().WithEntityAccess())
@@ -28,12 +31,19 @@ namespace SpaceGame.Combat.Systems
                 transform.ValueRW.Position += heading.ValueRO.Value * speed.ValueRO.Value * deltaTime;
             }
 
-            foreach (var (lifetime, entity) in SystemAPI.Query<RefRW<Lifetime>>().WithAll<BulletTag>().WithEntityAccess())
+            foreach (var (lifetime, bulletId, entity) in SystemAPI.Query<RefRW<Lifetime>, RefRO<BulletId>>().WithAll<BulletTag>().WithEntityAccess())
             {
                 lifetime.ValueRW.Value -= deltaTime;
                 if (lifetime.ValueRW.Value <= 0f)
                 {
-                    ecb.DestroyEntity(entity);
+                    if (SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var poolBuffer))
+                    {
+                        poolBuffer.Add(new BulletPoolRequest()
+                        {
+                            Entity = entity,
+                            Id = bulletId.ValueRO.Value
+                        });
+                    }
                 }
             }
 

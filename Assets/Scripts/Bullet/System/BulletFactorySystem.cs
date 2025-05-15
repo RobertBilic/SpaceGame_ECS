@@ -16,7 +16,6 @@ partial struct BulletFactorySystem : ISystem
         pools = new NativeParallelHashMap<FixedString32Bytes, NativeList<Entity>>(16, Allocator.Persistent);
 
         state.RequireForUpdate<BulletSpawnRequest>();
-        state.RequireForUpdate<BulletPoolRequest>();
         state.RequireForUpdate<BulletPrefabLookupSingleton>();
     }
 
@@ -26,25 +25,24 @@ partial struct BulletFactorySystem : ISystem
         if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
             return;
 
-        if (!SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var bulletPoolCollector))
-            return;
-
 
         if (!SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var bulletSpawnCollector))
             return;
 
-
         ref var lookup = ref blobSingleton.Lookup.Value;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        foreach (var request in bulletPoolCollector)
+        foreach(var (bulletId, entity) in SystemAPI.Query<RefRO<BulletId>>()
+            .WithOptions(EntityQueryOptions.IncludeDisabledEntities)
+            .WithAll<Disabled, NeedsPoolingTag, BulletTag>()
+            .WithEntityAccess())
         {
-            ReturnEntityToPool(ecb, state.EntityManager, request.Entity, request.Id);
+            var pool = GetOrCreatePool(bulletId.ValueRO.Value);
+            pool.Add(entity);
+            ecb.RemoveComponent<NeedsPoolingTag>(entity);
         }
 
-        bulletPoolCollector.Clear();
-
-        foreach(var request in bulletSpawnCollector)
+        foreach (var request in bulletSpawnCollector)
         {
             var prefabData = lookup.GetPrefab(request.BulletId);
 
@@ -123,12 +121,6 @@ partial struct BulletFactorySystem : ISystem
         return entity;
     }
 
-    void ReturnEntityToPool(EntityCommandBuffer ecb, EntityManager em, Entity entity,FixedString32Bytes id)
-    {
-        var pool = GetOrCreatePool(id);
-        DisableEntityAndChildren(ecb, entity, em);
-        pool.Add(entity);
-    }
 
     private void AddEntitiesToPool(NativeList<Entity> pool, Entity prefab, EntityManager em, EntityCommandBuffer ecb)
     {

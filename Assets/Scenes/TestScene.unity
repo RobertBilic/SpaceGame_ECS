@@ -595,8 +595,8 @@ MonoBehaviour:
   offset: {x: 0, y: 20, z: -20}
   followSmoothTime: 0.3
   zoomSpeed: 5
-  minZoom: 10
-  maxZoom: 50
+  minZoom: 50
+  maxZoom: 150
   panSpeed: 70
   recentreDelay: 3
 --- !u!1 &520429350

@@ -34,6 +34,9 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
                 return;
 
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             weaponLookup.Update(ref state);
             localTransformLookup.Update(ref state);
             localToWorldLookup.Update(ref state);
@@ -41,8 +44,9 @@ namespace SpaceGame.Combat.Systems
 
             ref var lookup = ref blobSingleton.Lookup.Value;
 
-            var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
-            var deltaTime = SystemAPI.Time.DeltaTime;
+            var elapsedTime = timeComp.ElapsedTimeScaled;
+            var deltaTime = timeComp.DeltaTimeScaled;
+
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 
@@ -133,7 +137,7 @@ namespace SpaceGame.Combat.Systems
                     if ((elapsedTime - weapon.LastFireTime) < (1f / weapon.FiringRate))
                         continue;
 
-                    weapon.LastFireTime = elapsedTime;
+                    weapon.LastFireTime = (float)elapsedTime;
                     weaponLookup[weaponEntity] = weapon;
 
                     if (!offsetBufferLookup.HasBuffer(weaponEntity))

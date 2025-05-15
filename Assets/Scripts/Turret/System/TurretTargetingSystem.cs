@@ -32,6 +32,9 @@ namespace SpaceGame.Combat.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
             {
                 spatialDatabaseCellLookup.Update(ref state);
@@ -53,7 +56,7 @@ namespace SpaceGame.Combat.Systems
                 return;
             }
 
-            float deltaTime = SystemAPI.Time.DeltaTime;
+            float deltaTime = timeComp.DeltaTimeScaled;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             foreach (var (transform, rotationSpeed, range, isAlive, rotationBase, teamTag, entity)

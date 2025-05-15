@@ -13,13 +13,18 @@ namespace SpaceGame.Animations.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var scale))
+                return;
+
+            var dt = scale.DeltaTime;
+            
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             foreach (var (animationState, random, sprites, entity) in
                 SystemAPI.Query<RefRW<ExplosionAnimationState>, RefRO<RandomGenerator>, DynamicBuffer<ExplosionSpriteElement>>()
                     .WithEntityAccess())
             {
-                animationState.ValueRW.TimeSinceLastFrame += SystemAPI.Time.DeltaTime;
+                animationState.ValueRW.TimeSinceLastFrame += dt;
 
                 if (animationState.ValueRW.TimeSinceLastFrame >= animationState.ValueRW.TimeUntilNextFrame)
                 {

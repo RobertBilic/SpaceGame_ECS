@@ -15,7 +15,10 @@ public partial struct CapitalShipMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        float deltaTime = SystemAPI.Time.DeltaTime;
+        if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+            return;
+
+        float deltaTime = timeComp.DeltaTimeScaled; 
 
         foreach (var (transform, speed, index, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<MoveSpeed>, RefRW<CurrentWaypointIndex>>()
                      .WithEntityAccess())

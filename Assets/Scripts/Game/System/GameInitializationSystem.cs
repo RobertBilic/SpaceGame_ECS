@@ -26,6 +26,17 @@ partial struct GameInitializationSystem : ISystem
             state.EntityManager.AddComponentData(state.EntityManager.CreateEntity(), new SpatialDatabaseSingleton());
             state.EntityManager.CreateSingletonBuffer<BulletSpawnRequest>("Bullet Spawn Request Collector");
             state.EntityManager.CreateSingletonBuffer<BulletPoolRequest>("Bullet Pool Request Collector");
+            state.EntityManager.CreateSingletonBuffer<ImpactSpawnRequest>("Impact Effect Spawn Request Collector");
+            state.EntityManager.CreateSingletonBuffer<ImpactEffectPoolRequest>("Impact Effect Pool Request Collector");
+
+            var entity = state.EntityManager.CreateSingleton<GlobalTimeComponent>("TimeScaleSingleton");
+            state.EntityManager.SetComponentData(entity, new GlobalTimeComponent() {
+                FrameCount = 0,
+                ElapsedTime = 0,
+                ElapsedTimeScaled = 0,
+                FrameCountScaled = 0
+            });
+            
             CreateTargetablesSpatialDatabase(ref state, in config, simulationCubeHalfExtents);
         }
     }

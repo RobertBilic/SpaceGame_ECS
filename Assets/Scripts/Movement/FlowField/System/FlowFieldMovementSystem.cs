@@ -37,6 +37,9 @@ namespace SpaceGame.Movement.Flowfield.Systems
             if (flowFieldQuery.IsEmptyIgnoreFilter || capitalShipQuery.IsEmptyIgnoreFilter)
                 return;
 
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             var flowEntity = flowFieldQuery.GetSingletonEntity();
             var flowSettings = SystemAPI.GetComponent<FlowFieldSettings>(flowEntity);
             var buffer = SystemAPI.GetBuffer<FlowFieldCell>(flowEntity).ToNativeArray(Allocator.TempJob);
@@ -53,7 +56,7 @@ namespace SpaceGame.Movement.Flowfield.Systems
 
             var job = new ShipFlowFieldMovementJob
             {
-                DeltaTime = SystemAPI.Time.DeltaTime,
+                DeltaTime = timeComp.DeltaTimeScaled,
                 CapitalPosition = capPos,
                 GridX = gx,
                 GridY = gy,
@@ -69,8 +72,6 @@ namespace SpaceGame.Movement.Flowfield.Systems
             Dependency = job.ScheduleParallel(Dependency);
             ecbSystem.AddJobHandleForProducer(Dependency);
             buffer.Dispose(Dependency);
-
-            Dependency.Complete();
         }
     }
 }

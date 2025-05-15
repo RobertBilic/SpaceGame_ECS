@@ -216,18 +216,27 @@ namespace SpaceGame.Combat.Systems
                         hitEntities.Add(bulletCollisionDetector.HitEntity);
                     }
 
-                    var impactParticleRequest = ecb.CreateEntity();
-
-                    ecb.AddComponent(impactParticleRequest, new ImpactSpawnRequest()
+                    if(SystemAPI.TryGetSingletonBuffer<ImpactSpawnRequest>(out var buffer))
                     {
-                        Count = 10,
-                        Normal = math.up(),
-                        Position = bulletEnd,
-                        Prefab = onHitPrefab.ValueRO.Value,
-                        Scale = 3.0f
-                    }); 
+                        buffer.Add(new ImpactSpawnRequest()
+                        {
+                            Count = 10,
+                            Normal = math.up(),
+                            Position = bulletEnd,
+                            Scale = 2.0f,
+                            PrefabId = bulletId.ValueRO.Value
+                        });
+                    }
 
-                    ecb.DestroyEntity(bulletEntity);
+
+                    if(SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var poolBuffer))
+                    {
+                        poolBuffer.Add(new BulletPoolRequest()
+                        {
+                            Entity = bulletEntity,
+                            Id = bulletId.ValueRO.Value
+                        });
+                    }
                 }
             }
 

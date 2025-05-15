@@ -16,5 +16,8 @@ class OnHitEffectAuthoringBaker : Baker<OnHitEffectAuthoring>
 
         AddComponent(entity, new MaterialProperty__Fade() { Value = 1.0f });
         AddComponent(entity, new MaterialProperty__Color() { Value = new float4(c.r, c.g, c.b, c.a) });
+        AddComponent(entity, new ImpactParticle());
+        AddComponent(entity, new BulletId());
+        AddComponent(entity, new Disabled());
     }
 }

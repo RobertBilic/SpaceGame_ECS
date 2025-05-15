@@ -15,8 +15,7 @@ class TestEnemy : MonoWithHitbox
     public List<ForwardWeaponAuthoring> Weapons;
 
     [Header("Health")]
-    public GameObject HealthBarBackground;
-    public GameObject HealthBarProgress;
+    public GameObject HealthBar;
 }
 
 class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
@@ -49,8 +48,7 @@ class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
 
         AddComponent(entity, new HealthBarReference()
         {
-            BackgroundEntity = GetEntity(authoring.HealthBarBackground, TransformUsageFlags.Dynamic),
-            ProgressEntity = GetEntity(authoring.HealthBarProgress, TransformUsageFlags.Dynamic)
+            Value = GetEntity(authoring.HealthBar, TransformUsageFlags.Dynamic),
         });
     }
 

@@ -43,10 +43,10 @@ Material:
     m_Floats:
     - _EdgeFade: 0.05
     - _EnableExternalAlpha: 0
-    - _Fill: 0.817
+    - _Fill: 0.735
     - _ZWrite: 0
     m_Colors:
-    - _BackgroundColor: {r: 0.26032397, g: 0.8490566, b: 0.2711266, a: 0}
+    - _BackgroundColor: {r: 0.26032394, g: 0.8490566, b: 0.27112657, a: 1}
     - _Color: {r: 0.06341223, g: 0.7075472, b: 0.07433087, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

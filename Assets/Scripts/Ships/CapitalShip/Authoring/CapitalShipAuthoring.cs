@@ -11,8 +11,7 @@ public class CapitalShipAuthoring : MonoWithHitbox
 
     [Header("Health")]
     public float MaxHealth;
-    public GameObject HealthBarBackground;
-    public GameObject HealthBarProgress;
+    public GameObject HealthBar;
 }
 
 class CapitalShipBaker : BakerWithHitboxes<CapitalShipAuthoring>
@@ -23,12 +22,11 @@ class CapitalShipBaker : BakerWithHitboxes<CapitalShipAuthoring>
         AddComponent(entity, new RotationSpeed { Value = authoring.RotationSpeed });
         AddComponent(entity, new CapitalShipTag());
 
-        if(authoring.HealthBarBackground != null && authoring.HealthBarProgress != null)
+        if(authoring.HealthBar != null)
         {
             AddComponent(entity, new HealthBarReference()
             {
-                BackgroundEntity = GetEntity(authoring.HealthBarBackground, TransformUsageFlags.Dynamic),
-                ProgressEntity = GetEntity(authoring.HealthBarProgress, TransformUsageFlags.Dynamic)
+                Value = GetEntity(authoring.HealthBar, TransformUsageFlags.Dynamic)
             });
         }
     }

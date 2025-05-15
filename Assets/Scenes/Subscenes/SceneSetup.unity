@@ -264,6 +264,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
+      propertyPath: SpatialDatabaseSubdivisions
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1532625792505311885, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

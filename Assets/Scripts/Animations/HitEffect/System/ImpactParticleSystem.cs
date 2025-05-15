@@ -6,15 +6,26 @@ public partial class ImpactParticleSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        float dt = SystemAPI.Time.DeltaTime;
+        if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+            return;
+
+        float dt = timeComp.DeltaTime;
+
         EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-        foreach (var (particle, transform, entity) in
-                 SystemAPI.Query<RefRW<ImpactParticle>, RefRW<LocalTransform>>().WithEntityAccess())
+        foreach (var (particle, transform, bulletId,entity) in
+                 SystemAPI.Query<RefRW<ImpactParticle>, RefRW<LocalTransform>,RefRO<BulletId>>().WithEntityAccess())
         {
             particle.ValueRW.Age += dt;
             if (particle.ValueRW.Age >= particle.ValueRW.Lifetime)
             {
-                ecb.DestroyEntity(entity);
+                if (SystemAPI.TryGetSingletonBuffer<ImpactEffectPoolRequest>(out var impactPoolCollector))
+                {
+                    impactPoolCollector.Add(new ImpactEffectPoolRequest()
+                    {
+                        Entity = entity,
+                        Id = bulletId.ValueRO.Value
+                    });
+                }
                 continue;
             }
 

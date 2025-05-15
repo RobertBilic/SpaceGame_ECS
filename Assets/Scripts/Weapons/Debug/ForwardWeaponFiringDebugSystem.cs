@@ -33,13 +33,16 @@ namespace SpaceGame.Combat.Systems.Debug
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             weaponLookup.Update(ref state);
             localTransformLookup.Update(ref state);
             localToWorldLookup.Update(ref state);
             offsetBufferLookup.Update(ref state);
 
-            var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
-            var deltaTime = SystemAPI.Time.DeltaTime;
+            var elapsedTime = timeComp.ElapsedTimeScaled;
+            var deltaTime = timeComp.DeltaTimeScaled; 
 
             foreach (var (weaponBuffer, shipLtw, target, team, shipEntity) in SystemAPI.Query<
                          DynamicBuffer<ForwardWeaponElement>,

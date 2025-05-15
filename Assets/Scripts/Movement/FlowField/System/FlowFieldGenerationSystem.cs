@@ -30,11 +30,14 @@ namespace SpaceGame.Movement.Flowfield.Systems
             if (capitalShipQuery.IsEmptyIgnoreFilter || flowFieldQuery.IsEmptyIgnoreFilter)
                 return;
 
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
             var capitalShip = capitalShipQuery.GetSingletonEntity();
             var shipTransform = state.EntityManager.GetComponentData<LocalTransform>(capitalShip);
             float3 targetPosition = shipTransform.Position;
 
-            updateCooldown -= SystemAPI.Time.DeltaTime;
+            updateCooldown -= timeComp.DeltaTime;
             if (updateCooldown > 0f)
                 return;
 

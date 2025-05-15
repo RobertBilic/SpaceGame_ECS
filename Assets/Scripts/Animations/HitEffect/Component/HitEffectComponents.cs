@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -14,9 +15,15 @@ public struct ImpactParticle : IComponentData
     public float3 Velocity;
 }
 
-public struct ImpactSpawnRequest : IComponentData
+public struct ImpactEffectPoolRequest : IBufferElementData
 {
-    public Entity Prefab;
+    public Entity Entity;
+    public FixedString32Bytes Id;
+}
+
+public struct ImpactSpawnRequest : IBufferElementData
+{
+    public FixedString32Bytes PrefabId;
     public float3 Position;
     public float3 Normal;
     public int Count;
