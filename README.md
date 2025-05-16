@@ -89,4 +89,4 @@ Feel free to reach out if you're interested in collaboration, hiring, or feedbac
 
 ## 📝 License
 
-MIT License or specify your preferred license.
+MIT License
