@@ -4,7 +4,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 [BurstCompile]
-[UpdateInGroup(typeof(SpawningGroup))]
+[UpdateInGroup(typeof(CombatInitializationGroup))]
 public partial struct CapitalShipConstructionSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)

@@ -4,6 +4,10 @@ using Unity.Entities;
 public partial class CombatSystemGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup), OrderFirst = true)]
+public partial class CombatInitializationGroup : ComponentSystemGroup { }
+
+[UpdateInGroup(typeof(CombatSystemGroup))]
+[UpdateAfter(typeof(CombatInitializationGroup))]
 public partial class CombatMovementGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]

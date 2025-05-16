@@ -14,7 +14,8 @@ partial struct LocalOffsetCorrectionSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach(var (lt, offset,parent) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<LocalOffsetCorrection>, RefRO<Parent>>())
+        foreach(var (lt, offset,parent) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<LocalOffsetCorrection>, RefRO<Parent>>()
+            .WithOptions(EntityQueryOptions.IncludeDisabledEntities))
         {
             if (!SystemAPI.HasComponent<LocalToWorld>(parent.ValueRO.Value))
                 continue;
