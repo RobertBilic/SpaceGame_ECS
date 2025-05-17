@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 using SpaceGame.Debug.Components;
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Components;
 
 namespace SpaceGame.Debug.Systems
 {

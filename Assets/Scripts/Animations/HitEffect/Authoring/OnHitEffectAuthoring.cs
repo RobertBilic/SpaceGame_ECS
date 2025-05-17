@@ -1,23 +1,27 @@
+using SpaceGame.Combat.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-class OnHitEffectAuthoring : MonoBehaviour
+namespace SpaceGame.Combat.Authoring
 {
-    public Color Color;
-}
-
-class OnHitEffectAuthoringBaker : Baker<OnHitEffectAuthoring>
-{
-    public override void Bake(OnHitEffectAuthoring authoring)
+    class OnHitEffectAuthoring : MonoBehaviour
     {
-        var entity = GetEntity(TransformUsageFlags.Renderable);
-        var c = authoring.Color;
+        public Color Color;
+    }
 
-        AddComponent(entity, new MaterialProperty__Fade() { Value = 1.0f });
-        AddComponent(entity, new MaterialProperty__Color() { Value = new float4(c.r, c.g, c.b, c.a) });
-        AddComponent(entity, new ImpactParticle());
-        AddComponent(entity, new BulletId());
-        AddComponent(entity, new Disabled());
+    class OnHitEffectAuthoringBaker : Baker<OnHitEffectAuthoring>
+    {
+        public override void Bake(OnHitEffectAuthoring authoring)
+        {
+            var entity = GetEntity(TransformUsageFlags.Renderable);
+            var c = authoring.Color;
+
+            AddComponent(entity, new MaterialProperty__Fade() { Value = 1.0f });
+            AddComponent(entity, new MaterialProperty__Color() { Value = new float4(c.r, c.g, c.b, c.a) });
+            AddComponent(entity, new ImpactParticle());
+            AddComponent(entity, new BulletId());
+            AddComponent(entity, new Disabled());
+        }
     }
 }

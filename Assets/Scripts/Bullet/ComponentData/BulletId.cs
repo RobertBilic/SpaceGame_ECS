@@ -1,7 +1,10 @@
 using Unity.Collections;
 using Unity.Entities;
 
-public struct BulletId : IComponentData
+namespace SpaceGame.Combat.Components
 {
-    public FixedString32Bytes Value;
+    public struct BulletId : IComponentData
+    {
+        public FixedString32Bytes Value;
+    }
 }

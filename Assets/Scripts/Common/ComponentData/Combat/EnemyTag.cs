@@ -2,8 +2,8 @@ using Unity.Entities;
 
 namespace SpaceGame.Combat.Components
 {
-    public struct TeamTag : IComponentData
+    public struct EnemyTag : IComponentData
     {
-        public int Team;
+
     }
 }

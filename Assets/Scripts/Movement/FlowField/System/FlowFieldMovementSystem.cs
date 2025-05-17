@@ -1,3 +1,4 @@
+using SpaceGame.Movement.Components;
 using SpaceGame.Movement.Flowfield.Components;
 using SpaceGame.Movement.Flowfield.Jobs;
 using Unity.Collections;

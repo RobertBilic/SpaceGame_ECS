@@ -1,7 +1,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct PreviousPosition : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float3 Value;
+    public struct PreviousPosition : IComponentData
+    {
+        public float3 Value;
+    }
 }

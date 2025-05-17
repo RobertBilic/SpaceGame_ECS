@@ -1,64 +1,68 @@
+using SpaceGame.Combat.Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(CombatInitializationGroup))]
-partial struct TestEnemySpawnerSystem : ISystem
+namespace SpaceGame.Utility.Temp
 {
-    private Entity enemyPrefab;
-    private bool isInitialized;
-    private EntityQuery enemyQuery;
-    private int desiredEnemies;
-
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    [UpdateInGroup(typeof(CombatInitializationGroup))]
+    partial struct TestEnemySpawnerSystem : ISystem
     {
-        enemyQuery = state.GetEntityQuery(ComponentType.ReadOnly<Team2Tag>());
-        desiredEnemies = 50;
-    }
+        private Entity enemyPrefab;
+        private bool isInitialized;
+        private EntityQuery enemyQuery;
+        private int desiredEnemies;
 
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
-    {
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-
-        foreach (var (prefab, generator) in SystemAPI.Query<RefRO<TestEnemyPrefab>, RefRW<RandomGenerator>>().WithOptions(EntityQueryOptions.IncludePrefab))
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
         {
-            isInitialized = true;
-            enemyPrefab = prefab.ValueRO.Value;
-            var spawnedEnemiesCount = enemyQuery.CalculateEntityCount();
-            int enemiesToSpawn = desiredEnemies - spawnedEnemiesCount;
-
-            for (int i = 0; i < enemiesToSpawn; i++)
-            {
-                var spawnedEntity = ecb.Instantiate(enemyPrefab);
-
-                float x = generator.ValueRW.Value.NextFloat(-100, 100);
-                float y = generator.ValueRW.Value.NextFloat(-100, 100);
-
-                ecb.AddComponent(spawnedEntity, new LocalTransform()
-                {
-                    Position = new Unity.Mathematics.float3(x, y, 0.0f),
-                    Rotation = quaternion.identity,
-                    Scale = 1.0f,
-                });
-
-            }
+            enemyQuery = state.GetEntityQuery(ComponentType.ReadOnly<EnemyTag>());
+            desiredEnemies = 50;
         }
 
-        if (!isInitialized)
-            return;
+        [BurstCompile]
+        public void OnUpdate(ref SystemState state)
+        {
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-        
+            foreach (var (prefab, generator) in SystemAPI.Query<RefRO<TestEnemyPrefab>, RefRW<RandomGenerator>>().WithOptions(EntityQueryOptions.IncludePrefab))
+            {
+                isInitialized = true;
+                enemyPrefab = prefab.ValueRO.Value;
+                var spawnedEnemiesCount = enemyQuery.CalculateEntityCount();
+                int enemiesToSpawn = desiredEnemies - spawnedEnemiesCount;
 
-        ecb.Playback(state.EntityManager);
-        ecb.Dispose();
-    }
+                for (int i = 0; i < enemiesToSpawn; i++)
+                {
+                    var spawnedEntity = ecb.Instantiate(enemyPrefab);
 
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state)
-    {
-        
+                    float x = generator.ValueRW.Value.NextFloat(-100, 100);
+                    float y = generator.ValueRW.Value.NextFloat(-100, 100);
+
+                    ecb.AddComponent(spawnedEntity, new LocalTransform()
+                    {
+                        Position = new Unity.Mathematics.float3(x, y, 0.0f),
+                        Rotation = quaternion.identity,
+                        Scale = 1.0f,
+                    });
+
+                }
+            }
+
+            if (!isInitialized)
+                return;
+
+
+
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
+        }
+
+        [BurstCompile]
+        public void OnDestroy(ref SystemState state)
+        {
+
+        }
     }
 }

@@ -1,7 +1,10 @@
 using Unity.Entities;
 using UnityEngine;
 
-public struct RotationSpeed : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float Value;
+    public struct RotationSpeed : IComponentData
+    {
+        public float Value;
+    }
 }

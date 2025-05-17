@@ -1,7 +1,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct LocalRotationOffset : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float3 Value;
+    public struct LocalRotationOffset : IComponentData
+    {
+        public float3 Value;
+    }
 }

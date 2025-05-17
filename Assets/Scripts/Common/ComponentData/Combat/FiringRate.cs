@@ -1,7 +1,9 @@
 using Unity.Entities;
 
-
-public struct FiringRate : IComponentData
+namespace SpaceGame.Combat.Components
 {
-    public float Value;
+    public struct FiringRate : IComponentData
+    {
+        public float Value;
+    }
 }

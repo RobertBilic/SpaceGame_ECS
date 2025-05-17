@@ -1,3 +1,4 @@
+using SpaceGame.Movement.Components;
 using SpaceGame.Movement.Flowfield.Components;
 using Unity.Burst;
 using Unity.Collections;

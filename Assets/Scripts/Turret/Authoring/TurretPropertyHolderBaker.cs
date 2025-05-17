@@ -1,5 +1,6 @@
 using SpaceGame.Animations.Components;
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Components;
 using Unity.Entities;
 
 namespace SpaceGame.Combat.Authoring

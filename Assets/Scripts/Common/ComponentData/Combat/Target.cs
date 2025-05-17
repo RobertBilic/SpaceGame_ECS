@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct Target : IComponentData
+namespace SpaceGame.Combat.Components
 {
-    public Entity Value;
+    public struct Target : IComponentData
+    {
+        public Entity Value;
+    }
 }

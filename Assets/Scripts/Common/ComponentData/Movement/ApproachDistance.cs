@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct ApproachDistance : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float Value;
+    public struct ApproachDistance : IComponentData
+    {
+        public float Value;
+    }
 }

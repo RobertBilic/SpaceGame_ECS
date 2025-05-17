@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct CurrentRotation : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float Value;
+    public struct CurrentRotation : IComponentData
+    {
+        public float Value;
+    }
 }

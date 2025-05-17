@@ -1,4 +1,6 @@
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Components;
+using SpaceGame.SpatialGrid.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;

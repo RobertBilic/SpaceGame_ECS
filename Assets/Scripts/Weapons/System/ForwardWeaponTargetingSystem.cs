@@ -1,5 +1,5 @@
 using SpaceGame.Combat.Components;
-using System;
+using SpaceGame.SpatialGrid.Components;
 using Unity.Entities;
 
 namespace SpaceGame.Combat.Systems

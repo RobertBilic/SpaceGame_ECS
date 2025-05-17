@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct DisengageDistance : IComponentData
+namespace SpaceGame.Movement.Components
 {
-    public float Value;
+    public struct DisengageDistance : IComponentData
+    {
+        public float Value;
+    }
 }

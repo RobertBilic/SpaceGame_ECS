@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public struct LastFireTime : IComponentData
+namespace SpaceGame.Combat.Components
 {
-    public double Value;
+    public struct LastFireTime : IComponentData
+    {
+        public double Value;
+    }
 }
