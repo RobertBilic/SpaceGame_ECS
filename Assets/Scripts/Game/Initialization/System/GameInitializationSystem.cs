@@ -1,9 +1,11 @@
 using SpaceGame.Combat.Components;
+using SpaceGame.Game.Initialization.Components;
+using SpaceGame.Game.State.Component;
 using SpaceGame.SpatialGrid.Components;
 using Unity.Burst;
 using Unity.Entities;
 
-namespace SpaceGame.Game.Systems
+namespace SpaceGame.Game.Initialization.Systems 
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     partial struct GameInitializationSystem : ISystem
@@ -32,6 +34,8 @@ namespace SpaceGame.Game.Systems
                 state.EntityManager.CreateSingletonBuffer<BulletPoolRequest>("Bullet Pool Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactSpawnRequest>("Impact Effect Spawn Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactEffectPoolRequest>("Impact Effect Pool Request Collector");
+                state.EntityManager.CreateSingleton(new GameStateComponent() { Value = GameState.MainMenu }, "GameState");
+                state.EntityManager.CreateSingleton<GameInitializedTag>();
 
                 var entity = state.EntityManager.CreateSingleton<GlobalTimeComponent>("TimeScaleSingleton");
                 state.EntityManager.SetComponentData(entity, new GlobalTimeComponent()

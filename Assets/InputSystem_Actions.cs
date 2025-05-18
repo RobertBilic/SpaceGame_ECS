@@ -551,6 +551,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""StateChange"",
+                    ""type"": ""Value"",
+                    ""id"": ""92154b94-ab76-4ba0-8949-928a625603b6"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -595,6 +604,39 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": ""Scale(factor=0)"",
                     ""groups"": """",
                     ""action"": ""TimeManipulation"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6f2d4a78-fc4f-4aa4-879b-d66b4a80c171"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale"",
+                    ""groups"": """",
+                    ""action"": ""StateChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0c275e53-9aa2-422b-9233-3f5caa3a638d"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=2)"",
+                    ""groups"": """",
+                    ""action"": ""StateChange"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e8be9298-4bf0-486e-aa16-8683f9225194"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=4)"",
+                    ""groups"": """",
+                    ""action"": ""StateChange"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -679,6 +721,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         // Gameplay
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
         m_Gameplay_TimeManipulation = m_Gameplay.FindAction("TimeManipulation", throwIfNotFound: true);
+        m_Gameplay_StateChange = m_Gameplay.FindAction("StateChange", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -865,11 +908,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Gameplay;
     private List<IGameplayActions> m_GameplayActionsCallbackInterfaces = new List<IGameplayActions>();
     private readonly InputAction m_Gameplay_TimeManipulation;
+    private readonly InputAction m_Gameplay_StateChange;
     public struct GameplayActions
     {
         private @InputSystem_Actions m_Wrapper;
         public GameplayActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
         public InputAction @TimeManipulation => m_Wrapper.m_Gameplay_TimeManipulation;
+        public InputAction @StateChange => m_Wrapper.m_Gameplay_StateChange;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -882,6 +927,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @TimeManipulation.started += instance.OnTimeManipulation;
             @TimeManipulation.performed += instance.OnTimeManipulation;
             @TimeManipulation.canceled += instance.OnTimeManipulation;
+            @StateChange.started += instance.OnStateChange;
+            @StateChange.performed += instance.OnStateChange;
+            @StateChange.canceled += instance.OnStateChange;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -889,6 +937,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @TimeManipulation.started -= instance.OnTimeManipulation;
             @TimeManipulation.performed -= instance.OnTimeManipulation;
             @TimeManipulation.canceled -= instance.OnTimeManipulation;
+            @StateChange.started -= instance.OnStateChange;
+            @StateChange.performed -= instance.OnStateChange;
+            @StateChange.canceled -= instance.OnStateChange;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -967,5 +1018,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     public interface IGameplayActions
     {
         void OnTimeManipulation(InputAction.CallbackContext context);
+        void OnStateChange(InputAction.CallbackContext context);
     }
 }
