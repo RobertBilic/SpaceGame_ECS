@@ -1,8 +1,7 @@
-using Unity.Burst;
 using Unity.Entities;
 
 [UpdateInGroup(typeof(CombatSystemGroup), OrderFirst = true)]
-partial class TimeSystem : SystemBase
+partial class CombatTimeSystem : SystemBase
 {
     private InputSystem_Actions inputActions;
     public float timeMultiplier;

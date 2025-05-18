@@ -1,7 +1,14 @@
+using SpaceGame.Game.Initialization.Components;
 using Unity.Entities;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-public partial class CombatSystemGroup : ComponentSystemGroup { }
+public partial class CombatSystemGroup : ComponentSystemGroup {
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        RequireForUpdate<GameInitializedTag>();
+    }
+}
 
 [UpdateInGroup(typeof(CombatSystemGroup), OrderFirst = true)]
 public partial class CombatInitializationGroup : ComponentSystemGroup { }

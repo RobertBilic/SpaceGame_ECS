@@ -66,7 +66,6 @@ namespace SpaceGame.Combat.Systems
                         {
                             Value = turret
                         });
-
                     }
                 }
 

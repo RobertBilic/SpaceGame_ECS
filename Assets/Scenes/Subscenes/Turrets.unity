@@ -195,9 +195,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: bullet_basic_1
   Prefab: {fileID: 8888681493565606068, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
-  OnEffectPrefab: {fileID: 7564430914591536725, guid: f7524391927a27442ae970a7381c629f, type: 3}
-  BulletSpeed: 200
-  Scale: 0.2
 --- !u!4 &302398009
 Transform:
   m_ObjectHideFlags: 0
@@ -244,9 +241,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: bullet_basic_2
   Prefab: {fileID: 8888681493565606068, guid: d2a39ed91b0a5a348a1f3584fbc21ca0, type: 3}
-  OnEffectPrefab: {fileID: 7564430914591536725, guid: 1b8fbdc97a529694593f7ece1c44cda3, type: 3}
-  BulletSpeed: 100
-  Scale: 0.1
 --- !u!4 &1577174181
 Transform:
   m_ObjectHideFlags: 0
