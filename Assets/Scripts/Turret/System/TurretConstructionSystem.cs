@@ -43,7 +43,7 @@ namespace SpaceGame.Combat.Systems
 
                     ecb.AppendToBuffer<LinkedEntityGroup>(request.RootEntity, new LinkedEntityGroup()
                     {
-                        Value = request.RootEntity
+                        Value = turret
                     });
                 }
 
