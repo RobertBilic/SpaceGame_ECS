@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-namespace SpaceGame.Utility.Temp
+namespace SpaceGame.Combat.Authoring
 {
-
-    class TestEnemy : MonoWithHitbox
+    class ShipAuthoring : MonoWithHitbox
     {
         public float Speed;
         public float RotationSpeed;
@@ -20,17 +19,15 @@ namespace SpaceGame.Utility.Temp
         public List<ForwardWeaponAuthoring> Weapons;
 
         [Header("Health")]
+        public float Health;
         public GameObject HealthBar;
     }
 
-    class TestEnemyBaker : BakerWithHitboxes<TestEnemy>
+    class TestEnemyBaker : BakerWithHitboxes<ShipAuthoring>
     {
-        protected override void BakeAdditionalData(Entity entity, TestEnemy authoring)
+        protected override void BakeAdditionalData(Entity entity, ShipAuthoring authoring)
         {
-            AddComponent(entity, new Health() { Current = 100, Max = 100 });
-            AddComponent(entity, new IsAlive() { });
-            AddComponent(entity, new TeamTag() { Team = 2 });
-            AddComponent(entity, new EnemyTag());
+            AddComponent(entity, new Health() { Current = authoring.Health, Max = authoring.Health });
             AddComponent(entity, new MoveSpeed() { Value = authoring.Speed });
             AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
             AddComponent(entity, new ApproachDistance() { Value = authoring.ApproachDistance });
@@ -42,14 +39,15 @@ namespace SpaceGame.Utility.Temp
                 MaxBankAngle = authoring.MaxShipBankingAngle,
                 SmoothSpeed = authoring.BankingSmoothSpeed
             });
-            AddComponent<TargetableTag>(entity);
-            AddBuffer<SpatialDatabaseCellIndex>(entity);
-            AddBuffer<DamageHealthRequestBuffer>(entity);
             AddComponent(entity, new Target());
-            var weaponBuffer = AddBuffer<ForwardWeaponElement>(entity);
+            
+            if (authoring.Weapons.Count != 0)
+            {
+                var weaponBuffer = AddBuffer<ForwardWeaponElement>(entity);
 
-            foreach (var weapon in authoring.Weapons)
-                weaponBuffer.Add(new ForwardWeaponElement() { Ref = GetEntity(weapon, TransformUsageFlags.Dynamic) });
+                foreach (var weapon in authoring.Weapons)
+                    weaponBuffer.Add(new ForwardWeaponElement() { Ref = GetEntity(weapon, TransformUsageFlags.Dynamic) });
+            }
 
             AddComponent(entity, new HealthBarReference()
             {

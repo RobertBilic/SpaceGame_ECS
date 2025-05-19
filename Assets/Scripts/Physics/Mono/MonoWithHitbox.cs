@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class MonoWithHitbox : MonoBehaviour
 {
-    [HideInInspector]
     public List<Hitbox> Hitboxes = new List<Hitbox>();
 
     void OnDrawGizmosSelected()

@@ -73,6 +73,7 @@ namespace SpaceGame.Movement.Flowfield.Systems
             Dependency = job.ScheduleParallel(Dependency);
             ecbSystem.AddJobHandleForProducer(Dependency);
             buffer.Dispose(Dependency);
+            Dependency.Complete();
         }
     }
 }

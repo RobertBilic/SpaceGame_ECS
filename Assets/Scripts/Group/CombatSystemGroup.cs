@@ -19,7 +19,7 @@ public partial class CombatMovementGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]
 [UpdateAfter(typeof(CombatMovementGroup))]
-public partial class CombatTargetingGroup : ComponentSystemGroup { }
+public partial class CombatTargetingGroup : ComponentSystemGroup{ }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]
 [UpdateAfter(typeof(CombatTargetingGroup))]
