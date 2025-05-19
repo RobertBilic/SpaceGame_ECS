@@ -5,96 +5,55 @@ using UnityEngine;
 
 public class CapitalShipSpawner : MonoBehaviour
 {
-    [SerializeField]
-    private CameraFollow followScript;
-
     EntityManager em;
-
-    Entity shipPrefabBaker;
-    Entity turretPrefabBaker; 
-    bool prefabReady = false;
 
     void Start()
     {
-        em = World.DefaultGameObjectInjectionWorld.EntityManager;
-    }
-
-    void Update()
-    {
-        if (!prefabReady)
+        em = World.DefaultGameObjectInjectionWorld.EntityManager; var entity = em.CreateEntity();
+        em.AddComponentData(entity, new ShipConstructionRequest()
         {
-            EntityQuery query = em.CreateEntityQuery(new EntityQueryDesc
-            {
-                All = new ComponentType[] {
-                ComponentType.ReadOnly<Prefab>(),
-                ComponentType.ReadOnly<CapitalShipPrefab>()
-                },
+            Scale = 5.0f,
+            SpawnPosition = float3.zero,
+            Id = "ships_capital_ship",
+            Team = 1
+        });
 
-                Options = EntityQueryOptions.IncludePrefab
-            });
+        var addOns = em.AddBuffer<ShipConstructionAddonRequest>(entity);
 
-            EntityQuery query2 = em.CreateEntityQuery(new EntityQueryDesc()
-            {
-                All = new ComponentType[]
-                {
-                    ComponentType.ReadOnly<TurretPrefab>()
-                },
-                Options = EntityQueryOptions.IncludePrefab
-            });
+        addOns.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<CapitalShipTag>() });
+        addOns.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<SceneMovementData>() });
 
-            if (query.CalculateEntityCount() == 1 && query2.CalculateEntityCount() == 1)
-            {
-                shipPrefabBaker = query.GetSingletonEntity();
-                turretPrefabBaker = query2.GetSingletonEntity();
-                prefabReady = true;
+        var turretBuffer = em.AddBuffer<ShipTurretConstructionRequest>(entity);
 
-                var entity = em.CreateEntity();
-
-                var shipPrefabBakerData = em.GetComponentData<CapitalShipPrefab>(shipPrefabBaker);
-                var turretPrefabBakerData = em.GetComponentData<TurretPrefab>(turretPrefabBaker);
-
-                em.AddComponentData(entity, new CapitalShipConstructionRequest()
-                {
-                    CapitalShipPrefab = shipPrefabBakerData.Value,
-                    MoveSpeed = 2.0f,
-                    Scale = 5.0f,
-                    RotationSpeed = 50,
-                    SpawnPosition = float3.zero
-                });
-
-                var buffer = em.AddBuffer<CapitalShipTurret>(entity);
-                buffer.Add(new CapitalShipTurret()
-                {
-                    Position = new float3(5.0f, 0.0f, 0.0f),
-                    Scale = 0.2f,
-                    TurretPrefab = turretPrefabBakerData.PrefabEntity,
-                });
-                buffer.Add(new CapitalShipTurret()
-                {
-                    Position = new float3(0.0f, 0.0f, 0.0f),
-                    Scale = 0.2f,
-                    TurretPrefab = turretPrefabBakerData.PrefabEntity,
-                });
-                buffer.Add(new CapitalShipTurret()
-                {
-                    Position = new float3(-2.5f, 0.0f, 0.0f),
-                    Scale = 0.2f,
-                    TurretPrefab = turretPrefabBakerData.PrefabEntity,
-                });
-                buffer.Add(new CapitalShipTurret()
-                {
-                    Position = new float3(2.5f, 0.0f, 0.0f),
-                    Scale = 0.2f,
-                    TurretPrefab = turretPrefabBakerData.PrefabEntity,
-                });
-                buffer.Add(new CapitalShipTurret()
-                {
-                    Position = new float3(-5.0f, 0.0f, 0.0f),
-                    Scale = 0.2f,
-                    TurretPrefab = turretPrefabBakerData.PrefabEntity,
-                });
-            }
-        }
+        turretBuffer.Add(new ShipTurretConstructionRequest()
+        {
+            Position = new float3(5.0f, 0.0f, 0.0f),
+            Scale = 0.2f,
+            Id = "turret_basic_1"
+        });
+        turretBuffer.Add(new ShipTurretConstructionRequest()
+        {
+            Position = new float3(0.0f, 0.0f, 0.0f),
+            Scale = 0.2f,
+            Id = "turret_basic_1"
+        });
+        turretBuffer.Add(new ShipTurretConstructionRequest()
+        {
+            Position = new float3(-2.5f, 0.0f, 0.0f),
+            Scale = 0.2f,
+            Id = "turret_basic_1"
+        });
+        turretBuffer.Add(new ShipTurretConstructionRequest()
+        {
+            Position = new float3(2.5f, 0.0f, 0.0f),
+            Scale = 0.2f,
+            Id = "turret_basic_1"
+        });
+        turretBuffer.Add(new ShipTurretConstructionRequest()
+        {
+            Position = new float3(-5.0f, 0.0f, 0.0f),
+            Scale = 0.2f,
+            Id = "turret_basic_1"
+        });
     }
-
 }

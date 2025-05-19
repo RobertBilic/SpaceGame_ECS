@@ -9,6 +9,7 @@ using Unity.Transforms;
 namespace SpaceGame.Movement.Flowfield.Jobs
 {
     [BurstCompile]
+    [WithAll(typeof(FlowFieldMovementEntityTag))]
     public partial struct ShipFlowFieldMovementJob : IJobEntity
     {
         public float DeltaTime;

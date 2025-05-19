@@ -1,4 +1,5 @@
 using SpaceGame.Combat.Components;
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -6,31 +7,45 @@ namespace SpaceGame.Combat.Authoring
 {
     class BulletPrefabAuthoring : MonoBehaviour
     {
-        public string Id;
-        public GameObject Prefab;
+        [SerializeField]
+        private List<BulletPrefabData> dataList;
 
         private void OnValidate()
         {
-            if(Id.Length > 29)
+            foreach (var data in dataList)
             {
-                UnityEngine.Debug.LogError("Strings must have less than 30 characters since we use FixedString32Bytes");
+                if (data.Id.Length > 29)
+                {
+                    UnityEngine.Debug.LogError("Strings must have less than 30 characters since we use FixedString32Bytes");
+                }
             }
         }
-    }
 
-    class BulletPrefabAuthoringBaker : Baker<BulletPrefabAuthoring>
-    {
-        public override void Bake(BulletPrefabAuthoring authoring)
+        class BulletPrefabAuthoringBaker : Baker<BulletPrefabAuthoring>
         {
-            var entity = GetEntity(TransformUsageFlags.None);
-            var prefabEntity = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic);
-
-            AddComponent<Prefab>(entity);
-            AddComponent(entity, new BulletPrefab()
+            public override void Bake(BulletPrefabAuthoring authoring)
             {
-                Entity = prefabEntity,
-                Id = authoring.Id
-            }); 
+
+                foreach (var data in authoring.dataList)
+                {
+                    var entity = CreateAdditionalEntity(TransformUsageFlags.None);
+                    var prefabEntity = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
+
+                    AddComponent<Prefab>(entity);
+                    AddComponent(entity, new BulletPrefab()
+                    {
+                        Entity = prefabEntity,
+                        Id = data.Id
+                    });
+                }
+            }
+        }
+
+        [System.Serializable]
+        class BulletPrefabData
+        {
+            public string Id;
+            public BulletAuthoring Prefab;
         }
     }
 }

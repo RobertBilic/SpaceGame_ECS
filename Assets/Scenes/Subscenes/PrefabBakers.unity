@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &107188899
+--- !u!1 &129029275
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,36 +127,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 107188902}
-  - component: {fileID: 107188901}
+  - component: {fileID: 129029276}
+  - component: {fileID: 129029277}
   m_Layer: 0
-  m_Name: FlowField
+  m_Name: TurretPrefabBaker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &107188901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 107188899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b980354a7c77e148a14f0cb12429491, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WorldSize: {x: 300, y: 300}
-  CellSize: 1
---- !u!4 &107188902
+--- !u!4 &129029276
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 107188899}
+  m_GameObject: {fileID: 129029275}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -165,6 +151,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &129029277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129029275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce783abe152c5a443a96853e546583c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataList:
+  - Prefab: {fileID: 6216053240233295670, guid: 1ca126835f6052b4d9b5d16b3bee6636, type: 3}
+    Id: turret_basic_1
 --- !u!1 &436255753
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,7 +177,7 @@ GameObject:
   - component: {fileID: 436255755}
   - component: {fileID: 436255756}
   m_Layer: 0
-  m_Name: CapitalShipBaker
+  m_Name: ShipPrefabBakers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -209,10 +210,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69c048c53cf4e6e4eb79be1d0abba47b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 8993091329281803545, guid: 12928dd04c6cd9245b2884245be131be, type: 3}
+  Data:
+  - Prefab: {fileID: 7465079304060104783, guid: 12928dd04c6cd9245b2884245be131be, type: 3}
+    Id: ships_capital_ship
+  - Prefab: {fileID: 1176641965186885042, guid: 6f26d334af8f51244940af31ed087e69, type: 3}
+    Id: ships_test_enemy
+--- !u!1 &1577174179
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1577174181}
+  - component: {fileID: 1577174180}
+  m_Layer: 0
+  m_Name: BulletPrefabBakers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1577174180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1577174179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a56589d17f210c4093acadb335996c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataList:
+  - Id: bullet_basic_1
+    Prefab: {fileID: 5324084707071364767, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
+  - Id: bullet_basic_2
+    Prefab: {fileID: 5324084707071364767, guid: d2a39ed91b0a5a348a1f3584fbc21ca0, type: 3}
+--- !u!4 &1577174181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1577174179}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 107188902}
+  - {fileID: 129029276}
+  - {fileID: 1577174181}
   - {fileID: 436255755}

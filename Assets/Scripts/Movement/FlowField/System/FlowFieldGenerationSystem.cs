@@ -23,6 +23,7 @@ namespace SpaceGame.Movement.Flowfield.Systems
             capitalShipQuery = state.GetEntityQuery(ComponentType.ReadOnly<CapitalShipTag>(), ComponentType.ReadOnly<LocalTransform>());
             flowFieldQuery = state.GetEntityQuery(ComponentType.ReadWrite<FlowFieldSettings>(), ComponentType.ReadWrite<FlowFieldCell>());
             updateCooldown = 0f;
+            lastTargetPosition = new float3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
         }
 
         public void OnUpdate(ref SystemState state)

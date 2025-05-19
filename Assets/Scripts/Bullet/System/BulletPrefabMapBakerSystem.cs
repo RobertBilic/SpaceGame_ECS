@@ -5,6 +5,8 @@ using Unity.Entities;
 [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
 public partial struct BulletPrefabMapBakerSystem : ISystem
 {
+    private BlobAssetReference<BulletPrefabLookup> blobRef;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate(state.EntityManager.CreateEntityQuery(new EntityQueryDesc() {
@@ -29,11 +31,16 @@ public partial struct BulletPrefabMapBakerSystem : ISystem
         for (int i = 0; i < bulletPrefabs.Length; i++)
             array[i] = bulletPrefabs[i];
 
-        var blobRef = builder.CreateBlobAssetReference<BulletPrefabLookup>(Allocator.Persistent);
+        blobRef = builder.CreateBlobAssetReference<BulletPrefabLookup>(Allocator.Persistent);
         builder.Dispose();
 
         var entity = state.EntityManager.CreateEntity();
         state.EntityManager.AddComponentData(entity, new BulletPrefabLookupSingleton { Lookup = blobRef });
         state.Enabled = false;
+    }
+
+    public void OnDestroy(ref SystemState state)
+    {
+        blobRef.Dispose();
     }
 }

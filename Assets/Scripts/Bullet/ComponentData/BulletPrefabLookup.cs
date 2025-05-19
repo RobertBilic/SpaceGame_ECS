@@ -17,3 +17,4 @@ public struct BulletPrefabLookup
         return default(BulletPrefab);
     }
 }
+

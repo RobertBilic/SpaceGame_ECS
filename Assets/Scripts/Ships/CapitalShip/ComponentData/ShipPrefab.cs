@@ -1,11 +1,11 @@
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 
 namespace SpaceGame.Combat.Components
 {
-    public struct TurretPrefab : IComponentData
+    public struct ShipPrefab : IComponentData
     {
-        public Entity PrefabEntity;
         public FixedString32Bytes Id;
+        public Entity Value;
     }
 }

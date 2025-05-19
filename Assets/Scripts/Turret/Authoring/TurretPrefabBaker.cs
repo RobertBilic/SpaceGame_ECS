@@ -1,4 +1,5 @@
 using SpaceGame.Combat.Components;
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -6,22 +7,36 @@ namespace SpaceGame.Combat.Authoring
 {
     class TurretPrefabBaker : MonoBehaviour
     {
-        public TurretPropertyHolder Prefab;
-    }
+        [SerializeField]
+        private List<TurretPrefabData> dataList;
 
-    class TurretPrefabBakerBaker : Baker<TurretPrefabBaker>
-    {
-        public override void Bake(TurretPrefabBaker authoring)
+        class TurretPrefabBakerBaker : Baker<TurretPrefabBaker>
         {
-            var rootEntity = GetEntity(TransformUsageFlags.None);
-            var prefabEntity = GetEntity(authoring.Prefab, TransformUsageFlags.Dynamic);
 
-            AddComponent(rootEntity, new TurretPrefab()
+            public override void Bake(TurretPrefabBaker authoring)
             {
-                PrefabEntity = prefabEntity
-            });
+                foreach (var data in authoring.dataList)
+                {
+                    var rootEntity = CreateAdditionalEntity(TransformUsageFlags.None);
+                    var prefabEntity = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
 
-            AddComponent<Prefab>(rootEntity);
+                    AddComponent(rootEntity, new TurretPrefab()
+                    {
+                        PrefabEntity = prefabEntity,
+                        Id = data.Id
+                        
+                    });
+
+                    AddComponent<Prefab>(rootEntity);
+                }
+            }
+        }
+        
+        [System.Serializable]
+        class TurretPrefabData
+        {
+            public TurretPropertyHolder Prefab;
+            public string Id;
         }
     }
 }

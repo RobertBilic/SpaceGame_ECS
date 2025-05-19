@@ -168,8 +168,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RotationBase: {fileID: 2233223112315394719}
   RotationSpeed: 2
-  Damage: 1
-  FiringRate: 30
+  Damage: 30
+  FiringRate: 3
   Range: 100
   RecoilTarget: {fileID: 5174824032697320485}
   RecoilDuration: 0.2

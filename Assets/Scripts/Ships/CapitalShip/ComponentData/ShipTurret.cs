@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct CapitalShipTurret : IBufferElementData
+public struct ShipTurret : IBufferElementData
 {
     public Entity TurretPrefab;
     public float3 Position;

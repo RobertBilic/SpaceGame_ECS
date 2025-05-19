@@ -4,20 +4,10 @@ using UnityEngine;
 public delegate void OnUIShown();
 public delegate void OnUIHide();
 
-public class GameStateUIController : MonoBehaviour
+public abstract class GameStateUIController : MonoBehaviour
 {
-    [SerializeField]
-    GameStateUI ui;
+    public abstract GameState GetRequiredGameState();
+    public abstract void Show(OnUIShown onShow = null);
 
-    public GameState GetRequiredGameState() => ui.GetRequiredGameState();
-    public virtual void Show(OnUIShown onShow = null)
-    {
-        ui.gameObject.SetActive(true);
-        onShow?.Invoke();
-    }
-    public virtual void Hide(OnUIHide onHide = null)
-    {
-        ui.gameObject.SetActive(false);
-        onHide?.Invoke();
-    }
+    public abstract void Hide(OnUIHide onHide = null);
 }

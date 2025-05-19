@@ -1,3 +1,4 @@
+using SpaceGame.Combat.Components;
 using SpaceGame.Movement.Components;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -23,7 +24,11 @@ namespace SpaceGame.Combat.Authoring
         {
             AddComponent(entity, new MoveSpeed { Value = authoring.MoveSpeed });
             AddComponent(entity, new RotationSpeed { Value = authoring.RotationSpeed });
+            AddComponent(entity, new Health() { Current = authoring.MaxHealth, Max = authoring.MaxHealth });
+            AddComponent(entity, new CurrentRotation() { Value = 0.0f });
             AddComponent(entity, new CapitalShipTag());
+            AddBuffer<DamageHealthRequestBuffer>(entity);
+            AddComponent(entity, new Target());
 
             if (authoring.HealthBar != null)
             {

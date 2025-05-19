@@ -1,4 +1,5 @@
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Flowfield.Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,16 +10,17 @@ namespace SpaceGame.Utility.Temp
     [UpdateInGroup(typeof(CombatInitializationGroup))]
     partial struct TestEnemySpawnerSystem : ISystem
     {
-        private Entity enemyPrefab;
         private bool isInitialized;
         private EntityQuery enemyQuery;
         private int desiredEnemies;
+        Random random;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             enemyQuery = state.GetEntityQuery(ComponentType.ReadOnly<EnemyTag>());
             desiredEnemies = 50;
+            random = new Random(32323);
         }
 
         [BurstCompile]
@@ -26,36 +28,32 @@ namespace SpaceGame.Utility.Temp
         {
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-            foreach (var (prefab, generator) in SystemAPI.Query<RefRO<TestEnemyPrefab>, RefRW<RandomGenerator>>().WithOptions(EntityQueryOptions.IncludePrefab))
+            var spawnedEnemiesCount = enemyQuery.CalculateEntityCount();
+            int enemiesToSpawn = desiredEnemies - spawnedEnemiesCount;
+
+            for (int i = 0; i < enemiesToSpawn; i++)
             {
-                isInitialized = true;
-                enemyPrefab = prefab.ValueRO.Value;
-                var spawnedEnemiesCount = enemyQuery.CalculateEntityCount();
-                int enemiesToSpawn = desiredEnemies - spawnedEnemiesCount;
+                var spawnedEntity = ecb.CreateEntity();
 
-                for (int i = 0; i < enemiesToSpawn; i++)
+                float x = random.NextFloat(-100, 100);
+                float y = random.NextFloat(-100, 100);
+
+                ecb.AddComponent(spawnedEntity, new ShipConstructionRequest()
                 {
-                    var spawnedEntity = ecb.Instantiate(enemyPrefab);
+                    Id = "ships_test_enemy",
+                    Scale = 1.0f,
+                    SpawnPosition = new float3(x, y, 0.0f),
+                    Team = 2,
+                });
 
-                    float x = generator.ValueRW.Value.NextFloat(-100, 100);
-                    float y = generator.ValueRW.Value.NextFloat(-100, 100);
+                var addonRequests = ecb.AddBuffer<ShipConstructionAddonRequest>(spawnedEntity);
 
-                    ecb.AddComponent(spawnedEntity, new LocalTransform()
-                    {
-                        Position = new Unity.Mathematics.float3(x, y, 0.0f),
-                        Rotation = quaternion.identity,
-                        Scale = 1.0f,
-                    });
-
-                }
+                addonRequests.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<EnemyTag>() });
+                addonRequests.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<FlowFieldMovementEntityTag>() });
             }
 
-            if (!isInitialized)
-                return;
-
-
-
-            ecb.Playback(state.EntityManager);
+            if (ecb.ShouldPlayback)
+                ecb.Playback(state.EntityManager);
             ecb.Dispose();
         }
 

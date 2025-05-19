@@ -96,7 +96,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4499278219145873313}
-  - component: {fileID: -5538115344428080880}
+  - component: {fileID: 7465079304060104783}
   m_Layer: 0
   m_Name: Capital Ship
   m_TagString: Untagged
@@ -121,7 +121,7 @@ Transform:
   - {fileID: 958387789000818876}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-5538115344428080880
+--- !u!114 &7465079304060104783
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8993091329281803545}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 844b36b2eab1d664ba8299b40d46bd70, type: 3}
+  m_Script: {fileID: 11500000, guid: 3ddc65e12b66e3f43be98a7d46f3eee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Hitboxes:
@@ -167,9 +167,13 @@ MonoBehaviour:
   - LocalCenter: {x: -0.39, y: 2.85, z: 0}
     HalfExtents: {x: 0.3, y: 0.72, z: 1}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
-  MoveSpeed: 2
-  RotationSpeed: 10
-  MaxHealth: 500
+  Speed: 10
+  RotationSpeed: 5
+  ApproachDistance: 5
+  MaxShipBankingAngle: 5
+  BankingSmoothSpeed: 5
+  Weapons: []
+  Health: 9999999
   HealthBar: {fileID: 4942211788187107185}
 --- !u!1001 &2380160108327850916
 PrefabInstance:
