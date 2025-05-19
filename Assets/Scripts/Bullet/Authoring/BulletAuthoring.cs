@@ -10,7 +10,7 @@ namespace SpaceGame.Combat.Authoring
         public GameObject OnHitPrefab;
 
         public float Speed;
-        public float Scale;
+        public float Radius;
     }
 
     class BulletAuthoringBaker : Baker<BulletAuthoring>
@@ -20,7 +20,7 @@ namespace SpaceGame.Combat.Authoring
             var entity = GetEntity(TransformUsageFlags.Dynamic);
 
             AddComponent(entity, new MoveSpeed() { Value = authoring.Speed });
-            AddComponent(entity, new Radius() { Value = authoring.Scale });
+            AddComponent(entity, new Radius() { Value = authoring.Radius });
             AddComponent(entity, new BulletTag());
             AddComponent(entity, new Lifetime { Value = 0.0f });
             AddComponent(entity, new Heading() { });

@@ -167,8 +167,8 @@ namespace SpaceGame.Combat.Systems
 
             var hitEntities = new NativeHashSet<Entity>(256, Allocator.Temp);
 
-            foreach (var (bulletTransform, prevPos, bulletRadius, damage, onHitPrefab, teamTag, bulletId, bulletEntity)
-                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<OnHitEffectPrefab>, RefRO<TeamTag>, RefRO<BulletId>>()
+            foreach (var (bulletTransform, prevPos, bulletRadius, damage, teamTag, bulletId, bulletEntity)
+                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<TeamTag>, RefRO<BulletId>>()
                          .WithAll<BulletTag>()
                          .WithEntityAccess())
             {
