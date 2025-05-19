@@ -12,56 +12,48 @@ namespace SpaceGame.Game.State.Systems {
     partial class GameStateSystem : SystemBase
     {
         GameState lastProcessedState;
-        InputSystem_Actions inputActions;
 
         public event OnGameStateChanged OnGameStateChange;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            RequireForUpdate<GameStateComponent>();
-            lastProcessedState = GameState.None;
-            inputActions = new InputSystem_Actions();
+            RequireForUpdate<ChangeGameStateRequest>();
         }
 
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
-            inputActions.Enable();
-            inputActions.Gameplay.StateChange.performed += StateChange_performed;
         }
         protected override void OnStopRunning()
         {
             base.OnStopRunning();
-            inputActions.Disable();
-            inputActions.Gameplay.StateChange.performed -= StateChange_performed;
         }
 
-        private void StateChange_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
-        {
-            var value = (byte)obj.ReadValue<float>();
-
-            if (SystemAPI.TryGetSingletonRW<GameStateComponent>(out var gameState))
-            {
-                if (Enum.IsDefined(typeof(GameState), value))
-                    gameState.ValueRW.Value = (GameState)value;
-                else
-                    UnityEngine.Debug.LogWarning($"GameState not defined at value {value}");
-
-            }
-        }
         protected override void OnUpdate()
-        { 
-            if (!SystemAPI.TryGetSingleton<GameStateComponent>(out var gameState))
-                return;
+        {
+            var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-            if (lastProcessedState == gameState.Value)
-                return;
+            foreach(var (gameStateChangeRequest, entity) in SystemAPI.Query<RefRO<ChangeGameStateRequest>>()
+                .WithEntityAccess())
+            {
+                var gameState = gameStateChangeRequest.ValueRO.Value;
 
-            lastProcessedState = gameState.Value;
-            SetGroupEnabled(typeof(CombatSystemGroup),gameState.Value.HasFlag(GameState.Combat));
+                if (lastProcessedState == gameState)
+                    return;
 
-            OnGameStateChange?.Invoke(gameState.Value);
+                lastProcessedState = gameState;
+                SetGroupEnabled(typeof(CombatSystemGroup), gameState.HasFlag(GameState.Combat));
+                OnGameStateChange?.Invoke(gameState);
+
+                ecb.DestroyEntity(entity);
+            
+                if(SystemAPI.TryGetSingletonRW<GameStateComponent>(out var gameStateSingleton))
+                    gameStateSingleton.ValueRW.Value = gameState;
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private void SetGroupEnabled(Type type,bool enabled)
