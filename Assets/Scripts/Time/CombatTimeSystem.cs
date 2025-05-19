@@ -1,61 +1,56 @@
+using SpaceGame.Combat.Components;
 using Unity.Entities;
 
-[UpdateInGroup(typeof(CombatSystemGroup), OrderFirst = true)]
-partial class CombatTimeSystem : SystemBase
+namespace SpaceGame.Combat.Systems
 {
-    private InputSystem_Actions inputActions;
-    public float timeMultiplier;
-    public float lastNonZeroTimeMultiplier;
-
-    protected override void OnCreate()
+    [UpdateInGroup(typeof(CombatInitializationGroup), OrderLast = true)]
+    partial class CombatTimeSystem : SystemBase
     {
-        inputActions = new InputSystem_Actions();
-        inputActions.Gameplay.TimeManipulation.performed += TimeManipulation_performed;
-        lastNonZeroTimeMultiplier = 1.0f;
-        timeMultiplier = 1.0f;
-    }
+        public float timeMultiplier;
+        public float lastNonZeroTimeMultiplier;
 
-    protected override void OnUpdate()
-    {
-        if (!SystemAPI.TryGetSingletonRW<GlobalTimeComponent>(out var timeComponent))
-            return;
-
-        timeComponent.ValueRW.FrameCount++;
-        timeComponent.ValueRW.FrameCountScaled += (long)timeMultiplier;
-
-        var dt = SystemAPI.Time.DeltaTime;
-
-        timeComponent.ValueRW.ElapsedTime += dt;
-        timeComponent.ValueRW.DeltaTime = dt;
-
-        timeComponent.ValueRW.DeltaTimeScaled = dt * timeMultiplier;
-        timeComponent.ValueRW.ElapsedTimeScaled += timeComponent.ValueRO.DeltaTimeScaled;
-    }
-
-    protected override void OnStartRunning()
-    {
-        inputActions?.Enable();
-    }
-
-    protected override void OnStopRunning()
-    {
-        inputActions?.Disable();
-    }
-
-    private void TimeManipulation_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
-    {
-        var value = obj.ReadValue<float>();
-
-        if (SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeScale))
+        protected override void OnCreate()
         {
-            if (value != 0.0f)
-                lastNonZeroTimeMultiplier = value;
+            lastNonZeroTimeMultiplier = 1.0f;
+            timeMultiplier = 1.0f;
+        }
 
-            if (value == 0.0f && timeMultiplier == 0.0f)
-                value = lastNonZeroTimeMultiplier;
+        protected override void OnUpdate()
+        {
+            if (!SystemAPI.TryGetSingletonRW<GlobalTimeComponent>(out var timeComponent))
+                return;
 
-            timeMultiplier = value;
+            var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+
+            foreach (var (timeScaleChangeRequest, entity) in SystemAPI.Query<RefRO<TimeScaleChangeRequest>>()
+                .WithEntityAccess())
+            {
+                var value = timeScaleChangeRequest.ValueRO.Value;
+
+                if (value != 0.0f)
+                    lastNonZeroTimeMultiplier = value;
+
+                if (value == 0.0f && timeMultiplier == 0.0f)
+                    value = lastNonZeroTimeMultiplier;
+
+                timeMultiplier = value;
+                ecb.DestroyEntity(entity);
+            }
+
+            timeComponent.ValueRW.FrameCount++;
+            timeComponent.ValueRW.FrameCountScaled += (long)timeMultiplier;
+
+            var dt = SystemAPI.Time.DeltaTime;
+
+            timeComponent.ValueRW.ElapsedTime += dt;
+            timeComponent.ValueRW.DeltaTime = dt;
+
+            timeComponent.ValueRW.DeltaTimeScaled = dt * timeMultiplier;
+            timeComponent.ValueRW.ElapsedTimeScaled += timeComponent.ValueRO.DeltaTimeScaled;
+
+            if (ecb.ShouldPlayback)
+                ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
-
 }

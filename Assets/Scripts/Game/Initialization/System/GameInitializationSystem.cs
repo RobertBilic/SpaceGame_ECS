@@ -35,7 +35,9 @@ namespace SpaceGame.Game.Initialization.Systems
                 state.EntityManager.CreateSingletonBuffer<ImpactSpawnRequest>("Impact Effect Spawn Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactEffectPoolRequest>("Impact Effect Pool Request Collector");
                 state.EntityManager.CreateSingleton(new GameStateComponent() { Value = GameState.MainMenu }, "GameState");
+                state.EntityManager.CreateSingleton(new ChangeGameStateRequest() { Value = GameState.MainMenu });
                 state.EntityManager.CreateSingleton<GameInitializedTag>();
+
 
                 var entity = state.EntityManager.CreateSingleton<GlobalTimeComponent>("TimeScaleSingleton");
                 state.EntityManager.SetComponentData(entity, new GlobalTimeComponent()
