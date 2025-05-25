@@ -9,10 +9,10 @@ public class CapitalShipSpawner : MonoBehaviour
 
     void Start()
     {
+        return;
         em = World.DefaultGameObjectInjectionWorld.EntityManager; var entity = em.CreateEntity();
         em.AddComponentData(entity, new ShipConstructionRequest()
         {
-            Scale = 5.0f,
             SpawnPosition = float3.zero,
             Id = "ships_capital_ship",
             Team = 1
@@ -28,31 +28,31 @@ public class CapitalShipSpawner : MonoBehaviour
         turretBuffer.Add(new ShipTurretConstructionRequest()
         {
             Position = new float3(5.0f, 0.0f, 0.0f),
-            Scale = 0.2f,
+            Scale = 1,
             Id = "turret_basic_1"
         });
         turretBuffer.Add(new ShipTurretConstructionRequest()
         {
             Position = new float3(0.0f, 0.0f, 0.0f),
-            Scale = 0.2f,
+            Scale = 1,
             Id = "turret_basic_1"
         });
         turretBuffer.Add(new ShipTurretConstructionRequest()
         {
             Position = new float3(-2.5f, 0.0f, 0.0f),
-            Scale = 0.2f,
+            Scale = 1,
             Id = "turret_basic_1"
         });
         turretBuffer.Add(new ShipTurretConstructionRequest()
         {
             Position = new float3(2.5f, 0.0f, 0.0f),
-            Scale = 0.2f,
+            Scale = 1,
             Id = "turret_basic_1"
         });
         turretBuffer.Add(new ShipTurretConstructionRequest()
         {
             Position = new float3(-5.0f, 0.0f, 0.0f),
-            Scale = 0.2f,
+            Scale = 1,
             Id = "turret_basic_1"
         });
     }

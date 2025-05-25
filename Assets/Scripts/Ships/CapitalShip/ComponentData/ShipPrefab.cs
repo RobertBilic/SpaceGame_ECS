@@ -7,5 +7,6 @@ namespace SpaceGame.Combat.Components
     {
         public FixedString32Bytes Id;
         public Entity Value;
+        public float Scale;
     }
 }

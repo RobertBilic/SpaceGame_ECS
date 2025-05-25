@@ -28,7 +28,6 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
                 return;
 
-
             if (!SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var bulletSpawnCollector))
                 return;
 

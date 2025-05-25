@@ -1,4 +1,5 @@
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Components;
 using SpaceGame.Movement.Flowfield.Components;
 using Unity.Burst;
 using Unity.Entities;
@@ -10,7 +11,6 @@ namespace SpaceGame.Utility.Temp
     [UpdateInGroup(typeof(CombatInitializationGroup))]
     partial struct TestEnemySpawnerSystem : ISystem
     {
-        private bool isInitialized;
         private EntityQuery enemyQuery;
         private int desiredEnemies;
         Random random;
@@ -26,6 +26,7 @@ namespace SpaceGame.Utility.Temp
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            return;
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
             var spawnedEnemiesCount = enemyQuery.CalculateEntityCount();
@@ -41,7 +42,6 @@ namespace SpaceGame.Utility.Temp
                 ecb.AddComponent(spawnedEntity, new ShipConstructionRequest()
                 {
                     Id = "ships_test_enemy",
-                    Scale = 1.0f,
                     SpawnPosition = new float3(x, y, 0.0f),
                     Team = 2,
                 });
@@ -49,7 +49,7 @@ namespace SpaceGame.Utility.Temp
                 var addonRequests = ecb.AddBuffer<ShipConstructionAddonRequest>(spawnedEntity);
 
                 addonRequests.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<EnemyTag>() });
-                addonRequests.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<FlowFieldMovementEntityTag>() });
+                addonRequests.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<SimpleMovementEntityTag>() });
             }
 
             if (ecb.ShouldPlayback)

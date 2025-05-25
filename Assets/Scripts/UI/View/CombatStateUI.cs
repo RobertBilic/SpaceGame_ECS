@@ -18,10 +18,16 @@ public class CombatStateUI : GameStateUI
     [SerializeField]
     private Button pauseButton;
 
+    [SerializeField]
+    private Color activeSpeedColor;
+    [SerializeField]
+    private Color deactivatedSpeedColor;
+
     private StringBuilder sb;
     private void Awake()
     {
         sb = new StringBuilder();
+        ToggleActiveStateForSpeedButtons(normalSpeedButton);
     }
 
     public override GameState GetRequiredGameState() => GameState.Combat;
@@ -38,9 +44,29 @@ public class CombatStateUI : GameStateUI
 
     public void SetSpeedChangeAction(OnTimeChangeButtonPressed action)
     {
-        pauseButton.onClick.AddListener(() => action(0.0f));
-        normalSpeedButton.onClick.AddListener(() => action(1.0f));
-        doubleSpeedButton.onClick.AddListener(() => action(2.0f));
-        tripleSpeedButton.onClick.AddListener(() => action(3.0f));
+        pauseButton.onClick.AddListener(() => {
+            action(0.0f);
+            ToggleActiveStateForSpeedButtons(pauseButton);
+        });
+        normalSpeedButton.onClick.AddListener(() => {
+            action(1.0f);
+            ToggleActiveStateForSpeedButtons(normalSpeedButton);
+        });
+        doubleSpeedButton.onClick.AddListener(() => {
+            action(2.0f);
+            ToggleActiveStateForSpeedButtons(doubleSpeedButton);
+        });
+        tripleSpeedButton.onClick.AddListener(() => {
+            action(3.0f);
+            ToggleActiveStateForSpeedButtons(tripleSpeedButton);
+        });
+    }
+
+    private void ToggleActiveStateForSpeedButtons(Button activeButton)
+    {
+        pauseButton.image.color = activeButton == pauseButton ? activeSpeedColor : deactivatedSpeedColor;
+        normalSpeedButton.image.color = activeButton == normalSpeedButton ? activeSpeedColor : deactivatedSpeedColor;
+        doubleSpeedButton.image.color = activeButton == doubleSpeedButton ? activeSpeedColor : deactivatedSpeedColor;
+        tripleSpeedButton.image.color = activeButton == tripleSpeedButton ? activeSpeedColor : deactivatedSpeedColor;
     }
 }

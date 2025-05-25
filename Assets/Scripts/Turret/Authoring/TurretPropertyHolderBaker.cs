@@ -5,9 +5,9 @@ using Unity.Entities;
 
 namespace SpaceGame.Combat.Authoring
 {
-    class TurretPropertyHolderBakerBaker : Baker<TurretPropertyHolder>
+    class TurretPropertyHolderBakerBaker : Baker<TurretAuthoring>
     {
-        public override void Bake(TurretPropertyHolder authoring)
+        public override void Bake(TurretAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
 

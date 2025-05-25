@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SpaceGame.Combat.Authoring
 {
-    class BulletAuthoring : MonoBehaviour
+    public class BulletAuthoring : MonoBehaviour
     {
         public GameObject OnHitPrefab;
 

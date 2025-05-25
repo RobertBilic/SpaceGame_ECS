@@ -138,7 +138,7 @@ namespace SpaceGame.Movement.Flowfield.Jobs
             if (BankingLookup.HasComponent(entity))
             {
                 var banking = BankingLookup[entity];
-                float bankStrength = 45f;
+                float bankStrength = banking.MaxBankAngle;
                 float targetAngle = math.clamp(crossZ * bankStrength, -bankStrength, bankStrength);
                 banking.CurrentBankAngle = math.lerp(banking.CurrentBankAngle, targetAngle, DeltaTime * banking.SmoothSpeed);
                 roll = banking.CurrentBankAngle;

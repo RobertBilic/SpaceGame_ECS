@@ -6,11 +6,7 @@ public struct ShipConstructionRequest : IComponentData
 {
     public FixedString32Bytes Id;
     public float3 SpawnPosition;
-    public float Scale;
     public int Team;
-
-    public DynamicBuffer<ShipTurretConstructionRequest> Turrets;
-    public DynamicBuffer<ShipForwardWeaponConstructionRequest> Weapons;
 }
 
 [InternalBufferCapacity(4)]

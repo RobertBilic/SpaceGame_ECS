@@ -722,6 +722,8 @@ MonoBehaviour:
   doubleSpeedButton: {fileID: 4737117618676099784}
   tripleSpeedButton: {fileID: 170841386386260446}
   pauseButton: {fileID: 6122186928428528920}
+  activeSpeedColor: {r: 0.42239228, g: 0.7924528, b: 0.42239228, a: 1}
+  deactivatedSpeedColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &6722711680419996095
 GameObject:
   m_ObjectHideFlags: 0

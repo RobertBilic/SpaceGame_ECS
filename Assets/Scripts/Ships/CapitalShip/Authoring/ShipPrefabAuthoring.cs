@@ -9,26 +9,19 @@ namespace SpaceGame.Combat.Authoring
     public class ShipPrefabAuthoring : MonoBehaviour
     {
         [SerializeField]
-        private List<ShipPrefabData> Data;
-
-        [System.Serializable]
-        private class ShipPrefabData
-        {
-            public ShipAuthoring Prefab;
-            public string Id;
-        }
+        private ShipPrefabDataHolder PrefabHolder;
 
         public class CapitalShipPrefabBaker : Baker<ShipPrefabAuthoring>
         {
             public override void Bake(ShipPrefabAuthoring authoring)
             {
-                foreach (var data in authoring.Data)
+                foreach (var data in authoring.PrefabHolder.Data)
                 {
                     var prefabEntity = CreateAdditionalEntity(TransformUsageFlags.None, false, "ShipPrefab:" + data.Id);
                     var prefab = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
 
                     AddComponent<Prefab>(prefabEntity);
-                    AddComponent(prefabEntity, new ShipPrefab() { Value = prefab , Id = data.Id });
+                    AddComponent(prefabEntity, new ShipPrefab() { Value = prefab , Id = data.Id, Scale = data.DefaultScale });
                 }
             }
         }

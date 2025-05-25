@@ -163,9 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce783abe152c5a443a96853e546583c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataList:
-  - Prefab: {fileID: 6216053240233295670, guid: 1ca126835f6052b4d9b5d16b3bee6636, type: 3}
-    Id: turret_basic_1
+  dataHolder: {fileID: 11400000, guid: 0c9adcf541f936a4d8b1457cbab100f8, type: 2}
 --- !u!1 &436255753
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,11 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69c048c53cf4e6e4eb79be1d0abba47b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Data:
-  - Prefab: {fileID: 7465079304060104783, guid: 12928dd04c6cd9245b2884245be131be, type: 3}
-    Id: ships_capital_ship
-  - Prefab: {fileID: 1176641965186885042, guid: 6f26d334af8f51244940af31ed087e69, type: 3}
-    Id: ships_test_enemy
+  PrefabHolder: {fileID: 11400000, guid: c8567843d87d0574aa8b808c4a83abcb, type: 2}
 --- !u!1 &1577174179
 GameObject:
   m_ObjectHideFlags: 0
@@ -244,11 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a56589d17f210c4093acadb335996c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataList:
-  - Id: bullet_basic_1
-    Prefab: {fileID: 5324084707071364767, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
-  - Id: bullet_basic_2
-    Prefab: {fileID: 5324084707071364767, guid: d2a39ed91b0a5a348a1f3584fbc21ca0, type: 3}
+  prefabHolder: {fileID: 11400000, guid: 1757d416b4d3e10468a8dab60b5e26e4, type: 2}
 --- !u!4 &1577174181
 Transform:
   m_ObjectHideFlags: 0

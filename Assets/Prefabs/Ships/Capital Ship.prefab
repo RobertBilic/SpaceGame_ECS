@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: df4c26dc6e7b80549b2892d61e387dd4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -97,6 +97,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4499278219145873313}
   - component: {fileID: 7465079304060104783}
+  - component: {fileID: 7017784088430301051}
+  - component: {fileID: 753694769642312649}
   m_Layer: 0
   m_Name: Capital Ship
   m_TagString: Untagged
@@ -167,14 +169,47 @@ MonoBehaviour:
   - LocalCenter: {x: -0.39, y: 2.85, z: 0}
     HalfExtents: {x: 0.3, y: 0.72, z: 1}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
-  Speed: 10
-  RotationSpeed: 5
+  Speed: 2
+  RotationSpeed: 15
   ApproachDistance: 5
   MaxShipBankingAngle: 5
   BankingSmoothSpeed: 5
+  SeparationRadius: 0
+  SeparationStrength: 0
+  DetectionRange: 200
   Weapons: []
-  Health: 9999999
+  Turrets: []
+  Health: 50000
   HealthBar: {fileID: 4942211788187107185}
+  AdditionalComponents:
+  - {fileID: 753694769642312649}
+--- !u!114 &7017784088430301051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8993091329281803545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eb6d13e762a04c4c80ad9f2cb433c08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    TurretBuildingSlots: []
+    WeaponBuildingSlots: []
+--- !u!114 &753694769642312649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8993091329281803545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee2698d847530a841ba2461e1daf7fd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2380160108327850916
 PrefabInstance:
   m_ObjectHideFlags: 0

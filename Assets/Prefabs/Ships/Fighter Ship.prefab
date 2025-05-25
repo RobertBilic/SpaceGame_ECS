@@ -139,7 +139,7 @@ MonoBehaviour:
   MaximumRotationAngle: 45
   RotationPadding: 10
   Range: 100
-  Damage: 10
+  Damage: 2
   FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0
@@ -277,6 +277,7 @@ GameObject:
   - component: {fileID: 7019599892175906231}
   - component: {fileID: 1176641965186885042}
   - component: {fileID: 3319614628580181442}
+  - component: {fileID: 5809449178765358149}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -348,11 +349,17 @@ MonoBehaviour:
   ApproachDistance: 30
   MaxShipBankingAngle: 45
   BankingSmoothSpeed: 15
+  SeparationRadius: 3
+  SeparationStrength: 15
+  DetectionRange: 300
   Weapons:
   - {fileID: 769587223710832835}
   - {fileID: 4525104627493519601}
+  Turrets: []
   Health: 100
   HealthBar: {fileID: 8667436750793339829}
+  AdditionalComponents:
+  - {fileID: 5809449178765358149}
 --- !u!114 &3319614628580181442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,6 +370,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c16549610bfe4458aa9389201d072bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5809449178765358149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975165111601300718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee2698d847530a841ba2461e1daf7fd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6995153746400742673
@@ -449,7 +468,7 @@ MonoBehaviour:
   MaximumRotationAngle: 45
   RotationPadding: 10
   Range: 100
-  Damage: 10
+  Damage: 2
   FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0

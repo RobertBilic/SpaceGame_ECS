@@ -313,7 +313,7 @@ public struct SpatialDatabase : IComponentData
     where T : unmanaged, ISpatialQueryCollector
     {
         UniformOriginGrid grid = spatialDatabase.Grid;
-        float3 halfExtents = new float3(radius); // To compute min/max coords
+        float3 halfExtents = new float3(radius); 
         float3 aabbMin = center - halfExtents;
         float3 aabbMax = center + halfExtents;
 
@@ -349,17 +349,18 @@ public struct SpatialDatabase : IComponentData
                             int maxCoordsDist = math.max(coordDist.x,
                                 math.max(coordDist.y, coordDist.z));
 
-                            // Skip all inner coords not belonging to the external layer
                             if (maxCoordsDist != l)
                             {
                                 x = xRange.y - 1;
                                 continue;
                             }
 
-                            // World-space position of the cell center
                             float3 cellCenter = UniformOriginGrid.GetCellCenter(grid.BoundsMin, grid.CellSize, coords);
+                            float3 cellHalfSize = new float3(grid.CellSize * 0.5f);
+                            float3 cellMin = cellCenter - cellHalfSize;
+                            float3 cellMax = cellCenter + cellHalfSize;
 
-                            if (math.distancesq(cellCenter, center) <= radiusSq)
+                            if (IntersectAABBWithSphere(cellMin, cellMax, center, radiusSq))
                             {
                                 int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
                                 SpatialDatabaseCell cell = cellsBuffer[cellIndex];
@@ -375,6 +376,12 @@ public struct SpatialDatabase : IComponentData
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IntersectAABBWithSphere(float3 aabbMin, float3 aabbMax, float3 sphereCenter, float radiusSq)
+    {
+        float3 closestPoint = math.clamp(sphereCenter, aabbMin, aabbMax);
+        return math.distancesq(closestPoint, sphereCenter) <= radiusSq;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void QueryAABBCellProximityOrder<T>(in SpatialDatabase spatialDatabase,

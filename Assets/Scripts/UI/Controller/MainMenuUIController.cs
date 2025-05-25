@@ -13,6 +13,6 @@ public class MainMenuUIController : GenericGameStateUIController<MainMenuUI>
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         var entity = em.CreateEntity();
-        em.AddComponentData(entity, new ChangeGameStateRequest() { Value = GameState.Combat });
+        em.AddComponentData(entity, new ChangeGameStateRequest() { Value = GameState.LevelSelection });
     }
 }

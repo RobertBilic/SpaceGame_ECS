@@ -15,6 +15,17 @@ namespace SpaceGame.Combat.Systems
             timeMultiplier = 1.0f;
         }
 
+        protected override void OnStartRunning()
+        {
+            if (!SystemAPI.TryGetSingletonRW<GlobalTimeComponent>(out var timeComponent))
+                return;
+
+            timeComponent.ValueRW.ElapsedTime = 0.0f;
+            timeComponent.ValueRW.ElapsedTimeScaled = 0.0f;
+            timeComponent.ValueRW.FrameCount = 0;
+            timeComponent.ValueRW.FrameCountScaled = 0;
+        }
+
         protected override void OnUpdate()
         {
             if (!SystemAPI.TryGetSingletonRW<GlobalTimeComponent>(out var timeComponent))
