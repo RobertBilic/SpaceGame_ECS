@@ -4,3 +4,8 @@ public struct DogfightTag : IComponentData
 {
     
 }
+
+public struct SupportsDogfightTag : IComponentData
+{ 
+
+}

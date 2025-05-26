@@ -135,7 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OnHitPrefab: {fileID: 7564430914591536725, guid: f7524391927a27442ae970a7381c629f, type: 3}
   Speed: 200
-  Radius: 0.5
+  Radius: 0.1
 --- !u!114 &8080357040543857817
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -52,7 +52,6 @@ partial struct LevelStartSystem : ISystem
 
                     var additionalComponentBuffer = ecb.AddBuffer<ShipConstructionAddonRequest>(constructionRequest);
 
-                    additionalComponentBuffer.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<SimpleMovementEntityTag>() });
                     if (playerTeam != ship.Team)
                         additionalComponentBuffer.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<EnemyTag>() });
                 }

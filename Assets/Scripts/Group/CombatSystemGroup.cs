@@ -15,6 +15,10 @@ public partial class CombatInitializationGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]
 [UpdateAfter(typeof(CombatInitializationGroup))]
+public partial class CombatStateTransitionGroup : ComponentSystemGroup { }
+
+[UpdateInGroup(typeof(CombatSystemGroup))]
+[UpdateAfter(typeof(CombatStateTransitionGroup))]
 public partial class CombatMovementGroup : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(CombatSystemGroup))]

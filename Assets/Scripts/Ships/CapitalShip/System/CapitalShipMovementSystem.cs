@@ -20,7 +20,7 @@ public partial struct CapitalShipMovementSystem : ISystem
 
         float deltaTime = timeComp.DeltaTimeScaled; 
 
-        foreach (var (transform, speed, index, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<MoveSpeed>, RefRW<CurrentWaypointIndex>>()
+        foreach (var (transform, speed, index, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<ThrustSettings>, RefRW<CurrentWaypointIndex>>()
                      .WithEntityAccess())
         {
             var buffer = SystemAPI.GetBuffer<Waypoint>(entity);
@@ -30,7 +30,7 @@ public partial struct CapitalShipMovementSystem : ISystem
             float3 direction = math.normalize(target - transform.ValueRO.Position);
             float distance = math.distance(transform.ValueRO.Position, target);
 
-            float move = speed.ValueRO.Value * deltaTime;
+            float move = speed.ValueRO.MaxSpeed * deltaTime;
 
             if (move >= distance)
             {

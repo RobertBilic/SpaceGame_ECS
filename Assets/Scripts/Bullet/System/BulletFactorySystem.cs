@@ -57,16 +57,16 @@ namespace SpaceGame.Combat.Systems
                 var bulletEntity = GetFromPool(state.EntityManager, ecb, prefabData.Id, prefabData.Entity);
 
                 var radius = state.EntityManager.HasComponent<Radius>(prefabData.Entity) ? state.EntityManager.GetComponentData<Radius>(prefabData.Entity).Value * 2.0f : 1.0f;
-                var speed = state.EntityManager.GetComponentData<MoveSpeed>(prefabData.Entity);
+                var speed = state.EntityManager.GetComponentData<ThrustSettings>(prefabData.Entity);
 
                 state.EntityManager.SetComponentData(bulletEntity, new LocalTransform
                 {
                     Position = request.Position,
                     Rotation = quaternion.identity,
-                    Scale = radius
+                    Scale = radius * request.ParentScale
                 });
 
-                var lifeTime = request.Range / speed.Value;
+                var lifeTime = request.Range / speed.MaxSpeed;
                 state.EntityManager.SetComponentData(bulletEntity, new Lifetime { Value = lifeTime });
                 state.EntityManager.SetComponentData(bulletEntity, new Heading() { Value = request.Heading });
                 state.EntityManager.SetComponentData(bulletEntity, new PreviousPosition() { Value = request.Position });

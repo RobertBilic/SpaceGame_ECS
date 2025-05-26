@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 998827056307074158}
   - component: {fileID: 3445906862540377746}
   - component: {fileID: 7989647409675012451}
+  - component: {fileID: 6130634025394638247}
   m_Layer: 0
   m_Name: Cruiser
   m_TagString: Untagged
@@ -66,12 +67,15 @@ MonoBehaviour:
     HalfExtents: {x: 0.19, y: -0.04, z: 0}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
   Speed: 30
+  Acceleration: 10
+  Decceleration: 5
+  SpeedRotationPenalty: 0.5
   RotationSpeed: 250
-  ApproachDistance: 10
   MaxShipBankingAngle: 30
   BankingSmoothSpeed: 15
   SeparationRadius: 5
   SeparationStrength: 15
+  CombatPower: 0
   DetectionRange: 300
   Weapons: []
   Turrets: []
@@ -79,6 +83,7 @@ MonoBehaviour:
   HealthBar: {fileID: 5888892028676618178}
   AdditionalComponents:
   - {fileID: 7989647409675012451}
+  - {fileID: 6130634025394638247}
 --- !u!114 &998827056307074158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,6 +129,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee2698d847530a841ba2461e1daf7fd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6130634025394638247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2588147507930247036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e99c14232265c144f842ff7ba7966e23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6294834817926775172

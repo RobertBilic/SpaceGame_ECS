@@ -65,8 +65,6 @@ public class LevelSelectionUIController : GenericGameStateUIController<LevelSele
 
             var addonBuffer = em.AddBuffer<ShipConstructionAddonRequest>(createShipRequest);
 
-            addonBuffer.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<SimpleMovementEntityTag>() });
-
             if (!addedCameraFollowComponent)
             {
                 addonBuffer.Add(new ShipConstructionAddonRequest() { ComponentToAdd = ComponentType.ReadOnly<CameraFollowTag>() });

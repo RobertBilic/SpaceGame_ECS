@@ -19,7 +19,7 @@ namespace SpaceGame.Combat.Authoring
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
 
-            AddComponent(entity, new MoveSpeed() { Value = authoring.Speed });
+            AddComponent(entity, new ThrustSettings() { MaxSpeed = authoring.Speed });
             AddComponent(entity, new Radius() { Value = authoring.Radius });
             AddComponent(entity, new BulletTag());
             AddComponent(entity, new Lifetime { Value = 0.0f });
