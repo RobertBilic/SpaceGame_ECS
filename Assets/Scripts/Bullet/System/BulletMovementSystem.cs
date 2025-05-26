@@ -26,10 +26,10 @@ namespace SpaceGame.Combat.Systems
             float deltaTime = timeComp.DeltaTimeScaled;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            foreach (var (transform, heading, speed, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<Heading>, RefRO<MoveSpeed>>().WithAll<BulletTag>().WithEntityAccess())
+            foreach (var (transform, heading, speed, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<Heading>, RefRO<ThrustSettings>>().WithAll<BulletTag>().WithEntityAccess())
             {
                 ecb.SetComponent(entity, new PreviousPosition() { Value = transform.ValueRO.Position });
-                transform.ValueRW.Position += heading.ValueRO.Value * speed.ValueRO.Value * deltaTime;
+                transform.ValueRW.Position += heading.ValueRO.Value * speed.ValueRO.MaxSpeed * deltaTime;
             }
 
             foreach (var (lifetime, bulletId, entity) in SystemAPI.Query<RefRW<Lifetime>, RefRO<BulletId>>().WithAll<BulletTag>().WithEntityAccess())

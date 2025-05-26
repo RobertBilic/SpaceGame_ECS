@@ -12,6 +12,7 @@ namespace SpaceGame.Combat.Components
         public float3 Position;
         public int Team;
 
+        public float ParentScale;
         public float Range;
         public float Damage;
     }

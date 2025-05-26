@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 
-class ForwardWeaponAuthoring : MonoBehaviour
+public class ForwardWeaponAuthoring : MonoBehaviour
 {
     public Transform Parent;
     public GameObject RotationBase;

@@ -87,7 +87,7 @@ namespace SpaceGame.Combat.Systems
                 if (targetEntity == Entity.Null)
                 {
 
-                    var turretTargetingCollector = new RangeBasedTargetingCollector(state.EntityManager, turretPosition, range.ValueRO.Value, teamTag.ValueRO.Team);
+                    var turretTargetingCollector = new RangeBasedTargetingCollectorSingle(state.EntityManager, turretPosition, range.ValueRO.Value, teamTag.ValueRO.Team);
                     SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, turretPosition, range.ValueRO.Value,ref turretTargetingCollector);
 
                     Entity closestEnemy = turretTargetingCollector.collectedEnemy;
@@ -116,7 +116,6 @@ namespace SpaceGame.Combat.Systems
                     float3 direction = math.normalize(enemyPosition - turretPosition);
                     float angle = math.atan2(direction.y, direction.x);
                     quaternion desiredWorldRotation = quaternion.RotateZ(angle);
-
                     quaternion desiredLocalRotation = desiredWorldRotation;
 
                     if (!parentWorldRotation.Equals(quaternion.identity))
@@ -131,11 +130,9 @@ namespace SpaceGame.Combat.Systems
                         rotationSpeed.ValueRO.Value * deltaTime
                     );
 
-                    quaternion worldRotation = parentWorldRotation.Equals(quaternion.identity) ? rotationTransform.ValueRW.Rotation
-                        : math.mul(parentWorldRotation, rotationTransform.ValueRW.Rotation);
+                    float3 heading = math.mul(math.mul(parentWorldRotation, rotationTransform.ValueRW.Rotation), new float3(1, 0, 0));
 
-
-                    ecb.SetComponent(entity, new Heading() { Value = math.mul(worldRotation, new float3(1, 0, 0)) });
+                    ecb.SetComponent(entity, new Heading() { Value = heading } );
                 }
             }
 

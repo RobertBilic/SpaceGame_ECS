@@ -11,7 +11,8 @@ namespace SpaceGame.Game.State.Component
     {
         None = 0,
         MainMenu = 1,
-        Building = 2,
-        Combat = 4,
+        FleetManagement = 2,
+        LevelSelection = 4,
+        Combat = 8,
     }
 }

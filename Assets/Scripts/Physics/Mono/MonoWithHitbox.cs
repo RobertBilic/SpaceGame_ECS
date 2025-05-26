@@ -15,8 +15,8 @@ public class MonoWithHitbox : MonoBehaviour
         foreach (var hitbox in Hitboxes)
         {
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(transform.position + transform.rotation * hitbox.LocalCenter, transform.rotation * Quaternion.Euler(hitbox.LocalRotationEuler), Vector3.one);
-            Gizmos.matrix = rotationMatrix;
-            Gizmos.DrawWireCube(Vector3.zero, hitbox.HalfExtents * 2f);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(hitbox.LocalCenter, hitbox.HalfExtents * 2f);
         }
     }
 }

@@ -9,7 +9,7 @@ public class BackgroundDustLayerManager : MonoBehaviour
     private Vector2 speed;
     [SerializeField]
     private List<BackgroundDustLayer> dustLayers;
-    private Entity capitalShipEntity = Entity.Null;
+    private Entity sceneMovementDataEntity;
 
     void Update()
     {
@@ -21,26 +21,36 @@ public class BackgroundDustLayerManager : MonoBehaviour
 
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-        if (capitalShipEntity == Entity.Null)
+        if (sceneMovementDataEntity == Entity.Null)
         {
-            var query = entityManager.CreateEntityQuery(typeof(CapitalShipTag), typeof(SceneMovementData));
+            var query = entityManager.CreateEntityQuery(typeof(SceneMovementData));
             if (!query.IsEmpty)
             {
-                capitalShipEntity = query.GetSingletonEntity();
-                var movement = entityManager.GetComponentData<SceneMovementData>(capitalShipEntity);
+                sceneMovementDataEntity = query.GetSingletonEntity();
+                var movement = entityManager.GetComponentData<SceneMovementData>(sceneMovementDataEntity);
             }
         }
 
-        if (!entityManager.Exists(capitalShipEntity))
-            return;
-
-        if (entityManager.HasComponent<SceneMovementData>(capitalShipEntity))
+        if (!entityManager.Exists(sceneMovementDataEntity))
         {
-            var movement = entityManager.GetComponentData<SceneMovementData>(capitalShipEntity);
-
-            //TODO: change the speed to the scene movement data
-            foreach (var dustLayer in dustLayers)
-                dustLayer.ApplyChanges(speed);
+            ApplySpeed(speed);
+            return;
         }
+
+        if (entityManager.HasComponent<SceneMovementData>(sceneMovementDataEntity))
+        {
+            var movement = entityManager.GetComponentData<SceneMovementData>(sceneMovementDataEntity);
+            ApplySpeed(movement.Value);
+        }
+        else
+        {
+            ApplySpeed(speed);
+        }
+    }
+
+    private void ApplySpeed(Vector2 speed)
+    {
+        foreach (var dustLayer in dustLayers)
+            dustLayer.ApplyChanges(speed);
     }
 }

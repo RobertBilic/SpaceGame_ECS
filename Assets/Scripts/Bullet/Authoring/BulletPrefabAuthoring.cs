@@ -8,11 +8,11 @@ namespace SpaceGame.Combat.Authoring
     class BulletPrefabAuthoring : MonoBehaviour
     {
         [SerializeField]
-        private List<BulletPrefabData> dataList;
+        private BulletPrefabHolder prefabHolder;
 
         private void OnValidate()
         {
-            foreach (var data in dataList)
+            foreach (var data in prefabHolder.Data)
             {
                 if (data.Id.Length > 29)
                 {
@@ -26,7 +26,7 @@ namespace SpaceGame.Combat.Authoring
             public override void Bake(BulletPrefabAuthoring authoring)
             {
 
-                foreach (var data in authoring.dataList)
+                foreach (var data in authoring.prefabHolder.Data)
                 {
                     var entity = CreateAdditionalEntity(TransformUsageFlags.None);
                     var prefabEntity = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
@@ -39,13 +39,6 @@ namespace SpaceGame.Combat.Authoring
                     });
                 }
             }
-        }
-
-        [System.Serializable]
-        class BulletPrefabData
-        {
-            public string Id;
-            public BulletAuthoring Prefab;
         }
     }
 }

@@ -11,6 +11,7 @@ public class CameraFollow : MonoBehaviour
     private EntityManager em;
     private Camera cam;
 
+    public bool Enabled = true;
     public Vector3 offset = new Vector3(0, 0, -10);
     private Vector3 moveVelocity;
     private Vector3 manualPanPosition;
@@ -46,6 +47,9 @@ public class CameraFollow : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!Enabled)
+            return;
+
         HandleZoom();
         HandleManualPan();
         UpdateTargetEntity();
@@ -100,8 +104,7 @@ public class CameraFollow : MonoBehaviour
         EntityQuery query = em.CreateEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[] {
-                ComponentType.ReadOnly<MoveSpeed>(),
-                ComponentType.ReadOnly<CapitalShipTag>()
+                ComponentType.ReadOnly<CameraFollowTag>()
             }
         });
 

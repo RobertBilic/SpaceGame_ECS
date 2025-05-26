@@ -33,7 +33,7 @@ namespace SpaceGame.Combat.Systems
                 {
                     Position = request.ValueRO.SpawnPosition,
                     Rotation = quaternion.identity,
-                    Scale = request.ValueRO.Scale
+                    Scale = prefab.Scale
                 };
 
                 ecb.AddComponent(shipEntity, capitalShipTransform);

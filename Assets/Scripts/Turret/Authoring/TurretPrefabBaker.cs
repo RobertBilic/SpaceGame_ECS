@@ -8,14 +8,14 @@ namespace SpaceGame.Combat.Authoring
     class TurretPrefabBaker : MonoBehaviour
     {
         [SerializeField]
-        private List<TurretPrefabData> dataList;
+        private TurretPrefabDataHolder dataHolder;
 
         class TurretPrefabBakerBaker : Baker<TurretPrefabBaker>
         {
 
             public override void Bake(TurretPrefabBaker authoring)
             {
-                foreach (var data in authoring.dataList)
+                foreach (var data in authoring.dataHolder.Data)
                 {
                     var rootEntity = CreateAdditionalEntity(TransformUsageFlags.None);
                     var prefabEntity = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
@@ -30,13 +30,6 @@ namespace SpaceGame.Combat.Authoring
                     AddComponent<Prefab>(rootEntity);
                 }
             }
-        }
-        
-        [System.Serializable]
-        class TurretPrefabData
-        {
-            public TurretPropertyHolder Prefab;
-            public string Id;
         }
     }
 }

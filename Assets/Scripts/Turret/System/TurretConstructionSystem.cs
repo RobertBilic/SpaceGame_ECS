@@ -45,6 +45,7 @@ namespace SpaceGame.Combat.Systems
                     {
                         Value = turret
                     });
+                    ecb.AppendToBuffer<TurretElement>(request.RootEntity, new TurretElement() { Ref = turret });
                 }
 
                 ecb.AddComponent<LocalTransform>(turret, new LocalTransform()
