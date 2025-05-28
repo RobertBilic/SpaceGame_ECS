@@ -11,6 +11,7 @@ namespace SpaceGame.Combat.Systems
     [UpdateInGroup(typeof(CombatLateUpdateGroup))]
     public partial class ImpactEffectSpawnSystem : SystemBase
     {
+        private bool initialized;
         private Unity.Mathematics.Random random;
         NativeParallelHashMap<FixedString32Bytes, NativeList<Entity>> pools;
 
@@ -31,6 +32,24 @@ namespace SpaceGame.Combat.Systems
             ref var lookup = ref blobSingleton.Lookup.Value;
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            if (!initialized)
+            {
+                initialized = true;
+
+                for (int i = 0; i < lookup.Entries.Length; i++)
+                {
+                    var entry = lookup.Entries[i];
+
+                    var pool = GetOrCreatePool(entry.Id);
+                    var onHitPrefab = SystemAPI.GetComponent<OnHitEffectPrefab>(entry.Entity);
+
+                    for (int j = 0; j < 50; j++)
+                    {
+                        AddEntitiesToPool(pool, onHitPrefab.Value, EntityManager, ecb);
+                    }
+                }
+            }
 
             foreach (var (bulletId, entity) in SystemAPI.Query<RefRO<BulletId>>()
                 .WithOptions(EntityQueryOptions.IncludeDisabledEntities)
@@ -143,7 +162,7 @@ namespace SpaceGame.Combat.Systems
 
         private void AddEntitiesToPool(NativeList<Entity> pool, Entity prefab, EntityManager em, EntityCommandBuffer ecb)
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 500; i++)
             {
                 var entity = em.Instantiate(prefab);
                 DisableEntityAndChildren(ecb, entity, em);

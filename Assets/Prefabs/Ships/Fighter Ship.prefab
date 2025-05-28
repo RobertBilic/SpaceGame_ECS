@@ -281,6 +281,7 @@ GameObject:
   - component: {fileID: 3044486744770031668}
   - component: {fileID: 4991446425467031502}
   - component: {fileID: 8202065403610806687}
+  - component: {fileID: 2153442031965776089}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -347,6 +348,7 @@ MonoBehaviour:
   - LocalCenter: {x: -3.64, y: -1.14, z: 0}
     HalfExtents: {x: 1.14, y: 0.55, z: 0.1}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
+  BoundingRadius: 5.05
   Speed: 80
   Acceleration: 25
   Decceleration: 40
@@ -369,6 +371,7 @@ MonoBehaviour:
   - {fileID: 3044486744770031668}
   - {fileID: 4991446425467031502}
   - {fileID: 8202065403610806687}
+  - {fileID: 2153442031965776089}
 --- !u!114 &3319614628580181442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -431,6 +434,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distance: 30
+--- !u!114 &2153442031965776089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6975165111601300718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d06982fb7b6b15c4989c95ca34692d5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6995153746400742673
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,7 +711,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: m_Layer
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: m_IsActive

@@ -6,6 +6,8 @@ namespace SpaceGame.Game.Initialization.Authoring
 {
     class ConfigAuthoring : MonoBehaviour
     {
+        public int GameSize;
+
         [Header("Spatial Database Settings")]
         public GameObject SpatialDatabasePrefab;
         public int SpatialDatabaseSubdivisions = 5;
@@ -23,7 +25,7 @@ namespace SpaceGame.Game.Initialization.Authoring
                 SpatialDatabasePrefab = GetEntity(authoring.SpatialDatabasePrefab, TransformUsageFlags.None),
                 ShipsSpatialDatabaseCellCapacity = authoring.ShipsSpatialDatabaseCellCapacity,
                 SpatialDatabaseSubdivisions = authoring.SpatialDatabaseSubdivisions,
-                GameSize = 500,
+                GameSize = authoring.GameSize,
                 IsInitialized = false
             });
         }

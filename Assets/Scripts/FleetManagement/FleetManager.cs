@@ -1,12 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public delegate void OnShipSelected(string id);
+public delegate void OnTurretSlotSelected(Vector3 position, int slotIndex, int currentlySelected, List<string> turretIds);
+public delegate void OnTurretSelected(int index, string id);
 
 public class FleetManager : MonoBehaviour
 {
+    public event OnTurretSlotSelected OnTurretSlotSelected;
+
     private const string TAG = "FleetManager <-> ";
 
     [SerializeField]
@@ -20,8 +26,8 @@ public class FleetManager : MonoBehaviour
     private CameraFramer framer;
 
     private List<ShipLoadout> shipLoadouts;
-    private GameObject currentInspected;
     private InputSystem_Actions inputActions;
+    private CurrentlyInspectedShip currentInspected;
 
     private void Awake()
     {
@@ -150,13 +156,19 @@ public class FleetManager : MonoBehaviour
             return;
         }
 
-        if(currentInspected != null)
-            GameObject.Destroy(currentInspected);
+        if (currentInspected != null)
+            GameObject.Destroy(currentInspected.GameObj);
 
         var inspectedShip = GameObject.Instantiate(shipPrefab.Prefab);
-        currentInspected = inspectedShip.gameObject;
 
-        ApplyAdditionalWeapons(ownedShip, currentInspected);
+        currentInspected = new CurrentlyInspectedShip()
+        {
+            Builder = inspectedShip.GetComponent<ShipBuilder>(),
+            GameObj = inspectedShip.gameObject,
+            Loadout = ownedShip
+        };
+
+        ApplyAdditionalWeapons(ownedShip, currentInspected.GameObj);
 
         framer.FrameHitboxes(inspectedShip.transform, inspectedShip.Hitboxes);
     }
@@ -200,10 +212,29 @@ public class FleetManager : MonoBehaviour
         //TODO: Dynamic forward weapons
     }
 
+    public void AddTurret(int index, string id)
+    {
+        if (currentInspected == null)
+            return;
+
+        if (index < 0 || index > currentInspected.Builder.GetData().TurretBuildingSlots.Count - 1)
+            return;
+
+        var data = currentInspected.Loadout.TurretsBySlotIndex.Find(x => x.Index == index);
+
+        if (data == null)
+            currentInspected.Loadout.TurretsBySlotIndex.Add(new PlacementData() { Index = index, Id = id });
+        else
+            data.Id = id;
+
+        ShowShip(currentInspected.Loadout.LocalId);
+    }
+
     public void Clear()
     {
         if (currentInspected != null)
-            GameObject.Destroy(currentInspected);
+            GameObject.Destroy(currentInspected.GameObj);
+        currentInspected = null;
         framer.UnFrameHitboxes();
     }
 
@@ -217,12 +248,66 @@ public class FleetManager : MonoBehaviour
     {
         var clickedOn = inputActions.UI.Point.ReadValue<Vector2>();
         var worldSpace = Camera.main.ScreenToWorldPoint(clickedOn);
-        Debug.Log(worldSpace);
+
+        worldSpace.z = 0.0f;
+
+        if (currentInspected == null)
+            return;
+
+        var shipBuilder = currentInspected.Builder;
+
+        if (shipBuilder == null)
+            return;
+
+        var clickPadding = 1.1f;
+
+        TurretBuildingSlot selectedTurretSlot = null;
+        var index = 0;
+        var turretSlots = shipBuilder.GetData().TurretBuildingSlots;
+
+        for(int i=0;i<turretSlots.Count;i++)
+        {
+            var turret = turretSlots[i];
+
+            var position = currentInspected.GameObj.transform.TransformPoint(turret.Position);
+            if (Vector3.Distance(position, worldSpace) > turret.Scale * clickPadding)
+                continue;
+
+            index = i;
+            selectedTurretSlot = turret;
+            break;
+        }
+
+        if(selectedTurretSlot != null)
+        {
+            //TODO: Filter
+            var ids = turrets.Data
+                .Select(x => x.Id)
+                .ToList();
+
+            var loadoutForSlot = currentInspected.Loadout.TurretsBySlotIndex.Find(x => x.Index == index);
+            int currentlySelected = -1;
+            
+            if(loadoutForSlot != null)
+                currentlySelected = ids.IndexOf(loadoutForSlot.Id);
+
+            OnTurretSlotSelected?.Invoke(clickedOn, index, currentlySelected, ids);
+        }
+
+        //TODO: Forward weapons
     }
 
     internal void Disable()
     {
         inputActions.UI.Click.performed -= Click_performed;
         inputActions.Disable();
+    }
+
+    [System.Serializable]
+    private class CurrentlyInspectedShip
+    {
+        public GameObject GameObj;
+        public ShipBuilder Builder;
+        public ShipLoadout Loadout;
     }
 }

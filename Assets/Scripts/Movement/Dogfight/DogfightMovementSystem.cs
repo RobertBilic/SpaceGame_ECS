@@ -37,8 +37,9 @@ namespace SpaceGame.Movement.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            foreach (var dogfightAspect in SystemAPI
+            foreach (var (dogfightAspect,entity) in SystemAPI
                      .Query<DogfightMovementAspect>()
+                     .WithEntityAccess()
                      .WithAll<DogfightTag>())
             {
                 var target = dogfightAspect.Target;
@@ -66,16 +67,23 @@ namespace SpaceGame.Movement.Systems
                 }
 
                 float3 selfPos = ltw.ValueRO.Position;
-                float3 targetPos = SystemAPI.GetComponent<LocalToWorld>(target.ValueRO.Value).Position;
+                var targetLtw = SystemAPI.GetComponent<LocalToWorld>(target.ValueRO.Value);
+                float3 targetPos = targetLtw.Position;
 
                 float3 targetVel = float3.zero;
                 if (SystemAPI.HasComponent<Velocity>(target.ValueRO.Value))
-                {
                     targetVel = SystemAPI.GetComponent<Velocity>(target.ValueRO.Value).Value;
-                }
+
+                float offset = 0.0f;
+
+                if (SystemAPI.HasComponent<BoundingRadius>(target.ValueRO.Value))
+                    offset += SystemAPI.GetComponent<BoundingRadius>(target.ValueRO.Value).Value * math.length(targetLtw.Value.c0.xyz);
+                if (SystemAPI.HasComponent<BoundingRadius>(entity))
+                    offset += SystemAPI.GetComponent<BoundingRadius>(entity).Value * math.length(ltw.ValueRO.Value.c0.xyz);
+
 
                 float3 toTarget = targetPos - selfPos;
-                float distance = math.length(toTarget);
+                float distance = math.length(toTarget) - offset;
 
                 float3 leadPos = targetPos + targetVel * math.min(1f, distance / 30f);
                 float3 desired = float3.zero;

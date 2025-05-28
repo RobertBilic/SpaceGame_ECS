@@ -15,10 +15,10 @@ MonoBehaviour:
   Data:
   - Id: ships_capital_ship
     Prefab: {fileID: 7465079304060104783, guid: 12928dd04c6cd9245b2884245be131be, type: 3}
-    DefaultScale: 5
+    DefaultScale: 125
   - Id: ships_test_enemy
     Prefab: {fileID: 1176641965186885042, guid: 6f26d334af8f51244940af31ed087e69, type: 3}
     DefaultScale: 1
   - Id: ships_cruiser_1
     Prefab: {fileID: 1957666542333841938, guid: 8f99d47790c6da74fb6ab557a334c54d, type: 3}
-    DefaultScale: 15
+    DefaultScale: 25

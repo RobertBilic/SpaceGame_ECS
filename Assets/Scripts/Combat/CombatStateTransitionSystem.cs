@@ -7,6 +7,8 @@ namespace SpaceGame.Combat.StateTransition.Systems
     [UpdateInGroup(typeof(CombatStateTransitionGroup), OrderLast = true)]
     partial struct CombatStateTransitionSystem : ISystem
     {
+        private bool debug;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -38,13 +40,18 @@ namespace SpaceGame.Combat.StateTransition.Systems
 
                 if(selectedBehavior == default(ComponentType))
                 {
-                    UnityEngine.Debug.LogWarning($"Entity {entity.Index} marked as needed state change, but doesn't have weights for states");
+                    if(debug)
+                        UnityEngine.Debug.LogWarning($"Entity {entity.Index} marked as needed state change, but doesn't have weights for states");
                     continue;
                 }
 
                 if(state.EntityManager.HasComponent<CurrentCombatBehaviour>(entity))
                 {
                     var oldBehaviour = state.EntityManager.GetComponentData<CurrentCombatBehaviour>(entity);
+
+                    if (selectedBehavior == oldBehaviour.Value)
+                        continue;
+
                     var oldComponents = state.EntityManager.GetBuffer<ExistingCombatStateSpecificComponent>(entity);
 
                     ecb.RemoveComponent(entity, oldBehaviour.Value);

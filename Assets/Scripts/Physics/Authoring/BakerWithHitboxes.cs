@@ -19,6 +19,7 @@ public abstract class BakerWithHitboxes<T> : Baker<T> where T: MonoWithHitbox
             });
         }
 
+        AddComponent(entity, new BoundingRadius() { Value = authoring.BoundingRadius });
         BakeAdditionalData(entity,authoring);
     }
 

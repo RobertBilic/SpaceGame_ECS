@@ -18,32 +18,20 @@ namespace SpaceGame.Combat.Systems
         private int team;
         private EntityManager em;
 
-        private float3 startR;
-        private float3 endR;
-
-        private float3 startL;
-        private float3 endL;
-
-        private float3 startU;
-        private float3 endU;
-
-        private float3 startD;
-        private float3 endD;
+        private float3 bulletStart;
+        private float3 bulletEnd;
+        private float radius;
 
 
-        public BulletCollisionDetector(EntityManager manager, int team, float3 startR, float3 endR, float3 startL, float3 endL, float3 startU, float3 endU, float3 startD, float3 endD) : this()
+        public BulletCollisionDetector(EntityManager manager, int team, float3 bulletStart, float3 bulletEnd, float radius) : this()
         {
             this.team = team;
             this.em = manager;
-            this.startR = startR;
-            this.endR = endR;
-            this.startL = startL;
-            this.endL = endL;
-            this.startU = startU;
-            this.endU = endU;
-            this.startD = startD;
-            this.endD = endD;
+            this.bulletEnd = bulletEnd;
+            this.bulletStart = bulletStart;
+            this.radius = radius;
         }
+
 
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
@@ -62,10 +50,36 @@ namespace SpaceGame.Combat.Systems
                     if (targetTeam.Team == team)
                         continue;
                 }
+                var worldTransform = em.GetComponentData<LocalToWorld>(element.Entity);
+                var boundingRadius = em.GetComponentData<BoundingRadius>(element.Entity);
+                var scaledRadius = math.length(worldTransform.Value.c0.xyz) * boundingRadius.Value;
+
+                var distanceToLineSeg = DistancePointToSegment(worldTransform.Position, bulletStart, bulletEnd);
+
+                if (distanceToLineSeg > scaledRadius + radius)
+                    continue;
+
+                float3 heading = math.normalize(bulletEnd - bulletStart);
+                float3 right = new float3(-heading.y, heading.x, 0f);
+                float3 up = new float3(0f, 1f, 0f);
+
+                float3 rightOffset = right * (radius / 2f);
+                float3 upOffset = up * (radius / 2f);
+
+                float3 startR = bulletStart + rightOffset;
+                float3 endR = bulletEnd + rightOffset;
+
+                float3 startL = bulletStart - rightOffset;
+                float3 endL = bulletEnd - rightOffset;
+
+                float3 startU = bulletStart + upOffset;
+                float3 endU = bulletEnd + upOffset;
+
+                float3 startD = bulletStart - upOffset;
+                float3 endD = bulletEnd - upOffset;
 
                 var shipTransform = em.GetComponentData<LocalTransform>(element.Entity);
                 var hitboxes = em.GetBuffer<HitBoxElement>(element.Entity);
-                var worldTransform = em.GetComponentData<LocalToWorld>(element.Entity);
 
                 float3 shipWorldPos = shipTransform.Position;
                 quaternion shipWorldRot = shipTransform.Rotation;
@@ -117,6 +131,15 @@ namespace SpaceGame.Combat.Systems
                     break;
                 }
             }
+        }
+        private static float DistancePointToSegment(float3 point, float3 a, float3 b)
+        {
+            float3 ab = b - a;
+            float3 ap = point - a;
+
+            float t = math.saturate(math.dot(ap, ab) / math.dot(ab, ab));
+            float3 closest = a + t * ab;
+            return math.distance(point, closest);
         }
 
         private static bool LineSegmentIntersectsAABB(float3 p0, float3 p1, float3 halfExtents)
@@ -176,29 +199,9 @@ namespace SpaceGame.Combat.Systems
                 float3 bulletEnd = bulletTransform.ValueRO.Position;
                 float radius = bulletRadius.ValueRO.Value;
 
-                float3 heading = math.normalize(bulletEnd - bulletStart);
-
-                float3 right = new float3(-heading.y, heading.x, 0f);
-
-                float3 up = new float3(0f, 1f, 0f);
-
-                float3 rightOffset = right * (radius / 2f);
-                float3 upOffset = up * (radius / 2f);
-
-                float3 startR = bulletStart + rightOffset;
-                float3 endR = bulletEnd + rightOffset;
-
-                float3 startL = bulletStart - rightOffset;
-                float3 endL = bulletEnd - rightOffset;
-
-                float3 startU = bulletStart + upOffset;
-                float3 endU = bulletEnd + upOffset;
-
-                float3 startD = bulletStart - upOffset;
-                float3 endD = bulletEnd - upOffset;
 
 
-                var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, teamTag.ValueRO.Team, startR, endR, startL, endL, startU, endU, startD, endD);
+                var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, teamTag.ValueRO.Team, bulletStart, bulletEnd, radius);
                 SpatialDatabase.QueryAABB(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, bulletEnd, new float3(1.0f, 1.0f, 1.0f), ref bulletCollisionDetector);
 
                 if (bulletCollisionDetector.isEnemyHit)

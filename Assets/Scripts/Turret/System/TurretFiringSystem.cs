@@ -94,7 +94,7 @@ namespace SpaceGame.Combat.Systems
                             Position = spawnPosition,
                             Range = range.ValueRO.Value,
                             Team = teamTag.Team,
-                            ParentScale = math.length(worldTransform.ValueRO.Value.Scale())
+                            ParentScale = math.length(worldTransform.ValueRO.Value.c0.xyz)
                         });
                     }
                     else

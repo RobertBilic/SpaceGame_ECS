@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 3445906862540377746}
   - component: {fileID: 7989647409675012451}
   - component: {fileID: 6130634025394638247}
+  - component: {fileID: 321135435860223260}
+  - component: {fileID: 9143762038472957562}
   m_Layer: 0
   m_Name: Cruiser
   m_TagString: Untagged
@@ -66,11 +68,12 @@ MonoBehaviour:
   - LocalCenter: {x: -0.03, y: -0.42, z: 0}
     HalfExtents: {x: 0.19, y: -0.04, z: 0}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
+  BoundingRadius: 0.5
   Speed: 30
   Acceleration: 10
   Decceleration: 5
   SpeedRotationPenalty: 0.5
-  RotationSpeed: 250
+  RotationSpeed: 6
   MaxShipBankingAngle: 30
   BankingSmoothSpeed: 15
   SeparationRadius: 5
@@ -84,6 +87,8 @@ MonoBehaviour:
   AdditionalComponents:
   - {fileID: 7989647409675012451}
   - {fileID: 6130634025394638247}
+  - {fileID: 321135435860223260}
+  - {fileID: 9143762038472957562}
 --- !u!114 &998827056307074158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,6 +148,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e99c14232265c144f842ff7ba7966e23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &321135435860223260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2588147507930247036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b85f15d3302344d9618b3cb188c360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distance: 60
+--- !u!114 &9143762038472957562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2588147507930247036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cd8ce43d5d076d4585d4a6a4f4752fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  distance: 100
 --- !u!1 &6294834817926775172
 GameObject:
   m_ObjectHideFlags: 0
@@ -309,6 +340,10 @@ PrefabInstance:
     - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: m_Name
       value: Health Bar
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7322365282092854485, guid: acde9e4208e4c6d4290da5cdaf1d82bd, type: 3}
       propertyPath: m_IsActive

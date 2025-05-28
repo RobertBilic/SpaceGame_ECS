@@ -41,6 +41,7 @@ namespace SpaceGame.Combat.Systems
                 ecb.AddComponent(shipEntity, new IsAlive() { });
                 ecb.AddComponent(shipEntity, new TargetableTag());
                 ecb.AddComponent(shipEntity, new CombatStateEntity());
+                ecb.AddComponent(shipEntity, new NeedsCombatStateChange());
                 ecb.AddBuffer<SpatialDatabaseCellIndex>(shipEntity);
                 ecb.AddBuffer<DamageHealthRequestBuffer>(shipEntity);
 

@@ -59,6 +59,7 @@ public class CameraFollow : MonoBehaviour
     private void HandleZoom()
     {
         float scroll = inputActions.Camera.Zoom.ReadValue<float>();
+
         if (Mathf.Abs(scroll) > 0.01f)
         {
             currentZoom = Mathf.Clamp(currentZoom - scroll * zoomSpeed, minZoom, maxZoom);

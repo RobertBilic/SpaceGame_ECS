@@ -32,8 +32,8 @@ namespace SpaceGame.Combat.Systems
                     continue;
                 }
 
-                transform.ValueRW.Position += particle.ValueRW.Velocity * dt;
-                ecb.SetComponent(entity, new MaterialProperty__Fade() { Value = 1.0f - (particle.ValueRO.Age / particle.ValueRO.Lifetime) });
+               transform.ValueRW.Position += particle.ValueRW.Velocity * dt;
+               ecb.SetComponent(entity, new MaterialProperty__Fade() { Value = 1.0f - (particle.ValueRO.Age / particle.ValueRO.Lifetime) });
             }
 
             if (ecb.ShouldPlayback)

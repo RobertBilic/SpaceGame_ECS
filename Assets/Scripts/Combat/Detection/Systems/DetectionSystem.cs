@@ -13,11 +13,16 @@ namespace SpaceGame.Detection.Systems
     public partial struct DetectionSystem : ISystem
     {
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
-
+        private int Intervals;
+        private int CurrentInterval;
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<CombatEntity>();
+            //TODO: Dynamic interval based on the number of combat entities, 100 entities per cycle
+            Intervals = 5;
+            CurrentInterval = 0;
+
         }
 
         [BurstCompile]
@@ -46,8 +51,15 @@ namespace SpaceGame.Detection.Systems
 
             foreach (var(ltw, detectionRange, teamTag, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<DetectionRange>, RefRO<TeamTag>>()
                 .WithAll<CombatEntity>()
+                .WithNone<CombatDetectionCooldown>()
                 .WithEntityAccess())
             {
+                if (entity.Index % Intervals != CurrentInterval)
+                    continue;
+
+                //TODO: Space out the combat detection with a persistant component such as NextDetectionCycle to avoid structural changes, for now this is okay
+                ecb.AddComponent(entity, new CombatDetectionCooldown() { Value = 1.0f });
+
                 if (state.EntityManager.HasComponent<DetectedEntity>(entity))
                 {
                     var detectedEntity = SystemAPI.GetComponentRW<DetectedEntity>(entity);
@@ -74,10 +86,14 @@ namespace SpaceGame.Detection.Systems
                     SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements
                         , ltw.ValueRO.Position, detectionRange.ValueRO.Value, ref collector);
 
-                    if(collector.collectedEnemy != Entity.Null)
+                    if (collector.collectedEnemy != Entity.Null)
                     {
                         ecb.AddComponent(entity, new DetectedEntity() { Value = collector.collectedEnemy });
                         ecb.AddComponent<NeedsCombatStateChange>(entity);
+                    }
+                    else
+                    {
+                        ecb.RemoveComponent<DetectedEntity>(entity);
                     }
                 }
                 else
@@ -94,6 +110,8 @@ namespace SpaceGame.Detection.Systems
                     }
                 }
             }
+
+            CurrentInterval = (CurrentInterval + 1) % Intervals;
 
             if (ecb.ShouldPlayback)
                 ecb.Playback(state.EntityManager);

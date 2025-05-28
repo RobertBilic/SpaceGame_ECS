@@ -74,7 +74,7 @@ namespace SpaceGame.Combat.StateTransition.Systems
                     BehaviourTag = tag,
                     Weight = speedWeight + rotationWeight
                 });
-
+                
                 stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
                 {
                     Tag = tag,

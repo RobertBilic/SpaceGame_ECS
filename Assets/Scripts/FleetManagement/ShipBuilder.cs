@@ -13,13 +13,20 @@ public class ShipBuilder : MonoBehaviour
     {
         Gizmos.color = Color.red;
 
-        foreach(var turretSlot in Data.TurretBuildingSlots)
-            Gizmos.DrawWireSphere(transform.TransformPoint(turretSlot.Position), turretSlot.Scale * transform.lossyScale.x);
-
+        foreach (var turretSlot in Data.TurretBuildingSlots)
+        {
+            var scale = turretSlot.Scale * Vector3.one * transform.lossyScale.x;
+            scale.z = 0.001f;
+            Gizmos.DrawWireCube(turretSlot.Position, scale);
+        }
         Gizmos.color = Color.blue;
 
         foreach (var weaponSlot in Data.WeaponBuildingSlots)
-            Gizmos.DrawWireSphere(transform.TransformPoint(weaponSlot.Position), weaponSlot.Scale * transform.lossyScale.x);
+        {
+            var scale = weaponSlot.Scale * Vector3.one * transform.lossyScale.x;
+            scale.z = 0.001f;
+            Gizmos.DrawWireCube(weaponSlot.Position, scale);
+        }
     }
 
     public ShipBuildingData GetData() => Data;

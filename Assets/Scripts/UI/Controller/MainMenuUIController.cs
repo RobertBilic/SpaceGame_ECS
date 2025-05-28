@@ -6,13 +6,14 @@ public class MainMenuUIController : GenericGameStateUIController<MainMenuUI>
 {
     private void Awake()
     {
-        ui.SetOnPlayAction(OnPlay);    
+        ui.SetOnFleetManagementAction(() => ChangeState(GameState.FleetManagement));
+        ui.SetOnPlayAction(() => ChangeState(GameState.LevelSelection));     
     }
 
-    private void OnPlay()
+    private void ChangeState(GameState state)
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         var entity = em.CreateEntity();
-        em.AddComponentData(entity, new ChangeGameStateRequest() { Value = GameState.LevelSelection });
+        em.AddComponentData(entity, new ChangeGameStateRequest() { Value = state});
     }
 }
