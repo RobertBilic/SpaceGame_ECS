@@ -11,7 +11,6 @@ namespace SpaceGame.Utility
         {
             var entityManager = EntityManager;
 
-            // Query all root entities with SpriteSortingRoot
             var rootQuery = SystemAPI.QueryBuilder()
                 .WithAll<SpriteSortingRoot, Child>()
                 .Build();
