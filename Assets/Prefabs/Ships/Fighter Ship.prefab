@@ -349,6 +349,7 @@ MonoBehaviour:
     HalfExtents: {x: 1.14, y: 0.55, z: 0.1}
     LocalRotationEuler: {x: 0, y: 0, z: 0}
   BoundingRadius: 5.05
+  SpriteSortingOrder: 50
   Speed: 80
   Acceleration: 25
   Decceleration: 40
@@ -613,7 +614,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 500
+  m_SortingOrder: 1
   m_Sprite: {fileID: -8988125970679504177, guid: 0ad424c642ad2364091105eb8d7816a2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

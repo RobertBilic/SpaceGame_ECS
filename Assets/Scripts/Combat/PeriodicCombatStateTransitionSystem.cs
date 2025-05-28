@@ -41,6 +41,7 @@ namespace SpaceGame.Combat.StateTransition.Systems
 
             foreach(var (localTransform, entity) in SystemAPI.Query<RefRO<LocalTransform>>()
                 .WithNone<NeedsCombatStateChange>()
+                .WithAll<CombatEntity>()
                 .WithEntityAccess())
             {
                 if (entity.Index % Intervals != CurrentInterval)

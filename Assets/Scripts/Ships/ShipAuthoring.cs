@@ -10,6 +10,8 @@ namespace SpaceGame.Combat.Authoring
 {
     public class ShipAuthoring : MonoWithHitbox
     {
+        [Header("Sprite Sorting")]
+        public int SpriteSortingOrder;
         [Header("Movement")]
         public float Speed;
         public float Acceleration;
@@ -50,6 +52,7 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new DetectionRange() { Value = authoring.DetectionRange });
             AddComponent(entity, new SeparationSettings() { RepulsionRadius = authoring.SeparationRadius, RepulsionStrength = authoring.SeparationStrength });
             AddComponent(entity, new MovementDirection());
+            AddComponent(entity, new SpriteSortingRoot() { BaseOrder = authoring.SpriteSortingOrder });
             AddComponent<Velocity>(entity);
             AddComponent(entity, new ShipBankingData()
             {
