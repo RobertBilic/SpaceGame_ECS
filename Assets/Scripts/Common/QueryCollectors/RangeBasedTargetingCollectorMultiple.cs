@@ -7,14 +7,22 @@ using Unity.Transforms;
 
 namespace SpaceGame.Combat
 {
+    public enum TargetFilterMode
+    {
+        DifferentTeam,
+        SameTeam,
+        All
+    }
+
     public struct RangeBasedTargetingCollectorMultiple : ISpatialQueryCollector
     {
-        public RangeBasedTargetingCollectorMultiple(ref NativeList<Entity> collectedEnemies, EntityManager manager, float3 position, float range, int team)
+        public RangeBasedTargetingCollectorMultiple(ref NativeList<Entity> collectedEnemies, EntityManager manager, float3 position, float range, TargetFilterMode filterMode,int team)
         {
             this.em = manager;
             this.myTeamTag = team;
             this.myPosition = position;
             this.myRange = range;
+            this.filterMode = filterMode;
             this.collectedEnemies = collectedEnemies;
         }
 
@@ -24,6 +32,7 @@ namespace SpaceGame.Combat
         private int myTeamTag;
         private float3 myPosition;
         private float myRange;
+        private TargetFilterMode filterMode;
 
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
@@ -48,7 +57,9 @@ namespace SpaceGame.Combat
                 if (!isAlive)
                     continue;
 
-                if (teamTag.Team == myTeamTag)
+                bool isSameTeam = teamTag.Team == myTeamTag;
+                if ((filterMode == TargetFilterMode.DifferentTeam && isSameTeam) ||
+                    (filterMode == TargetFilterMode.SameTeam && !isSameTeam))
                     continue;
 
                 if (!em.HasComponent<LocalToWorld>(entity))
@@ -61,7 +72,8 @@ namespace SpaceGame.Combat
                 if (distanceSq > myRange * myRange)
                     continue;
 
-                collectedEnemies.Add(entity);
+                if(!collectedEnemies.Contains(entity))
+                    collectedEnemies.Add(entity);
             }
         }
     }

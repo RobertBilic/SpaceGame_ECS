@@ -80,21 +80,13 @@ namespace SpaceGame.Combat.StateTransition.Systems
                     Tag = tag,
                     Value = ComponentType.ReadOnly<DogfightStateComponent>()
                 });
-                stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
-                {
-                    Tag = tag,
-                    Value = ComponentType.ReadOnly<DesiredSpeed>()
-                });
-                stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
-                {
-                    Tag = tag,
-                    Value = ComponentType.ReadOnly<DesiredMovementDirection>()
-                });
+
                 stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
                 {
                     Tag = tag,
                     Value = ComponentType.ReadOnly<DisengageCurveDirection>()
                 });
+
                 stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
                 {
                     Tag = tag,

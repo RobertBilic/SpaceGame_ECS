@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using SpaceGame.SpatialGrid.Components;
 using SpaceGame.Combat.Components;
+using SpaceGame.Movement.Components;
 
 namespace SpaceGame.Combat.Systems
 {
@@ -42,6 +43,11 @@ namespace SpaceGame.Combat.Systems
                 ecb.AddComponent(shipEntity, new TargetableTag());
                 ecb.AddComponent(shipEntity, new CombatStateEntity());
                 ecb.AddComponent(shipEntity, new NeedsCombatStateChange());
+                ecb.AddComponent(shipEntity, new DesiredMovementDistance());
+                ecb.AddComponent(shipEntity, new DesiredSpeed());
+                ecb.AddComponent(shipEntity, new DesiredMovementDirection());
+                ecb.AddComponent(shipEntity, new NeedsBoundingRadiusScalingTag());
+
                 ecb.AddBuffer<SpatialDatabaseCellIndex>(shipEntity);
                 ecb.AddBuffer<DamageHealthRequestBuffer>(shipEntity);
 

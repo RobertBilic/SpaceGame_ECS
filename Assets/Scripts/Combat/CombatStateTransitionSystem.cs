@@ -20,8 +20,16 @@ namespace SpaceGame.Combat.StateTransition.Systems
         {
             var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
+            foreach(var (stateWeights, newCombatStateSpecificComponents) in SystemAPI.Query<DynamicBuffer<CombatStateChangeWeight>, DynamicBuffer<NewCombatStateSpecificComponent>>()
+                .WithAll<DisableCombatTransitionTag>())
+            {
+                stateWeights.Clear();
+                newCombatStateSpecificComponents.Clear();
+            }
+
             foreach(var (stateWeights, newCombatStateSpecificComponents,entity) in SystemAPI.Query<DynamicBuffer<CombatStateChangeWeight>, DynamicBuffer<NewCombatStateSpecificComponent>>()
                 .WithAll<NeedsCombatStateChange>()
+                .WithNone<DisableCombatTransitionTag>()
                 .WithEntityAccess())
             {
                 float maxWeight = float.MinValue;
@@ -50,8 +58,10 @@ namespace SpaceGame.Combat.StateTransition.Systems
                     var oldBehaviour = state.EntityManager.GetComponentData<CurrentCombatBehaviour>(entity);
 
                     if (selectedBehavior == oldBehaviour.Value)
+                    {
+                        newCombatStateSpecificComponents.Clear();
                         continue;
-
+                    }
                     var oldComponents = state.EntityManager.GetBuffer<ExistingCombatStateSpecificComponent>(entity);
 
                     ecb.RemoveComponent(entity, oldBehaviour.Value);

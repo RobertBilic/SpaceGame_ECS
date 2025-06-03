@@ -32,7 +32,7 @@ namespace SpaceGame.Combat.Patrol.Systems
                 if (state.EntityManager.HasBuffer<PatrolWaypoint>(entity))
                 {
                     //If the player has a persistant patrol buffer there are increased chances to return to the patrol after combat
-                    minBound = 50.0f;
+                    minBound = 25.0f;
                 }
 
                 stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
@@ -45,21 +45,11 @@ namespace SpaceGame.Combat.Patrol.Systems
                     Tag = behaviourTag,
                     Value = ComponentType.ReadOnly<PatrolWaypointIndex>()
                 });
-                stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
-                {
-                    Tag = behaviourTag,
-                    Value = ComponentType.ReadOnly<DesiredSpeed>()
-                });
-                stateSpecificComponents.Add(new NewCombatStateSpecificComponent()
-                {
-                    Tag = behaviourTag,
-                    Value = ComponentType.ReadOnly<DesiredMovementDirection>()
-                });
 
                 stateWeights.Add(new CombatStateChangeWeight()
                 {
                     BehaviourTag = behaviourTag,
-                    Weight = rnd.NextFloat(minBound, 100.0f)
+                    Weight = rnd.NextFloat(minBound, 60.0f)
                 });
             }
         }

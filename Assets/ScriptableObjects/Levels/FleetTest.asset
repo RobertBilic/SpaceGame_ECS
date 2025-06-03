@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b55b4299517f984b8fc7aa75515ba5a, type: 3}
-  m_Name: LevelData0
+  m_Name: FleetTest
   m_EditorClassIdentifier: 
-  Name: 
+  Name: Fleet Test
   ShipEntries:
   - Id: ships_test_enemy
     Team: 2
-    Count: 300
-    Position: {x: 0, y: 0, z: 0}
-    SpawnRadius: 2000
-  PlayerSpawnPosition: {x: -100, y: 0, z: 0}
-  PlayerSpawnRadius: 30
+    Count: 5
+    Position: {x: 1000, y: 1000, z: 0}
+    SpawnRadius: 10
+  PlayerSpawnPosition: {x: -500, y: -500, z: 0}
+  PlayerSpawnRadius: 10

@@ -30,9 +30,8 @@ namespace SpaceGame.Movement.Systems
                 var currentPos = ltw.ValueRO.Position;
                 var currentTarget = waypoints[waypointIndex.ValueRO.Value].Value;
                 var distSq = math.distancesq(currentPos, currentTarget);
-                var scaledBoundingRadius = math.length(ltw.ValueRO.Value.c0.xyz) * boundingRadius.ValueRO.Value;
 
-                if (distSq < (minDistance + scaledBoundingRadius) * (minDistance + scaledBoundingRadius))
+                if (distSq < (minDistance + boundingRadius.ValueRO.Value) * (minDistance + boundingRadius.ValueRO.Value))
                 {
                     var nextIndex = (waypointIndex.ValueRO.Value + 1) % waypoints.Length;
                     waypointIndex.ValueRW.Value = nextIndex;

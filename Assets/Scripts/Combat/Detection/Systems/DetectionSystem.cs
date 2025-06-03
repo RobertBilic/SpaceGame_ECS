@@ -15,10 +15,17 @@ namespace SpaceGame.Detection.Systems
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private int Intervals;
         private int CurrentInterval;
+
+        private ComponentLookup<FleetMember> fleetMemberLookup;
+        private ComponentLookup<FleetMovementTag> fleetMovementTagLookup;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<CombatEntity>();
+            fleetMemberLookup = state.GetComponentLookup<FleetMember>(true);
+            fleetMovementTagLookup = state.GetComponentLookup<FleetMovementTag>(true);
+
             //TODO: Dynamic interval based on the number of combat entities, 100 entities per cycle
             Intervals = 5;
             CurrentInterval = 0;
@@ -46,6 +53,8 @@ namespace SpaceGame.Detection.Systems
             }
 
             //TODO: Better target acquiring
+            fleetMemberLookup.Update(ref state);
+            fleetMovementTagLookup.Update(ref state);
 
             var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
@@ -90,10 +99,21 @@ namespace SpaceGame.Detection.Systems
                     {
                         ecb.AddComponent(entity, new DetectedEntity() { Value = collector.collectedEnemy });
                         ecb.AddComponent<NeedsCombatStateChange>(entity);
+
+                        if (fleetMemberLookup.HasComponent(entity))
+                        {
+                            if (fleetMovementTagLookup.HasComponent(entity))
+                                ecb.RemoveComponent<FleetMovementTag>(entity);
+                        }
                     }
                     else
                     {
                         ecb.RemoveComponent<DetectedEntity>(entity);
+                        if(fleetMemberLookup.HasComponent(entity))
+                        {
+                            if (!fleetMovementTagLookup.HasComponent(entity))
+                                ecb.AddComponent<FleetMovementTag>(entity);
+                        }
                     }
                 }
                 else
@@ -107,6 +127,12 @@ namespace SpaceGame.Detection.Systems
                     {
                         ecb.AddComponent(entity, new DetectedEntity() { Value = collector.collectedEnemy });
                         ecb.AddComponent<NeedsCombatStateChange>(entity);
+
+                        if (fleetMemberLookup.HasComponent(entity))
+                        {
+                            if (fleetMovementTagLookup.HasComponent(entity))
+                                ecb.RemoveComponent<FleetMovementTag>(entity);
+                        }
                     }
                 }
             }

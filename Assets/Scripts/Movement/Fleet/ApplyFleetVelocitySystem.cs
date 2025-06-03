@@ -1,4 +1,4 @@
-using SpaceGame.Movement.Components;
+﻿using SpaceGame.Movement.Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,8 +7,8 @@ using Unity.Transforms;
 namespace SpaceGame.Movement.Systems
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(CombatMovementExecutionGroup))]
-    public partial struct ApplyVelocitySystem : ISystem
+    [UpdateInGroup(typeof(CombatFleetMovementExecutionGroup))]
+    public partial struct ApplyFleetVelocitySystem : ISystem
     {
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -20,7 +20,7 @@ namespace SpaceGame.Movement.Systems
 
             foreach (var (transform, velocity, desiredDir, desiredSpeed, rotationSpeed, thrust, entity) in SystemAPI
                      .Query<RefRW<LocalTransform>, RefRW<Velocity>, RefRO<DesiredMovementDirection>, RefRO<DesiredSpeed>, RefRO<RotationSpeed>, RefRO<ThrustSettings>>()
-                     .WithNone<FleetMovementTag>()
+                     .WithAll<FleetMovementTag>()
                      .WithEntityAccess())
             {
                 float3 forward = math.mul(transform.ValueRO.Rotation, new float3(1, 0, 0));
@@ -28,32 +28,13 @@ namespace SpaceGame.Movement.Systems
                 float maxSpeed = thrust.ValueRO.MaxSpeed;
                 float speedMultiplier = 1.0f;
 
-                if(state.EntityManager.HasComponent<FleetLeader>(entity))
-                {
-                    if (!state.EntityManager.HasComponent<DetectedEntity>(entity))
-                    {
-                        var fleetLeader = state.EntityManager.GetComponentData<FleetLeader>(entity);
-
-                        if (fleetLeader.FleetReference != Entity.Null && state.EntityManager.Exists(fleetLeader.FleetReference))
-                        {
-                            if (state.EntityManager.HasComponent<FleetEntity>(fleetLeader.FleetReference))
-                            {
-                                var fleetEntity = state.EntityManager.GetComponentData<FleetEntity>(fleetLeader.FleetReference);
-                                speedMultiplier = fleetEntity.CohesionSpeedMultiplier;
-
-                                maxSpeed = maxSpeed > fleetEntity.MaxSpeed ? fleetEntity.MaxSpeed : maxSpeed;
-                            }
-                        }
-                    }
-                }
-
                 var speed = math.clamp(desiredSpeed.ValueRO.Value * speedMultiplier, 0.0f, maxSpeed);
                 float speedDelta = speed - currentSpeed;
                 float maxDelta = (speedDelta > 0 ? thrust.ValueRO.Acceleration : thrust.ValueRO.Decceleration) * dt;
                 float newSpeed = currentSpeed + math.clamp(speedDelta, -math.abs(maxDelta), math.abs(maxDelta));
 
                 float forwardSpeedRatio = math.saturate(math.abs(newSpeed) / thrust.ValueRO.MaxSpeed);
-                float rotationPenalty = 1f - (forwardSpeedRatio * thrust.ValueRO.SpeedRotationPenalty); 
+                float rotationPenalty = 1f - (forwardSpeedRatio * thrust.ValueRO.SpeedRotationPenalty);
                 float effectiveRotationSpeed = rotationSpeed.ValueRO.Value * rotationPenalty;
 
                 float3 desired = math.normalizesafe(desiredDir.ValueRO.Value);

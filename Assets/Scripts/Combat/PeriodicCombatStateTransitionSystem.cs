@@ -17,7 +17,7 @@ namespace SpaceGame.Combat.StateTransition.Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            StateCheckMax = 0.5f;
+            StateCheckMax = 5.0f;
             CurrentTime = StateCheckMax;
             Intervals = 5;
             CurrentInterval = 0;
@@ -37,7 +37,6 @@ namespace SpaceGame.Combat.StateTransition.Systems
                 return;
 
             var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-            CurrentTime = StateCheckMax;
 
             foreach(var (localTransform, entity) in SystemAPI.Query<RefRO<LocalTransform>>()
                 .WithNone<NeedsCombatStateChange>()
@@ -49,6 +48,10 @@ namespace SpaceGame.Combat.StateTransition.Systems
 
                 ecb.AddComponent<NeedsCombatStateChange>(entity);
             }
+
+            if (CurrentInterval + 1 >= Intervals)
+                CurrentTime = StateCheckMax;
+
 
             CurrentInterval = (CurrentInterval + 1) % Intervals;
 
