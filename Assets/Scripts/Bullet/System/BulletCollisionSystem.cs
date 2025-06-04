@@ -52,7 +52,7 @@ namespace SpaceGame.Combat.Systems
                 }
                 var worldTransform = em.GetComponentData<LocalToWorld>(element.Entity);
                 var boundingRadius = em.GetComponentData<BoundingRadius>(element.Entity);
-                var scaledRadius = math.length(worldTransform.Value.c0.xyz) * boundingRadius.Value;
+                var scaledRadius = boundingRadius.Value;
 
                 var distanceToLineSeg = DistancePointToSegment(worldTransform.Position, bulletStart, bulletEnd);
 

@@ -77,9 +77,9 @@ namespace SpaceGame.Movement.Systems
                 float offset = 0.0f;
 
                 if (SystemAPI.HasComponent<BoundingRadius>(target.ValueRO.Value))
-                    offset += SystemAPI.GetComponent<BoundingRadius>(target.ValueRO.Value).Value * math.length(targetLtw.Value.c0.xyz);
+                    offset += SystemAPI.GetComponent<BoundingRadius>(target.ValueRO.Value).Value;
                 if (SystemAPI.HasComponent<BoundingRadius>(entity))
-                    offset += SystemAPI.GetComponent<BoundingRadius>(entity).Value * math.length(ltw.ValueRO.Value.c0.xyz);
+                    offset += SystemAPI.GetComponent<BoundingRadius>(entity).Value;
 
 
                 float3 toTarget = targetPos - selfPos;
