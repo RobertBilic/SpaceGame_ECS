@@ -44,6 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2688108c3d4ebf458d0a9b6f3c0250e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameSize: 2000
+  HealthBarSettings:
+  - color: {r: 0.498063, g: 0.9056604, b: 0.11534355, a: 1}
+    Team: 1
+  - color: {r: 0.8867924, g: 0.28862584, b: 0.28862584, a: 1}
+    Team: 2
   SpatialDatabasePrefab: {fileID: 2283864491910268614, guid: 2c717fd08be6d4144a3613b951e5ac0c, type: 3}
   SpatialDatabaseSubdivisions: 5
   ShipsSpatialDatabaseCellCapacity: 256

@@ -1,34 +1,39 @@
+using SpaceGame.Combat.Components;
 using Unity.Burst;
 using Unity.Entities;
 
 [UpdateInGroup(typeof(CombatLateUpdateGroup), OrderFirst = true)]
 partial struct HealthDamageSystem : ISystem
 {
+    ComponentLookup<TeamTag> teamLookup;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<NeedHealthUpdateTag>();
+        teamLookup = state.GetComponentLookup<TeamTag>(true);
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-
+        teamLookup.Update(ref state);
         foreach(var (health, damageRequest, entity) in SystemAPI.Query<RefRW<Health>, DynamicBuffer<DamageHealthRequestBuffer>>()
             .WithAll<NeedHealthUpdateTag>()
             .WithEntityAccess())
         {
-            float healthBeforeUpdate = health.ValueRO.Current;
-
             foreach (var damage in damageRequest)
                 health.ValueRW.Current -= damage.Value;
-
-            float healthChange = healthBeforeUpdate - health.ValueRO.Current;
 
             if(SystemAPI.HasComponent<HealthBarReference>(entity))
             {
                 var healthBarReference = SystemAPI.GetComponentRO<HealthBarReference>(entity).ValueRO;
+
+                if(teamLookup.HasComponent(entity) && !teamLookup.HasComponent(healthBarReference.Value))
+                {
+                    ecb.AddComponent(healthBarReference.Value, new TeamTag() { Team = teamLookup[entity].Team });
+                }
 
                 if (!state.EntityManager.IsEnabled(healthBarReference.Value))
                 {
