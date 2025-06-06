@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "BulletPrefabHolder", menuName = "SpaceGame/ScriptableObjects/BulletPrefabHolder")]
-public class BulletPrefabHolder : ScriptableObject
+public class ProjectilePrefabHolder : ScriptableObject
 {
-    public List<BulletPrefabData> Data;
+    public List<ProjectilePrefabData> Data;
 }
 
 
 [System.Serializable]
-public class BulletPrefabData
+public class ProjectilePrefabData
 {
     public string Id;
     public BulletAuthoring Prefab;

@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace SpaceGame.Combat.Authoring
 {
-    class BulletPrefabAuthoring : MonoBehaviour
+    class ProjectilePrefabAuthoring : MonoBehaviour
     {
         [SerializeField]
-        private BulletPrefabHolder prefabHolder;
+        private ProjectilePrefabHolder prefabHolder;
 
         private void OnValidate()
         {
@@ -21,9 +21,9 @@ namespace SpaceGame.Combat.Authoring
             }
         }
 
-        class BulletPrefabAuthoringBaker : Baker<BulletPrefabAuthoring>
+        class ProjectilePrefabAuthoringBaker : Baker<ProjectilePrefabAuthoring>
         {
-            public override void Bake(BulletPrefabAuthoring authoring)
+            public override void Bake(ProjectilePrefabAuthoring authoring)
             {
 
                 foreach (var data in authoring.prefabHolder.Data)
@@ -32,7 +32,7 @@ namespace SpaceGame.Combat.Authoring
                     var prefabEntity = GetEntity(data.Prefab.gameObject, TransformUsageFlags.Dynamic);
 
                     AddComponent<Prefab>(entity);
-                    AddComponent(entity, new BulletPrefab()
+                    AddComponent(entity, new ProjectilePrefab()
                     {
                         Entity = prefabEntity,
                         Id = data.Id

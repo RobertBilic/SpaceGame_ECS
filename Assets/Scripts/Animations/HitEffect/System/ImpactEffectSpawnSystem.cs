@@ -26,7 +26,7 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingletonBuffer<ImpactSpawnRequest>(out var spawnRequests))
                 return;
 
-            if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
+            if (!SystemAPI.TryGetSingleton<ProjectilePrefabLookupSingleton>(out var blobSingleton))
                 return;
 
             ref var lookup = ref blobSingleton.Lookup.Value;
@@ -51,7 +51,7 @@ namespace SpaceGame.Combat.Systems
                 }
             }
 
-            foreach (var (bulletId, entity) in SystemAPI.Query<RefRO<BulletId>>()
+            foreach (var (bulletId, entity) in SystemAPI.Query<RefRO<ProjectileId>>()
                 .WithOptions(EntityQueryOptions.IncludeDisabledEntities)
                 .WithAll<Disabled, NeedsPoolingTag, ImpactParticle>()
                 .WithEntityAccess())
@@ -98,7 +98,7 @@ namespace SpaceGame.Combat.Systems
                         Velocity = velocity
                     });
 
-                    ecb.SetComponent(particle, new BulletId() { Value = request.PrefabId });
+                    ecb.SetComponent(particle, new ProjectileId() { Value = request.PrefabId });
                 }
             }
 

@@ -32,14 +32,14 @@ namespace SpaceGame.Combat.Systems
                 transform.ValueRW.Position += heading.ValueRO.Value * speed.ValueRO.MaxSpeed * deltaTime;
             }
 
-            foreach (var (lifetime, bulletId, entity) in SystemAPI.Query<RefRW<Lifetime>, RefRO<BulletId>>().WithAll<BulletTag>().WithEntityAccess())
+            foreach (var (lifetime, bulletId, entity) in SystemAPI.Query<RefRW<Lifetime>, RefRO<ProjectileId>>().WithAll<BulletTag>().WithEntityAccess())
             {
                 lifetime.ValueRW.Value -= deltaTime;
                 if (lifetime.ValueRW.Value <= 0f)
                 {
-                    if (SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var poolBuffer))
+                    if (SystemAPI.TryGetSingletonBuffer<ProjectilePoolRequest>(out var poolBuffer))
                     {
-                        poolBuffer.Add(new BulletPoolRequest()
+                        poolBuffer.Add(new ProjectilePoolRequest()
                         {
                             Entity = entity,
                             Id = bulletId.ValueRO.Value

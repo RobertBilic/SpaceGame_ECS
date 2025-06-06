@@ -2,11 +2,11 @@ using SpaceGame.Combat.Components;
 using Unity.Collections;
 using Unity.Entities;
 
-public struct BulletPrefabLookup
+public struct ProjectilePrefabLookup
 {
-    public BlobArray<BulletPrefab> Entries;
+    public BlobArray<ProjectilePrefab> Entries;
 
-    public BulletPrefab GetPrefab(FixedString32Bytes id)
+    public ProjectilePrefab GetPrefab(FixedString32Bytes id)
     {
         for (int i = 0; i < Entries.Length; i++)
         {
@@ -14,7 +14,7 @@ public struct BulletPrefabLookup
                 return Entries[i];
         }
 
-        return default(BulletPrefab);
+        return default(ProjectilePrefab);
     }
 }
 

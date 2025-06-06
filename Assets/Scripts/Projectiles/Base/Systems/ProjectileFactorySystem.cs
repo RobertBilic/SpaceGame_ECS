@@ -9,7 +9,7 @@ using Unity.Transforms;
 namespace SpaceGame.Combat.Systems
 {
     [UpdateInGroup(typeof(CombatLateUpdateGroup))]
-    partial struct BulletFactorySystem : ISystem
+    partial struct ProjectileFactorySystem : ISystem
     {
         NativeParallelHashMap<FixedString32Bytes, NativeList<Entity>> pools;
 
@@ -18,25 +18,25 @@ namespace SpaceGame.Combat.Systems
         {
             pools = new NativeParallelHashMap<FixedString32Bytes, NativeList<Entity>>(16, Allocator.Persistent);
 
-            state.RequireForUpdate<BulletSpawnRequest>();
-            state.RequireForUpdate<BulletPrefabLookupSingleton>();
+            state.RequireForUpdate<ProjectileSpawnRequest>();
+            state.RequireForUpdate<ProjectilePrefabLookupSingleton>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
+            if (!SystemAPI.TryGetSingleton<ProjectilePrefabLookupSingleton>(out var blobSingleton))
                 return;
 
-            if (!SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var bulletSpawnCollector))
+            if (!SystemAPI.TryGetSingletonBuffer<ProjectileSpawnRequest>(out var bulletSpawnCollector))
                 return;
 
             ref var lookup = ref blobSingleton.Lookup.Value;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            foreach (var (bulletId, entity) in SystemAPI.Query<RefRO<BulletId>>()
+            foreach (var (bulletId, entity) in SystemAPI.Query<RefRO<ProjectileId>>()
                 .WithOptions(EntityQueryOptions.IncludeDisabledEntities)
-                .WithAll<Disabled, NeedsPoolingTag, BulletTag>()
+                .WithAll<Disabled, NeedsPoolingTag, ProjectileTag>()
                 .WithEntityAccess())
             {
                 var pool = GetOrCreatePool(bulletId.ValueRO.Value);
@@ -50,16 +50,16 @@ namespace SpaceGame.Combat.Systems
 
                 if (prefabData.Entity == Entity.Null || !state.EntityManager.Exists(prefabData.Entity))
                 {
-                    UnityEngine.Debug.LogWarning($"Bullet prefab doesn't exist: {request.BulletId}");
+                    UnityEngine.Debug.LogWarning($"Projectile prefab doesn't exist: {request.BulletId}");
                     continue;
                 }
 
-                var bulletEntity = GetFromPool(state.EntityManager, ecb, prefabData.Id, prefabData.Entity);
+                var projectileEntity = GetFromPool(state.EntityManager, ecb, prefabData.Id, prefabData.Entity);
 
                 var radius = state.EntityManager.HasComponent<Radius>(prefabData.Entity) ? state.EntityManager.GetComponentData<Radius>(prefabData.Entity).Value * 2.0f : 1.0f;
                 var speed = state.EntityManager.GetComponentData<ThrustSettings>(prefabData.Entity);
 
-                state.EntityManager.SetComponentData(bulletEntity, new LocalTransform
+                state.EntityManager.SetComponentData(projectileEntity, new LocalTransform
                 {
                     Position = request.Position,
                     Rotation = quaternion.identity,
@@ -67,12 +67,12 @@ namespace SpaceGame.Combat.Systems
                 });
 
                 var lifeTime = request.Range / speed.MaxSpeed;
-                state.EntityManager.SetComponentData(bulletEntity, new Lifetime { Value = lifeTime });
-                state.EntityManager.SetComponentData(bulletEntity, new Heading() { Value = request.Heading });
-                state.EntityManager.SetComponentData(bulletEntity, new PreviousPosition() { Value = request.Position });
-                state.EntityManager.SetComponentData(bulletEntity, new Damage() { Value = request.Damage });
-                state.EntityManager.SetComponentData(bulletEntity, new TeamTag() { Team = request.Team });
-                state.EntityManager.SetComponentData(bulletEntity, new BulletId() { Value = prefabData.Id });
+                state.EntityManager.SetComponentData(projectileEntity, new Lifetime { Value = lifeTime });
+                state.EntityManager.SetComponentData(projectileEntity, new Heading() { Value = request.Heading });
+                state.EntityManager.SetComponentData(projectileEntity, new PreviousPosition() { Value = request.Position });
+                state.EntityManager.SetComponentData(projectileEntity, new Damage() { Value = request.Damage });
+                state.EntityManager.SetComponentData(projectileEntity, new TeamTag() { Team = request.Team });
+                state.EntityManager.SetComponentData(projectileEntity, new ProjectileId() { Value = prefabData.Id });
             }
 
             bulletSpawnCollector.Clear();

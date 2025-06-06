@@ -191,7 +191,7 @@ namespace SpaceGame.Combat.Systems
             var hitEntities = new NativeHashSet<Entity>(256, Allocator.Temp);
 
             foreach (var (bulletTransform, prevPos, bulletRadius, damage, teamTag, bulletId, bulletEntity)
-                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<TeamTag>, RefRO<BulletId>>()
+                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<TeamTag>, RefRO<ProjectileId>>()
                          .WithAll<BulletTag>()
                          .WithEntityAccess())
             {
@@ -234,9 +234,9 @@ namespace SpaceGame.Combat.Systems
                     }
 
 
-                    if(SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var poolBuffer))
+                    if(SystemAPI.TryGetSingletonBuffer<ProjectilePoolRequest>(out var poolBuffer))
                     {
-                        poolBuffer.Add(new BulletPoolRequest()
+                        poolBuffer.Add(new ProjectilePoolRequest()
                         {
                             Entity = bulletEntity,
                             Id = bulletId.ValueRO.Value

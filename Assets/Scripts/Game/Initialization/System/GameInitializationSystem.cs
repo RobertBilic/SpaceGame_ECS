@@ -30,8 +30,8 @@ namespace SpaceGame.Game.Initialization.Systems
 
                 float simulationCubeHalfExtents = config.GameSize;
                 state.EntityManager.AddComponentData(state.EntityManager.CreateEntity(), new SpatialDatabaseSingleton());
-                state.EntityManager.CreateSingletonBuffer<BulletSpawnRequest>("Bullet Spawn Request Collector");
-                state.EntityManager.CreateSingletonBuffer<BulletPoolRequest>("Bullet Pool Request Collector");
+                state.EntityManager.CreateSingletonBuffer<ProjectileSpawnRequest>("Bullet Spawn Request Collector");
+                state.EntityManager.CreateSingletonBuffer<ProjectilePoolRequest>("Bullet Pool Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactSpawnRequest>("Impact Effect Spawn Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactEffectPoolRequest>("Impact Effect Pool Request Collector");
                 state.EntityManager.CreateSingleton(new GameStateComponent() { Value = GameState.MainMenu }, "GameState");

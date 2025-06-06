@@ -20,7 +20,7 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new MaterialProperty__Fade() { Value = 1.0f });
             AddComponent(entity, new MaterialProperty__Color() { Value = new float4(c.r, c.g, c.b, c.a) });
             AddComponent(entity, new ImpactParticle());
-            AddComponent(entity, new BulletId());
+            AddComponent(entity, new ProjectileId());
             AddComponent(entity, new Disabled());
         }
     }

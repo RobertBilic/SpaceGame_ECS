@@ -17,7 +17,7 @@ namespace SpaceGame.Combat.Components
         public readonly RefRO<Damage> Damage;
         public readonly RefRO<RotationBaseReference> RotationBaseReference;
         public readonly RefRO<TeamTag> TeamTag;
-        public readonly RefRO<BulletId> BulletId;
+        public readonly RefRO<ProjectileId> BulletId;
 
         public readonly DynamicBuffer<ProjectileSpawnOffset> BulletSpawnOffsets;
     }

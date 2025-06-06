@@ -22,7 +22,7 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new Heading() { Value = new Unity.Mathematics.float3(1, 0, 0) });
 
 
-            AddComponent(entity, new BulletId() { Value = authoring.BulletId });
+            AddComponent(entity, new ProjectileId() { Value = authoring.BulletId });
             if (authoring.RecoilTarget != null)
             {
                 AddComponent(entity, new BarrelRecoilReference()

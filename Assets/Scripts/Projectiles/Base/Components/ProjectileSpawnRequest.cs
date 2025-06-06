@@ -5,7 +5,7 @@ using Unity.Mathematics;
 namespace SpaceGame.Combat.Components
 {
     [InternalBufferCapacity(128)]
-    public struct BulletSpawnRequest : IBufferElementData
+    public struct ProjectileSpawnRequest : IBufferElementData
     {
         public FixedString32Bytes BulletId;
         public float3 Heading;
@@ -18,7 +18,7 @@ namespace SpaceGame.Combat.Components
     }
 
     [InternalBufferCapacity(128)]
-    public struct BulletPoolRequest : IBufferElementData
+    public struct ProjectilePoolRequest : IBufferElementData
     {
         public Entity Entity;
         public FixedString32Bytes Id;

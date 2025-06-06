@@ -84,9 +84,9 @@ namespace SpaceGame.Combat.Systems
                 {
                     float3 spawnPosition = math.transform(rotationBaseLocalToWorld.Value, offset.Value);
 
-                    if (SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var buffer))
+                    if (SystemAPI.TryGetSingletonBuffer<ProjectileSpawnRequest>(out var buffer))
                     {
-                        buffer.Add(new BulletSpawnRequest()
+                        buffer.Add(new ProjectileSpawnRequest()
                         {
                             BulletId = bulletId.Value,
                             Damage = damage.ValueRO.Value,

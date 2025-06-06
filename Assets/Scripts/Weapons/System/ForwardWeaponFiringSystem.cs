@@ -31,7 +31,7 @@ namespace SpaceGame.Combat.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!SystemAPI.TryGetSingleton<BulletPrefabLookupSingleton>(out var blobSingleton))
+            if (!SystemAPI.TryGetSingleton<ProjectilePrefabLookupSingleton>(out var blobSingleton))
                 return;
 
             if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
@@ -148,9 +148,9 @@ namespace SpaceGame.Combat.Systems
                     {
                         float3 spawnPosition = math.transform(baseLtw.Value, offset.Value);
 
-                        if (SystemAPI.TryGetSingletonBuffer<BulletSpawnRequest>(out var buffer))
+                        if (SystemAPI.TryGetSingletonBuffer<ProjectileSpawnRequest>(out var buffer))
                         {
-                            buffer.Add(new BulletSpawnRequest()
+                            buffer.Add(new ProjectileSpawnRequest()
                             {
                                 BulletId = weapon.BulletId,
                                 Damage = weapon.Damage,

@@ -16,7 +16,7 @@ namespace SpaceGame.Combat.Systems
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
             foreach (var (particle, transform, bulletId, entity) in
-                     SystemAPI.Query<RefRW<ImpactParticle>, RefRW<LocalTransform>, RefRO<BulletId>>().WithEntityAccess())
+                     SystemAPI.Query<RefRW<ImpactParticle>, RefRW<LocalTransform>, RefRO<ProjectileId>>().WithEntityAccess())
             {
                 particle.ValueRW.Age += dt;
                 if (particle.ValueRW.Age >= particle.ValueRW.Lifetime)

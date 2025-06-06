@@ -6,20 +6,20 @@ using Unity.Entities;
 namespace SpaceGame.Combat.Systems
 {
     [UpdateInGroup(typeof(CombatLateUpdateGroup))]
-    [UpdateBefore(typeof(BulletFactorySystem))]
+    [UpdateBefore(typeof(ProjectileFactorySystem))]
     partial struct BulletPoolSystem : ISystem
     {
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<BulletPoolRequest>();
+            state.RequireForUpdate<ProjectilePoolRequest>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
 
-            if (!SystemAPI.TryGetSingletonBuffer<BulletPoolRequest>(out var bulletPoolCollector))
+            if (!SystemAPI.TryGetSingletonBuffer<ProjectilePoolRequest>(out var bulletPoolCollector))
                 return;
 
             if (bulletPoolCollector.Length != 0)
