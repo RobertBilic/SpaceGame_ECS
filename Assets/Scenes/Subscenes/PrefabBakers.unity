@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 1577174181}
   - component: {fileID: 1577174180}
   m_Layer: 0
-  m_Name: BulletPrefabBakers
+  m_Name: ProjectilePrefabBakers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
