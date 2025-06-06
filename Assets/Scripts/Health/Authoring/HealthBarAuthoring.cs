@@ -19,6 +19,7 @@ class HealthBarAuthoring : MonoBehaviour
             AddComponent(entity, new FillMaterialOverrideComponent() { Value = 1.0f });
             AddComponent(entity, new EdgeFadeMaterialOverride() { Value = authoring.EdgeFade });
             AddComponent(entity, new NeedsHealthBarRecoloring());
+            AddComponent(entity, new ColorMaterialOverride() { Value = new float4(0.0f, 0.0f, 0.0f, 0.0f) });
             AddComponent(entity, new PostTransformMatrix() { Value = float4x4.Scale(scale.x, scale.y, scale.z) });
             AddComponent(entity, new LocalToWorld());
 
