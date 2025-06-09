@@ -9,7 +9,6 @@ namespace SpaceGame.Game.Initialization.Components
         public int SpatialDatabaseSubdivisions;
 
         public int GameSize;
-
         public bool IsInitialized;
     }
 }

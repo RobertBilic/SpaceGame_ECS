@@ -15,8 +15,8 @@ namespace SpaceGame.Combat.Systems
             float dt = timeComp.DeltaTime;
 
             EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-            foreach (var (particle, transform, bulletId, entity) in
-                     SystemAPI.Query<RefRW<ImpactParticle>, RefRW<LocalTransform>, RefRO<ProjectileId>>().WithEntityAccess())
+            foreach (var (particle, bulletId, entity) in
+                     SystemAPI.Query<RefRW<ImpactParticle>, RefRO<ProjectileId>>().WithEntityAccess())
             {
                 particle.ValueRW.Age += dt;
                 if (particle.ValueRW.Age >= particle.ValueRW.Lifetime)
@@ -31,9 +31,6 @@ namespace SpaceGame.Combat.Systems
                     }
                     continue;
                 }
-
-               transform.ValueRW.Position += particle.ValueRW.Velocity * dt;
-               ecb.SetComponent(entity, new MaterialProperty__Fade() { Value = 1.0f - (particle.ValueRO.Age / particle.ValueRO.Lifetime) });
             }
 
             if (ecb.ShouldPlayback)

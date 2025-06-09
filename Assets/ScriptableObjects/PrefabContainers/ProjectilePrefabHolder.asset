@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Data:
   - Id: bullet_basic_1
-    Prefab: {fileID: 5324084707071364767, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
+    Prefab: {fileID: 8888681493565606068, guid: d21fb6a6ac9efae40805f647a6d1c2b4, type: 3}
   - Id: bullet_basic_2
-    Prefab: {fileID: 5324084707071364767, guid: d2a39ed91b0a5a348a1f3584fbc21ca0, type: 3}
+    Prefab: {fileID: 8888681493565606068, guid: d2a39ed91b0a5a348a1f3584fbc21ca0, type: 3}
+  - Id: missile_basic_1
+    Prefab: {fileID: 235110751576415193, guid: 610bf8459a73f8345806a2b8b9c85978, type: 3}

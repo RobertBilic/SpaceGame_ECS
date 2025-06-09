@@ -5,7 +5,7 @@ public class EngagementDistanceBakerAddition : AdditionalBakedComponent<EngageDi
     [SerializeField]
     private float distance;
 
-    protected override EngageDistance GetComponentData()
+    protected override EngageDistance GetComponentData<TAuthoring>(Unity.Entities.Baker<TAuthoring> baker)
     {
         return new EngageDistance()
         {

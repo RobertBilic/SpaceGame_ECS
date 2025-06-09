@@ -29,6 +29,15 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingleton<ProjectilePrefabLookupSingleton>(out var blobSingleton))
                 return;
 
+            if (SystemAPI.TryGetSingleton<HitEffectEnabled>(out var hitEffectsEnabled))
+            {
+                if (!hitEffectsEnabled.Enabled)
+                {
+                    spawnRequests.Clear();
+                    return;
+                }
+            }
+
             ref var lookup = ref blobSingleton.Lookup.Value;
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -41,10 +50,13 @@ namespace SpaceGame.Combat.Systems
                 {
                     var entry = lookup.Entries[i];
 
+                    if (!SystemAPI.HasComponent<OnHitEffectPrefab>(entry.Entity))
+                        continue;
+
                     var pool = GetOrCreatePool(entry.Id);
                     var onHitPrefab = SystemAPI.GetComponent<OnHitEffectPrefab>(entry.Entity);
 
-                    for (int j = 0; j < 50; j++)
+                    for (int j = 0; j < 5; j++)
                     {
                         AddEntitiesToPool(pool, onHitPrefab.Value, EntityManager, ecb);
                     }
@@ -65,13 +77,6 @@ namespace SpaceGame.Combat.Systems
             for (int i = 0; i < spawnRequests.Length; i++)
             {
                 var request = spawnRequests[i];
-
-                float3 randomDir = math.normalize(
-                    request.Normal + random.NextFloat3Direction() * 0.5f);
-
-                float speed = random.NextFloat(2f, 5f);
-                float3 velocity = randomDir * speed;
-
                 var bulletPrefab = lookup.GetPrefab(request.PrefabId);
 
                 if (!SystemAPI.HasComponent<OnHitEffectPrefab>(bulletPrefab.Entity))
@@ -82,20 +87,18 @@ namespace SpaceGame.Combat.Systems
                 for (int j = 0; j < request.Count; j++)
                 {
                     var particle = GetFromPool(EntityManager, ecb, bulletPrefab.Id, onHitPrefab.Value);
-                    var scale = request.Scale;
 
                     ecb.SetComponent(particle, new LocalTransform
                     {
                         Position = request.Position,
                         Rotation = random.NextQuaternionRotation(),
-                        Scale = random.NextFloat(scale / 3.0f, scale)
+                        Scale = request.Scale
                     }); ;
 
                     ecb.SetComponent(particle, new ImpactParticle
                     {
-                        Lifetime = 0.5f,
+                        Lifetime = onHitPrefab.Lifetime,
                         Age = 0f,
-                        Velocity = velocity
                     });
 
                     ecb.SetComponent(particle, new ProjectileId() { Value = request.PrefabId });
@@ -162,7 +165,7 @@ namespace SpaceGame.Combat.Systems
 
         private void AddEntitiesToPool(NativeList<Entity> pool, Entity prefab, EntityManager em, EntityCommandBuffer ecb)
         {
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var entity = em.Instantiate(prefab);
                 DisableEntityAndChildren(ecb, entity, em);
@@ -192,16 +195,13 @@ namespace SpaceGame.Combat.Systems
                 var group = em.GetBuffer<LinkedEntityGroup>(root);
                 for (int i = 0; i < group.Length; i++)
                 {
-                    if (em.HasComponent<Disabled>(group[i].Value))
-                        ecb.RemoveComponent<Disabled>(group[i].Value);
+                    ecb.RemoveComponent<Disabled>(group[i].Value);
                 }
             }
             else
             {
-                if (em.HasComponent<Disabled>(root))
-                    ecb.RemoveComponent<Disabled>(root);
+                ecb.RemoveComponent<Disabled>(root);
             }
         }
-
     }
 }

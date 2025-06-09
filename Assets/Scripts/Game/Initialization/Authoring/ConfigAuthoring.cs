@@ -21,6 +21,8 @@ namespace SpaceGame.Game.Initialization.Authoring
         public GameObject SpatialDatabasePrefab;
         public int SpatialDatabaseSubdivisions = 5;
         public int ShipsSpatialDatabaseCellCapacity = 256;
+        [Header("HitEffect")]
+        public bool OnHitEffectsEnabled;
     }
 
     class ConfigAuthoringBaker : Baker<ConfigAuthoring>
@@ -37,6 +39,8 @@ namespace SpaceGame.Game.Initialization.Authoring
                 GameSize = authoring.GameSize,
                 IsInitialized = false
             });
+
+            AddComponent(entity, new HitEffectEnabled() { Enabled = authoring.OnHitEffectsEnabled });
 
             var colorBuffer = AddBuffer<HealthBarColorPerTeam>(entity);
 

@@ -3,6 +3,5 @@ using UnityEngine;
 
 public class SupportsPatrolBakerAddition : AdditionalBakedComponent<SupportsPatrolTag>
 {
-    protected override SupportsPatrolTag GetComponentData() => new SupportsPatrolTag();
-    
+    protected override SupportsPatrolTag GetComponentData<TAuthoring>(Unity.Entities.Baker<TAuthoring> baker) => new SupportsPatrolTag();
 }

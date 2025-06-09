@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: TurretPrefabDataHolder
   m_EditorClassIdentifier: 
   Data:
-  - Prefab: {fileID: 6216053240233295670, guid: 1ca126835f6052b4d9b5d16b3bee6636, type: 3}
-    Id: turret_basic_1
+  - Id: turret_basic_1
+    Prefab: {fileID: 6216053240233295670, guid: 1ca126835f6052b4d9b5d16b3bee6636, type: 3}
+  - Id: turret_missile_1
+    Prefab: {fileID: 8182235260701200774, guid: 65a6c6f9bd6a02f41b270e0222c4dea9, type: 3}

@@ -133,9 +133,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 913a8a6b294ffc542ab786bf01eb8a4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnHitPrefab: {fileID: 7564430914591536725, guid: 1b8fbdc97a529694593f7ece1c44cda3, type: 3}
   Speed: 100
   Radius: 0.3
+  OnHitPrefab: {fileID: 1564337460563419644, guid: 76a6ba13a1022cb4f9e88903e7100b63, type: 3}
+  OnHitLifetime: 0.5
 --- !u!114 &8398716135263999144
 MonoBehaviour:
   m_ObjectHideFlags: 0
