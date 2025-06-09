@@ -130,6 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3135834216953278277}
   - component: {fileID: 6216053240233295670}
+  - component: {fileID: 2489477764605293227}
   m_Layer: 0
   m_Name: Turret_Cannon_1
   m_TagString: Untagged
@@ -171,13 +172,29 @@ MonoBehaviour:
   Damage: 10
   FiringRate: 30
   Range: 100
-  RecoilTarget: {fileID: 5174824032697320485}
-  RecoilDuration: 0.3
-  MaxRecoilDistance: 0.15
+  ReloadTime: 3
+  AmmoSize: 100
   BulletId: bullet_basic_1
   bulletSpawnPositionsLocal:
   - {x: 0.7, y: -0.1, z: 0}
   - {x: 0.76, y: 0.15, z: 0}
+  AdditionalComponents:
+  - {fileID: 2489477764605293227}
+--- !u!114 &2489477764605293227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3784125987857831625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9bbf586af7668343a4637996489342d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RecoilTarget: {fileID: 5174824032697320485}
+  RecoilDuration: 0.3
+  MaxRecoilDistance: 0.1
 --- !u!1 &5174824032697320485
 GameObject:
   m_ObjectHideFlags: 0

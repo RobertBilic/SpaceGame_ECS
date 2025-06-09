@@ -14,8 +14,6 @@ namespace SpaceGame.Combat
         public byte OwnTeam;
 
         public Entity FoundTarget;
-        public BufferLookup<HitBoxElement> HitboxLookup;
-        public ComponentLookup<LocalToWorld> LTWLookup;
 
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
@@ -46,14 +44,6 @@ namespace SpaceGame.Combat
                 shouldEarlyExit = true; 
                 return;
             }
-        }
-
-        private void CheckEntityHitboxes(SpatialDatabaseElement element)
-        {
-            if (!HitboxLookup.HasBuffer(element.Entity))
-                return;
-
-            var hitboxes = HitboxLookup[element.Entity];
         }
     }
 }

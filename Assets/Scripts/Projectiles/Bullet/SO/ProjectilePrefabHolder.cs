@@ -13,5 +13,5 @@ public class ProjectilePrefabHolder : ScriptableObject
 public class ProjectilePrefabData
 {
     public string Id;
-    public BulletAuthoring Prefab;
+    public GameObject Prefab;
 }

@@ -56,17 +56,22 @@ namespace SpaceGame.Combat.Systems
 
                 var projectileEntity = GetFromPool(state.EntityManager, ecb, prefabData.Id, prefabData.Entity);
 
-                var radius = state.EntityManager.HasComponent<Radius>(prefabData.Entity) ? state.EntityManager.GetComponentData<Radius>(prefabData.Entity).Value * 2.0f : 1.0f;
+                var projectileScale = state.EntityManager.HasComponent<ProjectileScale>(prefabData.Entity) ? state.EntityManager.GetComponentData<ProjectileScale>(prefabData.Entity).Value : 1.0f;
                 var speed = state.EntityManager.GetComponentData<ThrustSettings>(prefabData.Entity);
+
+                float angle = math.atan2(request.Heading.y, request.Heading.x);
+                quaternion flatRotation = quaternion.RotateZ(angle);
 
                 state.EntityManager.SetComponentData(projectileEntity, new LocalTransform
                 {
                     Position = request.Position,
-                    Rotation = quaternion.identity,
-                    Scale = radius * request.ParentScale
+                    Rotation = flatRotation,
+                    Scale = projectileScale * request.ParentScale
                 });
 
                 var lifeTime = request.Range / speed.MaxSpeed;
+
+                state.EntityManager.SetComponentData(projectileEntity, new Target() { Value = request.Target });
                 state.EntityManager.SetComponentData(projectileEntity, new Lifetime { Value = lifeTime });
                 state.EntityManager.SetComponentData(projectileEntity, new Heading() { Value = request.Heading });
                 state.EntityManager.SetComponentData(projectileEntity, new PreviousPosition() { Value = request.Position });

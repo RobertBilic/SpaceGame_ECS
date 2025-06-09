@@ -42,6 +42,22 @@ namespace SpaceGame.Combat.Systems
                 var damage = turretFiringAspect.Damage;
                 var teamTag = turretFiringAspect.TeamTag.ValueRO;
                 var bulletId = turretFiringAspect.BulletId.ValueRO;
+                var clipSize = turretFiringAspect.ClipSize;
+                var reloadData = turretFiringAspect.ReloadData;
+
+                if(clipSize.ValueRO.CurrentSize <= 0 )
+                {
+                    reloadData.ValueRW.CurrentReloadTime -= timeComp.DeltaTimeScaled;
+
+                    if (reloadData.ValueRO.CurrentReloadTime <= 0.0f)
+                    {
+                        clipSize.ValueRW.CurrentSize = clipSize.ValueRO.MaxSize;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
 
                 double elapsedSinceLastFire = timeComp.ElapsedTimeScaled - lastFireTime.ValueRW.Value;
 
@@ -80,6 +96,11 @@ namespace SpaceGame.Combat.Systems
 
                 var rotationBaseLocalToWorld = SystemAPI.GetComponent<LocalToWorld>(rotationBase.ValueRO.RotationBase);
 
+                clipSize.ValueRW.CurrentSize = clipSize.ValueRO.CurrentSize - 1;
+
+                if (clipSize.ValueRO.CurrentSize <= 0)
+                    reloadData.ValueRW.CurrentReloadTime = reloadData.ValueRO.ReloadTime;
+
                 foreach (var offset in spawnOffset)
                 {
                     float3 spawnPosition = math.transform(rotationBaseLocalToWorld.Value, offset.Value);
@@ -94,7 +115,8 @@ namespace SpaceGame.Combat.Systems
                             Position = spawnPosition,
                             Range = range.ValueRO.Value,
                             Team = teamTag.Team,
-                            ParentScale = math.length(worldTransform.ValueRO.Value.c0.xyz)
+                            ParentScale = math.length(worldTransform.ValueRO.Value.c0.xyz),
+                            Target = target.ValueRO.Value
                         });
                     }
                     else

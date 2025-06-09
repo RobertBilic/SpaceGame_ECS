@@ -10,6 +10,7 @@ using Unity.Transforms;
 
 namespace SpaceGame.Combat.Systems
 {
+    [BurstCompile]
     public struct BulletCollisionDetector : ISpatialQueryCollector
     {
         public bool isEnemyHit;
@@ -22,7 +23,6 @@ namespace SpaceGame.Combat.Systems
         private float3 bulletEnd;
         private float radius;
 
-
         public BulletCollisionDetector(EntityManager manager, int team, float3 bulletStart, float3 bulletEnd, float radius) : this()
         {
             this.team = team;
@@ -32,7 +32,7 @@ namespace SpaceGame.Combat.Systems
             this.radius = radius;
         }
 
-
+        [BurstCompile]
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
             shouldEarlyExit = false;
@@ -132,7 +132,8 @@ namespace SpaceGame.Combat.Systems
                 }
             }
         }
-        private static float DistancePointToSegment(float3 point, float3 a, float3 b)
+        [BurstCompile]
+        private float DistancePointToSegment(float3 point, float3 a, float3 b)
         {
             float3 ab = b - a;
             float3 ap = point - a;
@@ -142,7 +143,8 @@ namespace SpaceGame.Combat.Systems
             return math.distance(point, closest);
         }
 
-        private static bool LineSegmentIntersectsAABB(float3 p0, float3 p1, float3 halfExtents)
+        [BurstCompile]
+        private bool LineSegmentIntersectsAABB(float3 p0, float3 p1, float3 halfExtents)
         {
             float3 m = (p0 + p1) * 0.5f;
             float3 d = p1 - m;
@@ -158,9 +160,10 @@ namespace SpaceGame.Combat.Systems
     partial struct BulletCollisionSystem : ISystem
     {
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
-
+        private NativeHashSet<Entity> hitEntities;
         public void OnCreate(ref SystemState state)
         {
+            hitEntities = new NativeHashSet<Entity>(256, Allocator.Persistent);
             state.RequireForUpdate<SpatialDatabaseSingleton>();
         }
 
@@ -187,8 +190,7 @@ namespace SpaceGame.Combat.Systems
 
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-            var hitEntities = new NativeHashSet<Entity>(256, Allocator.Temp);
+            hitEntities.Clear();
 
             foreach (var (bulletTransform, prevPos, bulletRadius, damage, teamTag, bulletId, bulletEntity)
                      in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PreviousPosition>, RefRO<Radius>, RefRO<Damage>, RefRO<TeamTag>, RefRO<ProjectileId>>()
@@ -225,10 +227,10 @@ namespace SpaceGame.Combat.Systems
                     {
                         buffer.Add(new ImpactSpawnRequest()
                         {
-                            Count = 10,
+                            Count = 1,
                             Normal = math.up(),
                             Position = bulletEnd,
-                            Scale = 2.0f,
+                            Scale = radius * 3.0f,
                             PrefabId = bulletId.ValueRO.Value
                         });
                     }
@@ -250,6 +252,11 @@ namespace SpaceGame.Combat.Systems
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
+        }
+
+        [BurstCompile]
+        public void OnDestroy(ref SystemState state)
+        {
             hitEntities.Dispose();
         }
 

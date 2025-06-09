@@ -4,7 +4,8 @@ public class DisengagementDistanceBakerAddition : AdditionalBakedComponent<Disen
 {
     [SerializeField]
     private float distance;
-    protected override DisengageDistance GetComponentData()
+
+    protected override DisengageDistance GetComponentData<TAuthoring>(Unity.Entities.Baker<TAuthoring> baker)
     {
         return new DisengageDistance()
         {

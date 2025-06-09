@@ -7,6 +7,8 @@ namespace SpaceGame.Combat.Components
     [InternalBufferCapacity(128)]
     public struct ProjectileSpawnRequest : IBufferElementData
     {
+        public Entity Target;
+
         public FixedString32Bytes BulletId;
         public float3 Heading;
         public float3 Position;

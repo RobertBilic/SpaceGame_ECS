@@ -5,11 +5,23 @@ using Unity.Entities;
 
 namespace SpaceGame.Combat.Authoring
 {
-    class TurretPropertyHolderBakerBaker : Baker<TurretAuthoring>
+    class TurretAuthoringBaker : Baker<TurretAuthoring>
     {
         public override void Bake(TurretAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
+
+
+            AddComponent(entity, new ProjectileReloadData()
+            {
+                CurrentReloadTime = 0.0f,
+                ReloadTime = authoring.ReloadTime
+            });
+            AddComponent(entity, new ProjectileClipSize()
+            {
+                MaxSize = authoring.AmmoSize,
+                CurrentSize = authoring.AmmoSize
+            });
 
             AddComponent(entity, new IsAlive() { });
             AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
@@ -20,25 +32,23 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new TurretTag());
             AddComponent(entity, new RotationBaseReference() { RotationBase = GetEntity(authoring.RotationBase, TransformUsageFlags.Dynamic) });
             AddComponent(entity, new Heading() { Value = new Unity.Mathematics.float3(1, 0, 0) });
-
-
             AddComponent(entity, new ProjectileId() { Value = authoring.BulletId });
-            if (authoring.RecoilTarget != null)
-            {
-                AddComponent(entity, new BarrelRecoilReference()
-                {
-                    Duration = authoring.RecoilDuration,
-                    MaxDistance = authoring.MaxRecoilDistance,
-                    Entity = GetEntity(authoring.RecoilTarget, TransformUsageFlags.Dynamic),
-                    DefaultPosition = authoring.RecoilTarget.transform.localPosition
-                });
-            }
 
             var spawnOffsetBuffer = AddBuffer<ProjectileSpawnOffset>(entity);
 
             foreach (var offset in authoring.bulletSpawnPositionsLocal)
             {
                 spawnOffsetBuffer.Add(new ProjectileSpawnOffset() { Value = offset });
+            }
+
+            foreach(var comp in authoring.AdditionalComponents)
+            {
+                comp.AddComponent<TurretAuthoring>(this, entity);
+            }
+
+            foreach(var additionalBuffer in authoring.AdditionalBuffers)
+            {
+                additionalBuffer.AddBuffer(this, entity);
             }
         }
     }

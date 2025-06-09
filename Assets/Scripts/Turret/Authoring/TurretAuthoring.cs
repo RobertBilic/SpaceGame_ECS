@@ -11,17 +11,19 @@ namespace SpaceGame.Combat.Authoring
         public GameObject RotationBase;
         public float RotationSpeed;
 
+        [Header("Combat")]
         public float Damage;
         public float FiringRate;
         public float Range;
-
-        [Header("Recoil")]
-        public GameObject RecoilTarget;
-        public float RecoilDuration;
-        public float MaxRecoilDistance;
+        public float ReloadTime;
+        public int AmmoSize;
 
         [Header("Bullet")]
         public string BulletId;
         public List<Vector3> bulletSpawnPositionsLocal;
+
+        [Header("Additional")]
+        public List<AdditionalBakedComponentBase> AdditionalComponents;
+        public List<AdditionalBakedBufferBase> AdditionalBuffers;
     }
 }
