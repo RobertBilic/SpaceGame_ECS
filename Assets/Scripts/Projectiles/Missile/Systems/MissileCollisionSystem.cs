@@ -98,7 +98,7 @@ namespace SpaceGame.Combat.Missiles.System
                         continue;
 
                     var targetPos = LtwLookup[hitEntity];
-                    var distSq = math.distancesq(targetPos.Position, ltw.ValueRO.Position);
+                    var distSq = ClosestDistanceToTheEntity(HitboxLookup[hitEntity], targetPos, ltw.ValueRO);
 
                     var t = 1.0f - math.unlerp(0.0f, explosionRadius.ValueRO.Value * explosionRadius.ValueRO.Value, distSq);
                     var finalDamage = math.lerp(0.0f, damage.ValueRO.Value, t);
@@ -142,6 +142,31 @@ namespace SpaceGame.Combat.Missiles.System
 
             foreach (var entity in enemiesHitWithoutHealthUpdateTag)
                 state.EntityManager.AddComponent<NeedHealthUpdateTag>(entity);
+        }
+
+        private float ClosestDistanceToTheEntity(DynamicBuffer<HitBoxElement> hitboxesTarget, LocalToWorld ltwTarget, LocalToWorld ltw)
+        {
+            float minDistSq = float.MaxValue;
+
+            for (int h = 0; h < hitboxesTarget.Length; h++)
+            {
+                var hitbox = hitboxesTarget[h];
+
+                float3 worldCenter = math.transform(ltwTarget.Value, hitbox.LocalCenter);
+                quaternion worldRot = math.mul(ltwTarget.Rotation, hitbox.Rotation);
+
+                float3 toExplosion = ltw.Position - worldCenter;
+                float3 localDir = math.mul(math.inverse(worldRot), toExplosion);
+
+                float3 clamped = math.clamp(localDir, -hitbox.HalfExtents, hitbox.HalfExtents);
+
+                float3 closestPoint = math.mul(worldRot, clamped) + worldCenter;
+
+                float distSq = math.distancesq(closestPoint, ltw.Position);
+                minDistSq = math.min(minDistSq, distSq);
+            }
+
+            return minDistSq;
         }
 
         [BurstCompile]
