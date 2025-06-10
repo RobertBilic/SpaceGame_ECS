@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 namespace SpaceGame.Combat
 {
-    public enum TargetFilterMode
+    public enum TeamFilterMode
     {
         DifferentTeam,
         SameTeam,
@@ -16,7 +16,7 @@ namespace SpaceGame.Combat
 
     public struct RangeBasedTargetingCollectorMultiple : ISpatialQueryCollector
     {
-        public RangeBasedTargetingCollectorMultiple(ref NativeList<Entity> collectedEnemies, EntityManager manager, float3 position, float range, TargetFilterMode filterMode,int team)
+        public RangeBasedTargetingCollectorMultiple(ref NativeList<Entity> collectedEnemies, EntityManager manager, float3 position, float range, TeamFilterMode filterMode,int team)
         {
             this.em = manager;
             this.myTeamTag = team;
@@ -32,7 +32,7 @@ namespace SpaceGame.Combat
         private int myTeamTag;
         private float3 myPosition;
         private float myRange;
-        private TargetFilterMode filterMode;
+        private TeamFilterMode filterMode;
 
         public void OnVisitCell(in SpatialDatabaseCell cell, in UnsafeList<SpatialDatabaseElement> elements, out bool shouldEarlyExit)
         {
@@ -58,8 +58,8 @@ namespace SpaceGame.Combat
                     continue;
 
                 bool isSameTeam = teamTag.Team == myTeamTag;
-                if ((filterMode == TargetFilterMode.DifferentTeam && isSameTeam) ||
-                    (filterMode == TargetFilterMode.SameTeam && !isSameTeam))
+                if ((filterMode == TeamFilterMode.DifferentTeam && isSameTeam) ||
+                    (filterMode == TeamFilterMode.SameTeam && !isSameTeam))
                     continue;
 
                 if (!em.HasComponent<LocalToWorld>(entity))

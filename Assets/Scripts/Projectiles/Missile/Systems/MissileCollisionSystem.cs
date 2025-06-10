@@ -11,7 +11,6 @@ namespace SpaceGame.Combat.Missiles.System
     [UpdateInGroup(typeof(CombatCollisionGroup))]
     public partial struct MissileCollisionSystem : ISystem
     { 
-        private CachedSpatialDatabaseRO cachedDB;
         private ComponentLookup<SpatialDatabase> databaseLookup;
         private BufferLookup<SpatialDatabaseCell> databaseCellLookup;
         private BufferLookup<SpatialDatabaseElement> elementLookup;
@@ -46,26 +45,14 @@ namespace SpaceGame.Combat.Missiles.System
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                databaseLookup.Update(ref state);
-                databaseCellLookup.Update(ref state);
-                elementLookup.Update(ref state);
-
-                cachedDB = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = databaseLookup,
-                    CellsBufferLookup = databaseCellLookup,
-                    ElementsBufferLookup = elementLookup
-                };
-
-                cachedDB.CacheData();
-            }
-            else
-            {
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
                 return;
-            }
+
+            databaseCellLookup.Update(ref state);
+            databaseLookup.Update(ref state);
+            elementLookup.Update(ref state);
+
+            var databases = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, databaseLookup, databaseCellLookup, elementLookup);
 
             RadiusLookup.Update(ref state);
             LtwLookup.Update(ref state);
@@ -83,12 +70,17 @@ namespace SpaceGame.Combat.Missiles.System
 
                 CollisionBasedCollector hitCollector = new CollisionBasedCollector(RadiusLookup, HitboxLookup, LtwLookup, team, ltw.ValueRO, hitboxes, boundingRadius.ValueRO.Value);
 
+                TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(databases, team, TeamFilterMode.DifferentTeam, out bool found, out var cachedDB);
+
+                if (!found)
+                    continue;
+
                 SpatialDatabase.QuerySphereCellProximityOrder(cachedDB._SpatialDatabase, cachedDB._SpatialDatabaseCells, cachedDB._SpatialDatabaseElements, ltw.ValueRO.Position, boundingRadius.ValueRO.Value,ref hitCollector);
 
                 if (!hitCollector.Hit)
                     continue;
 
-                var explosionCollector = new RangeBasedTargetingCollectorMultiple(ref enemiesHitThisPass, state.EntityManager, ltw.ValueRO.Position, explosionRadius.ValueRO.Value, TargetFilterMode.DifferentTeam, team);
+                var explosionCollector = new RangeBasedTargetingCollectorMultiple(ref enemiesHitThisPass, state.EntityManager, ltw.ValueRO.Position, explosionRadius.ValueRO.Value, TeamFilterMode.DifferentTeam, team);
 
                 SpatialDatabase.QuerySphereCellProximityOrder(cachedDB._SpatialDatabase, cachedDB._SpatialDatabaseCells, cachedDB._SpatialDatabaseElements, ltw.ValueRO.Position, explosionRadius.ValueRO.Value, ref explosionCollector);
 
@@ -139,6 +131,11 @@ namespace SpaceGame.Combat.Missiles.System
                     });
                 }
             }
+
+            foreach (var db in databases)
+                db.Dispose();
+
+            databases.Dispose();
 
             foreach (var entity in enemiesHitWithoutHealthUpdateTag)
                 state.EntityManager.AddComponent<NeedHealthUpdateTag>(entity);

@@ -1,6 +1,8 @@
 using SpaceGame.Combat;
 using SpaceGame.Combat.Components;
+using SpaceGame.SpatialGrid.Components;
 using Unity.Burst;
+using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,9 +11,13 @@ using Unity.Transforms;
 [BurstCompile]
 public partial struct ForwardWeaponTargetingJob : IJobEntity
 {
-    [ReadOnly] public CachedSpatialDatabaseRO CachedDb;
-    [ReadOnly] public ComponentLookup<ForwardWeapon> WeaponLookup;
-    [ReadOnly] public BufferLookup<HitBoxElement> HitboxElement;
+    [ReadOnly] 
+    public CachedSpatialDatabaseRO Database;
+    [ReadOnly]
+    public ComponentLookup<ForwardWeapon> WeaponLookup;
+    [ReadOnly]
+    public BufferLookup<HitBoxElement> HitboxElement;
+    public int Team;
 
     public void Execute(Entity entity,
                         ref Target target,
@@ -19,6 +25,9 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
                         in LocalToWorld localToWorld,
                         in TeamTag team)
     {
+        if (team.Team != Team)
+            return;
+
         if (weaponRefs.Length == 0)
         {
             target.Value = Entity.Null;
@@ -60,9 +69,9 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
         };
 
         SpatialDatabase.QuerySphereCellProximityOrder(
-            CachedDb._SpatialDatabase,
-            CachedDb._SpatialDatabaseCells,
-            CachedDb._SpatialDatabaseElements,
+            Database._SpatialDatabase,
+            Database._SpatialDatabaseCells,
+            Database._SpatialDatabaseElements,
             position,
             maxRange,
             ref collector

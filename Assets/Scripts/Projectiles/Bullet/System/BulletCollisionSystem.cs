@@ -159,35 +159,36 @@ namespace SpaceGame.Combat.Systems
     [UpdateInGroup(typeof(CombatCollisionGroup))]
     partial struct BulletCollisionSystem : ISystem
     {
-        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private NativeHashSet<Entity> hitEntities;
+
+        private ComponentLookup<SpatialDatabase> databaseLookup;
+        private BufferLookup<SpatialDatabaseCell> cellbufferLookup;
+        private BufferLookup<SpatialDatabaseElement> elementLookup;
+
         public void OnCreate(ref SystemState state)
         {
+            databaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true);
+            cellbufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true);
+            elementLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true);
+            
             hitEntities = new NativeHashSet<Entity>(256, Allocator.Persistent);
             state.RequireForUpdate<SpatialDatabaseSingleton>();
-        }
+        } 
 
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true),
-                    CellsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true),
-                    ElementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true),
-                };
+            databaseLookup.Update(ref state);
+            cellbufferLookup.Update(ref state);
+            elementLookup.Update(ref state);
 
-                _CachedSpatialDatabase.CacheData();
-            }
-            else
-            {
+
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
                 return;
-            }
+            ref var databases = ref spatialDatabaseSingleton.TeamBasedDatabases.Value.TeamBasedDatabases;
 
+            NativeList<CachedSpatialDatabaseRO> databaseList = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(ref databases, databaseLookup, cellbufferLookup, elementLookup);
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             hitEntities.Clear();
@@ -204,7 +205,14 @@ namespace SpaceGame.Combat.Systems
 
 
                 var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, teamTag.ValueRO.Team, bulletStart, bulletEnd, radius);
-                SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, bulletEnd, radius, ref bulletCollisionDetector);
+                TeamFilterMode filterMode = TeamFilterMode.DifferentTeam;
+
+                TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(databaseList, teamTag.ValueRO.Team, filterMode, out bool found, out CachedSpatialDatabaseRO cachedDb);
+
+                if (!found)
+                    continue;
+
+                SpatialDatabase.QueryAABB(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements, bulletEnd, new float3(1.0f, 1.0f, 1.0f), ref bulletCollisionDetector);
 
                 if (bulletCollisionDetector.isEnemyHit)
                 {
@@ -252,6 +260,11 @@ namespace SpaceGame.Combat.Systems
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
+
+            foreach (var db in databaseList)
+                db.Dispose();
+
+            databaseList.Dispose();
         }
 
         [BurstCompile]

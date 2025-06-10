@@ -6,12 +6,9 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
-public partial struct SpatialDatabaseParallelComputeCellIndexJob : IJobEntity, IJobEntityChunkBeginEnd
+public partial struct SpatialDatabaseParallelComputeCellIndexJob : IJobEntity
 {
-    public CachedSpatialDatabaseUnsafe CachedSpatialDatabase;
-
-    // other cached data
-    private UniformOriginGrid _grid;
+    public UniformOriginGrid Grid;
 
     [NativeDisableParallelForRestriction]
     public BufferLookup<SpatialDatabaseCellIndex> CellIndexBufferLookup;
@@ -38,13 +35,13 @@ public partial struct SpatialDatabaseParallelComputeCellIndexJob : IJobEntity, I
             float3 min = finalPos - halfExtents;
             float3 max = finalPos + halfExtents;
 
-            if (UniformOriginGrid.GetAABBMinMaxCoords(in _grid, min, max, out int3 minCoords, out int3 maxCoords))
+            if (UniformOriginGrid.GetAABBMinMaxCoords(in Grid, min, max, out int3 minCoords, out int3 maxCoords))
             {
                 for (int z = minCoords.z; z <= maxCoords.z; z++)
                     for (int y = minCoords.y; y <= maxCoords.y; y++)
                         for (int x = minCoords.x; x <= maxCoords.x; x++)
                         {
-                            int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(_grid, new int3(x, y, z));
+                            int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(Grid, new int3(x, y, z));
 
                             bool alreadyAdded = false;
 
@@ -64,18 +61,5 @@ public partial struct SpatialDatabaseParallelComputeCellIndexJob : IJobEntity, I
                         }
             }
         }
-    }
-
-
-    public bool OnChunkBegin(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
-    {
-        CachedSpatialDatabase.CacheData();
-        _grid = CachedSpatialDatabase._SpatialDatabase.Grid;
-        return true;
-    }
-
-    public void OnChunkEnd(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask,
-        bool chunkWasExecuted)
-    {
     }
 }

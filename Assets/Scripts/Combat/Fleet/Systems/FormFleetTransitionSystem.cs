@@ -13,17 +13,24 @@ namespace SpaceGame.Combat.Fleets
     [UpdateInGroup(typeof(CombatStateTransitionGroup))]
     public partial struct FormFleetTransitionSystem : ISystem
     {
-        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private NativeList<Entity> collectedEntities;
         private Random random;
         private float checkPeriod;
         private float timeSinceLastCheck;
+
+        ComponentLookup<SpatialDatabase> spatialDatabaseLookup;
+        BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
+        BufferLookup<SpatialDatabaseCell> spatialDatabaseCellLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             timeSinceLastCheck = float.MaxValue;
             checkPeriod = 5.0f;
+
+            spatialDatabaseLookup = state.GetComponentLookup<SpatialDatabase>(true);
+            spatialDatabaseElementLookup = state.GetBufferLookup<SpatialDatabaseElement>(true);
+            spatialDatabaseCellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);
 
             collectedEntities = new NativeList<Entity>(Allocator.Persistent);
             random = new Random(33221144);
@@ -43,22 +50,14 @@ namespace SpaceGame.Combat.Fleets
 
             timeSinceLastCheck = 0.0f;
 
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true),
-                    CellsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true),
-                    ElementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true),
-                };
+            spatialDatabaseLookup.Update(ref state);
+            spatialDatabaseElementLookup.Update(ref state);
+            spatialDatabaseCellLookup.Update(ref state);
 
-                _CachedSpatialDatabase.CacheData();
-            }
-            else
-            {
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
                 return;
-            }
+
+            var databases = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, spatialDatabaseLookup, spatialDatabaseCellLookup, spatialDatabaseElementLookup);
 
             foreach (var (ltw, detectionRange, teamTag, stateWeights, stateSpecificComp, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<DetectionRange>, RefRO<TeamTag>,
                  DynamicBuffer<CombatStateChangeWeight>, DynamicBuffer<NewCombatStateSpecificComponent>>()
@@ -70,9 +69,14 @@ namespace SpaceGame.Combat.Fleets
                 collectedEntities.Clear();
 
                 RangeBasedTargetingCollectorMultiple queryCollector = new RangeBasedTargetingCollectorMultiple(ref collectedEntities, state.EntityManager
-                    , ltw.ValueRO.Position, detectionRange.ValueRO.Value, TargetFilterMode.SameTeam, teamTag.ValueRO.Team);
+                    , ltw.ValueRO.Position, detectionRange.ValueRO.Value, TeamFilterMode.SameTeam, teamTag.ValueRO.Team);
 
-                SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements,
+                TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(databases, teamTag.ValueRO.Team, TeamFilterMode.SameTeam, out var found, out var cachedDb);
+
+                if (!found)
+                    continue;
+
+                SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements,
                     ltw.ValueRO.Position, detectionRange.ValueRO.Value, ref queryCollector);
 
                 //TODO: Fleet archetypes, this is an arbitrary number atm
@@ -106,6 +110,11 @@ namespace SpaceGame.Combat.Fleets
                     Value = ComponentType.ReadOnly<FormFleetTag>()
                 });
             }
+
+            foreach (var db in databases)
+                db.Dispose();
+
+            databases.Dispose();
         }
 
         [BurstCompile]

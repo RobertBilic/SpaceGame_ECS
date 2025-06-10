@@ -15,6 +15,7 @@ namespace SpaceGame.Game.Initialization.Authoring
     class ConfigAuthoring : MonoBehaviour
     {
         public int GameSize;
+        public int TeamCount;
         [Header("Health Bar")]
         public List<HealthBarColorPerTeamData> HealthBarSettings;
         [Header("Spatial Database Settings")]
@@ -37,7 +38,8 @@ namespace SpaceGame.Game.Initialization.Authoring
                 ShipsSpatialDatabaseCellCapacity = authoring.ShipsSpatialDatabaseCellCapacity,
                 SpatialDatabaseSubdivisions = authoring.SpatialDatabaseSubdivisions,
                 GameSize = authoring.GameSize,
-                IsInitialized = false
+                IsInitialized = false,
+                TeamCount = authoring.TeamCount
             });
 
             AddComponent(entity, new HitEffectEnabled() { Enabled = authoring.OnHitEffectsEnabled });

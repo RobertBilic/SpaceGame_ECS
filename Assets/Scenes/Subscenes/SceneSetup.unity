@@ -219,7 +219,19 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
+      propertyPath: TeamCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
       propertyPath: OnHitEffectsEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
+      propertyPath: HealthBarSettings.Array.data[0].Team
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
+      propertyPath: HealthBarSettings.Array.data[1].Team
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1532625792505311885, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}

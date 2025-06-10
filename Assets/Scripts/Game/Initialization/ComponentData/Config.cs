@@ -8,6 +8,7 @@ namespace SpaceGame.Game.Initialization.Components
         public int ShipsSpatialDatabaseCellCapacity;
         public int SpatialDatabaseSubdivisions;
 
+        public int TeamCount;
         public int GameSize;
         public bool IsInitialized;
     }
