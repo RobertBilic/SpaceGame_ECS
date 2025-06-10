@@ -212,7 +212,7 @@ namespace SpaceGame.Combat.Systems
                 if (!found)
                     continue;
 
-                SpatialDatabase.QueryAABB(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements, bulletEnd, new float3(1.0f, 1.0f, 1.0f), ref bulletCollisionDetector);
+                SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements, bulletEnd, radius, ref bulletCollisionDetector);
 
                 if (bulletCollisionDetector.isEnemyHit)
                 {

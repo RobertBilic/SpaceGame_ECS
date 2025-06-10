@@ -14,9 +14,6 @@ namespace SpaceGame.Detection.Systems
     {
         private int Intervals;
         private int CurrentInterval;
-        private float coolDownPerInternval;
-        private float cooldownAtTheEnd;
-        private float currentCooldown;
 
         private ComponentLookup<FleetMember> fleetMemberLookup;
         private ComponentLookup<FleetMovementTag> fleetMovementTagLookup;
@@ -38,9 +35,6 @@ namespace SpaceGame.Detection.Systems
 
             //TODO: Dynamic interval based on the number of combat entities, 100 entities per cycle
             Intervals = 10;
-            currentCooldown = 0.0f;
-            coolDownPerInternval = 0.1f;
-            cooldownAtTheEnd = 0.5f;
             CurrentInterval = 0;
 
         }
@@ -59,11 +53,6 @@ namespace SpaceGame.Detection.Systems
             elementLookup.Update(ref state);
 
             var list = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, dbLookup, cellLookup, elementLookup);
-
-            currentCooldown -= timeComp.DeltaTime;
-
-            if (currentCooldown > 0.0f)
-                return;
 
             //TODO: Better target acquiring
             fleetMemberLookup.Update(ref state);
@@ -159,7 +148,6 @@ namespace SpaceGame.Detection.Systems
             }
 
             CurrentInterval = (CurrentInterval + 1) % Intervals;
-            currentCooldown = CurrentInterval == 0 ? cooldownAtTheEnd : coolDownPerInternval;
             
             foreach (var db in list)
                 db.Dispose();
