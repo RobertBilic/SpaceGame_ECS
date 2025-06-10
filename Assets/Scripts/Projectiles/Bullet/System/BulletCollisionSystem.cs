@@ -204,7 +204,7 @@ namespace SpaceGame.Combat.Systems
 
 
                 var bulletCollisionDetector = new BulletCollisionDetector(state.EntityManager, teamTag.ValueRO.Team, bulletStart, bulletEnd, radius);
-                SpatialDatabase.QueryAABB(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, bulletEnd, new float3(1.0f, 1.0f, 1.0f), ref bulletCollisionDetector);
+                SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, bulletEnd, radius, ref bulletCollisionDetector);
 
                 if (bulletCollisionDetector.isEnemyHit)
                 {

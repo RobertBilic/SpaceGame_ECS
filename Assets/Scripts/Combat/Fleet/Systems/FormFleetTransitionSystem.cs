@@ -16,10 +16,15 @@ namespace SpaceGame.Combat.Fleets
         private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private NativeList<Entity> collectedEntities;
         private Random random;
+        private float checkPeriod;
+        private float timeSinceLastCheck;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            timeSinceLastCheck = float.MaxValue;
+            checkPeriod = 5.0f;
+
             collectedEntities = new NativeList<Entity>(Allocator.Persistent);
             random = new Random(33221144);
             state.RequireForUpdate<NeedsCombatStateChange>();
@@ -28,6 +33,16 @@ namespace SpaceGame.Combat.Fleets
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
+                return;
+
+            timeSinceLastCheck += timeComp.DeltaTimeScaled;
+
+            if (timeSinceLastCheck < checkPeriod)
+                return;
+
+            timeSinceLastCheck = 0.0f;
+
             if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
             {
                 _CachedSpatialDatabase = new CachedSpatialDatabaseRO
