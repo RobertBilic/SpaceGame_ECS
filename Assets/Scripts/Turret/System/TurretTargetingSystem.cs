@@ -3,7 +3,6 @@ using SpaceGame.Movement.Components;
 using SpaceGame.SpatialGrid.Components;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -14,8 +13,6 @@ namespace SpaceGame.Combat.Systems
     [UpdateInGroup(typeof(CombatTargetingGroup))]
     partial struct TurretTargetingSystem : ISystem
     {
-        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
-
         private ComponentLookup<SpatialDatabase> spatialDatabaseLookup;
         private BufferLookup<SpatialDatabaseCell> spatialDatabaseCellLookup;
         private BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
@@ -37,26 +34,14 @@ namespace SpaceGame.Combat.Systems
             if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
                 return;
 
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                spatialDatabaseCellLookup.Update(ref state);
-                spatialDatabaseElementLookup.Update(ref state);
-                spatialDatabaseLookup.Update(ref state);
-
-                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = spatialDatabaseLookup,
-                    CellsBufferLookup = spatialDatabaseCellLookup,
-                    ElementsBufferLookup = spatialDatabaseElementLookup
-                };
-
-                _CachedSpatialDatabase.CacheData();
-            }
-            else
-            {
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
                 return;
-            }
+
+            spatialDatabaseCellLookup.Update(ref state);
+            spatialDatabaseElementLookup.Update(ref state);
+            spatialDatabaseLookup.Update(ref state);
+
+            var list = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, spatialDatabaseLookup, spatialDatabaseCellLookup, spatialDatabaseElementLookup);
 
             float deltaTime = timeComp.DeltaTimeScaled;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -86,9 +71,13 @@ namespace SpaceGame.Combat.Systems
 
                 if (targetEntity == Entity.Null)
                 {
+                    TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(list, teamTag.ValueRO.Team, TeamFilterMode.DifferentTeam, out bool found, out var cachedDb);
+
+                    if (!found)
+                        continue;
 
                     var turretTargetingCollector = new RangeBasedTargetingCollectorSingle(state.EntityManager, turretPosition, range.ValueRO.Value, teamTag.ValueRO.Team);
-                    SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements, turretPosition, range.ValueRO.Value,ref turretTargetingCollector);
+                    SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements, turretPosition, range.ValueRO.Value,ref turretTargetingCollector);
 
                     Entity closestEnemy = turretTargetingCollector.collectedEnemy;
 
@@ -136,6 +125,10 @@ namespace SpaceGame.Combat.Systems
                 }
             }
 
+            foreach (var db in list)
+                db.Dispose();
+
+            list.Dispose();
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
         }

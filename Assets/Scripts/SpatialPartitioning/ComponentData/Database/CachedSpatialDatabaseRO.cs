@@ -16,6 +16,7 @@ public unsafe struct CachedSpatialDatabaseRO
     public SpatialDatabase _SpatialDatabase;
     public UnsafeList<SpatialDatabaseCell> _SpatialDatabaseCells;
     public UnsafeList<SpatialDatabaseElement> _SpatialDatabaseElements;
+    public int Team;
 
     public void CacheData()
     {
@@ -28,5 +29,12 @@ public unsafe struct CachedSpatialDatabaseRO
             _SpatialDatabaseElements = new UnsafeList<SpatialDatabaseElement>((SpatialDatabaseElement*)elementsBuffer.GetUnsafeReadOnlyPtr(), elementsBuffer.Length);
             _IsInitialized = true;
         }
+    }
+
+    public void Dispose()
+    {
+        _SpatialDatabaseCells.Dispose();
+        _SpatialDatabaseElements.Dispose();
+        _IsInitialized = false;
     }
 }

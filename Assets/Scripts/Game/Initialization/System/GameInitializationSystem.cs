@@ -3,6 +3,7 @@ using SpaceGame.Game.Initialization.Components;
 using SpaceGame.Game.State.Component;
 using SpaceGame.SpatialGrid.Components;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace SpaceGame.Game.Initialization.Systems 
@@ -10,6 +11,8 @@ namespace SpaceGame.Game.Initialization.Systems
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     partial struct GameInitializationSystem : ISystem
     {
+        BlobAssetReference<TeamSpatialDatabaseLookup> blobRef;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -29,7 +32,22 @@ namespace SpaceGame.Game.Initialization.Systems
                 SystemAPI.SetSingleton(config);
 
                 float simulationCubeHalfExtents = config.GameSize;
-                state.EntityManager.AddComponentData(state.EntityManager.CreateEntity(), new SpatialDatabaseSingleton());
+                var spatialDatabaseSingletonEntity = state.EntityManager.CreateEntity();
+
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var root = ref builder.ConstructRoot<TeamSpatialDatabaseLookup>();
+                var array = builder.Allocate(ref root.TeamBasedDatabases, config.TeamCount);
+                for (int i = 0; i < config.TeamCount; i++)
+                    CreateTeamBasedSpatialDatabase(ref state, ref array, in config, simulationCubeHalfExtents, i, i);
+                blobRef = builder.CreateBlobAssetReference<TeamSpatialDatabaseLookup>(Allocator.Persistent);
+                builder.Dispose();
+                var spatialDatabaseSingleton = new SpatialDatabaseSingleton()
+                {
+                    AllTargetablesDatabase = Entity.Null,
+                    TeamBasedDatabases = blobRef
+                };
+
+                state.EntityManager.AddComponentData(spatialDatabaseSingletonEntity, spatialDatabaseSingleton);
                 state.EntityManager.CreateSingletonBuffer<ProjectileSpawnRequest>("Bullet Spawn Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ProjectilePoolRequest>("Bullet Pool Request Collector");
                 state.EntityManager.CreateSingletonBuffer<ImpactSpawnRequest>("Impact Effect Spawn Request Collector");
@@ -49,31 +67,23 @@ namespace SpaceGame.Game.Initialization.Systems
                 });
 
                 CreateTargetablesSpatialDatabase(ref state, in config, simulationCubeHalfExtents);
+
             }
         }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
-
+            blobRef.Dispose();
         }
 
-        private void CreateTargetablesSpatialDatabase(
-            ref SystemState state,
-            in Config config,
-            float simulationCubeHalfExtents)
+        private void CreateTargetablesSpatialDatabase(ref SystemState state, in Config config, float simulationCubeHalfExtents)
         {
             ref SpatialDatabaseSingleton spatialDatabaseSingleton = ref SystemAPI.GetSingletonRW<SpatialDatabaseSingleton>().ValueRW;
-            spatialDatabaseSingleton.TargetablesSpatialDatabase =
-                state.EntityManager.Instantiate(config.SpatialDatabasePrefab);
-            SpatialDatabase spatialDatabase =
-                state.EntityManager.GetComponentData<SpatialDatabase>(spatialDatabaseSingleton
-                    .TargetablesSpatialDatabase);
-            DynamicBuffer<SpatialDatabaseCell> cellsBuffer =
-                state.EntityManager.GetBuffer<SpatialDatabaseCell>(spatialDatabaseSingleton.TargetablesSpatialDatabase);
-            DynamicBuffer<SpatialDatabaseElement> elementsBuffer =
-                state.EntityManager.GetBuffer<SpatialDatabaseElement>(spatialDatabaseSingleton
-                    .TargetablesSpatialDatabase);
+            spatialDatabaseSingleton.AllTargetablesDatabase = state.EntityManager.Instantiate(config.SpatialDatabasePrefab);
+            SpatialDatabase spatialDatabase = state.EntityManager.GetComponentData<SpatialDatabase>(spatialDatabaseSingleton.AllTargetablesDatabase);
+            DynamicBuffer<SpatialDatabaseCell> cellsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseCell>(spatialDatabaseSingleton.AllTargetablesDatabase);
+            DynamicBuffer<SpatialDatabaseElement> elementsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseElement>(spatialDatabaseSingleton.AllTargetablesDatabase);
 
             SpatialDatabase.Initialize(
                 simulationCubeHalfExtents,
@@ -83,7 +93,31 @@ namespace SpaceGame.Game.Initialization.Systems
                 ref cellsBuffer,
                 ref elementsBuffer);
 
-            state.EntityManager.SetComponentData(spatialDatabaseSingleton.TargetablesSpatialDatabase, spatialDatabase);
+            state.EntityManager.SetComponentData(spatialDatabaseSingleton.AllTargetablesDatabase, spatialDatabase);
+        }
+
+        private void CreateTeamBasedSpatialDatabase(ref SystemState state, ref BlobBuilderArray<TeamSpatialDatabase> array,in Config config, float simulationCubeHalfExtents, int index, int team)
+        { 
+            var database = new TeamSpatialDatabase()
+            {
+                Database = state.EntityManager.Instantiate(config.SpatialDatabasePrefab),
+                Team = team
+            };
+
+            SpatialDatabase spatialDatabase = state.EntityManager.GetComponentData<SpatialDatabase>(database.Database);
+            DynamicBuffer<SpatialDatabaseCell> cellsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseCell>(database.Database);
+            DynamicBuffer<SpatialDatabaseElement> elementsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseElement>(database.Database);
+
+            SpatialDatabase.Initialize(
+                simulationCubeHalfExtents,
+                config.SpatialDatabaseSubdivisions,
+                config.ShipsSpatialDatabaseCellCapacity,
+                ref spatialDatabase,
+                ref cellsBuffer,
+                ref elementsBuffer);
+
+            state.EntityManager.SetComponentData(database.Database, spatialDatabase);
+            array[index] = database;
         }
     }
 }

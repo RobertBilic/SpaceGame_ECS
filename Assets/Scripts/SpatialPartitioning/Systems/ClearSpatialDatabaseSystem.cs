@@ -31,8 +31,6 @@ public unsafe partial struct ClearSpatialDatabaseSystem : ISystem
             BufferLookup<SpatialDatabaseElement> elementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(false);            
             NativeArray<Entity> spatialDatabaseEntities = _spatialDatabasesQuery.ToEntityArray(Allocator.Temp);
 
-            JobHandle initialDep = state.Dependency;
-            
             // Clear each spatial database in a separate thread
             for (int i = 0; i < spatialDatabaseEntities.Length; i++)
             {
@@ -42,7 +40,7 @@ public unsafe partial struct ClearSpatialDatabaseSystem : ISystem
                     CellsBufferLookup = cellsBufferLookup,
                     ElementsBufferLookup = elementsBufferLookup,
                 };
-                state.Dependency = JobHandle.CombineDependencies(state.Dependency, clearJob.Schedule(initialDep));
+                state.Dependency = clearJob.Schedule(state.Dependency);
             }
 
             spatialDatabaseEntities.Dispose();

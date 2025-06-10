@@ -38,6 +38,9 @@ public partial struct BuildSpatialDatabaseParallelJob : IJobEntity, IJobEntityCh
                 Team = (byte)team.Team,
             };
 
+            if (CachedSpatialDatabase.Team != -1 && CachedSpatialDatabase.Team != team.Team)
+                continue;
+
             SpatialDatabase.AddToDataBase(
                 in CachedSpatialDatabase._SpatialDatabase,
                 ref CachedSpatialDatabase._SpatialDatabaseCells,

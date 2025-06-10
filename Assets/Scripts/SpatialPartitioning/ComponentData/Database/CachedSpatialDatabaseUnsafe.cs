@@ -16,6 +16,7 @@ public unsafe struct CachedSpatialDatabaseUnsafe
     public BufferLookup<SpatialDatabaseElement> ElementsBufferLookup;
 
     public bool _IsInitialized;
+    public int Team;
     public SpatialDatabase _SpatialDatabase;
     public UnsafeList<SpatialDatabaseCell> _SpatialDatabaseCells;
     public UnsafeList<SpatialDatabaseElement> _SpatialDatabaseElements;

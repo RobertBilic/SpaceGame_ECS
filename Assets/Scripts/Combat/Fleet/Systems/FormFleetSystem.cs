@@ -11,13 +11,19 @@ namespace SpaceGame.Combat.Fleets
     [UpdateInGroup(typeof(CombatInitializationGroup))]
     public partial struct FormFleetSystem : ISystem
     {
-        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private NativeList<Entity> processedEntities;
         private NativeList<Entity> currentlyProcessedEntities;
+
+        ComponentLookup<SpatialDatabase> spatialDatabaseLookup;
+        BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
+        BufferLookup<SpatialDatabaseCell> spatialDatabaseCellLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            spatialDatabaseLookup = state.GetComponentLookup<SpatialDatabase>(true);
+            spatialDatabaseElementLookup = state.GetBufferLookup<SpatialDatabaseElement>(true);
+            spatialDatabaseCellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);
             processedEntities = new NativeList<Entity>(Allocator.Persistent);
             currentlyProcessedEntities = new NativeList<Entity>(Allocator.Persistent);
             state.RequireForUpdate<FormFleetTag>();
@@ -26,25 +32,18 @@ namespace SpaceGame.Combat.Fleets
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true),
-                    CellsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true),
-                    ElementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true),
-                };
-
-                _CachedSpatialDatabase.CacheData();
-            }
-            else
-            {
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
                 return;
-            }
 
             processedEntities.Clear();
             var ecb = new EntityCommandBuffer(Allocator.Persistent);
+
+
+            spatialDatabaseLookup.Update(ref state);
+            spatialDatabaseElementLookup.Update(ref state);
+            spatialDatabaseCellLookup.Update(ref state);
+
+            var databases = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, spatialDatabaseLookup, spatialDatabaseCellLookup, spatialDatabaseElementLookup);
 
             foreach (var (ltw, detectionRange, teamTag, entity) in SystemAPI.Query<RefRO<LocalToWorld>, RefRO<DetectionRange>, RefRO<TeamTag>>()
                 .WithNone<FleetMember, FleetLeader>()
@@ -58,10 +57,16 @@ namespace SpaceGame.Combat.Fleets
                 currentlyProcessedEntities.Clear();
 
                 RangeBasedTargetingCollectorMultiple queryCollector = new RangeBasedTargetingCollectorMultiple(ref currentlyProcessedEntities, state.EntityManager
-                    , ltw.ValueRO.Position, detectionRange.ValueRO.Value, TargetFilterMode.SameTeam, teamTag.ValueRO.Team);
+                    , ltw.ValueRO.Position, detectionRange.ValueRO.Value, TeamFilterMode.SameTeam, teamTag.ValueRO.Team);
 
-                SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements,
+                TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(databases, teamTag.ValueRO.Team, TeamFilterMode.SameTeam, out var found, out var cachedDb);
+
+                if (!found)
+                    continue;
+
+                SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements,
                     ltw.ValueRO.Position, detectionRange.ValueRO.Value, ref queryCollector);
+
 
                 //TODO: Arbitrary fleet Management, add fleet archetypes
 
@@ -138,6 +143,11 @@ namespace SpaceGame.Combat.Fleets
                 shipRadii.Dispose();
                 validEntities.Dispose();
             }
+
+            foreach (var db in databases)
+                db.Dispose();
+
+            databases.Dispose();
 
             ecb.Playback(state.EntityManager);
             ecb.Dispose();

@@ -15,9 +15,9 @@ MonoBehaviour:
   Name: 
   ShipEntries:
   - Id: ships_test_enemy
-    Team: 2
-    Count: 300
+    Team: 1
+    Count: 1000
     Position: {x: 0, y: 0, z: 0}
     SpawnRadius: 2000
   PlayerSpawnPosition: {x: -100, y: 0, z: 0}
-  PlayerSpawnRadius: 30
+  PlayerSpawnRadius: 250

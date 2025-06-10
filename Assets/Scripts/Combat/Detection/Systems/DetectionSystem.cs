@@ -12,12 +12,15 @@ namespace SpaceGame.Detection.Systems
     [UpdateInGroup(typeof(CombatInitializationGroup), OrderLast = true)]
     public partial struct DetectionSystem : ISystem
     {
-        private CachedSpatialDatabaseRO _CachedSpatialDatabase;
         private int Intervals;
         private int CurrentInterval;
 
         private ComponentLookup<FleetMember> fleetMemberLookup;
         private ComponentLookup<FleetMovementTag> fleetMovementTagLookup;
+
+        private ComponentLookup<SpatialDatabase> dbLookup;
+        private BufferLookup<SpatialDatabaseElement> elementLookup;
+        private BufferLookup<SpatialDatabaseCell> cellLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -26,8 +29,12 @@ namespace SpaceGame.Detection.Systems
             fleetMemberLookup = state.GetComponentLookup<FleetMember>(true);
             fleetMovementTagLookup = state.GetComponentLookup<FleetMovementTag>(true);
 
+            dbLookup = state.GetComponentLookup<SpatialDatabase>(true);
+            cellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);
+            elementLookup = state.GetBufferLookup<SpatialDatabaseElement>(true);
+
             //TODO: Dynamic interval based on the number of combat entities, 100 entities per cycle
-            Intervals = 5;
+            Intervals = 10;
             CurrentInterval = 0;
 
         }
@@ -35,22 +42,17 @@ namespace SpaceGame.Detection.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
-            {
-                _CachedSpatialDatabase = new CachedSpatialDatabaseRO
-                {
-                    SpatialDatabaseEntity = spatialDatabaseSingleton.TargetablesSpatialDatabase,
-                    SpatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(true),
-                    CellsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(true),
-                    ElementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(true),
-                };
-
-                _CachedSpatialDatabase.CacheData();
-            }
-            else
-            {
+            if (!SystemAPI.TryGetSingleton<GlobalTimeComponent>(out var timeComp))
                 return;
-            }
+
+            if (!SystemAPI.TryGetSingleton<SpatialDatabaseSingleton>(out SpatialDatabaseSingleton spatialDatabaseSingleton))
+                return;
+
+            dbLookup.Update(ref state);
+            cellLookup.Update(ref state);
+            elementLookup.Update(ref state);
+
+            var list = TeamBasedSpatialDatabaseUtility.ConstructCachedSpatialDatabseROList(spatialDatabaseSingleton, dbLookup, cellLookup, elementLookup);
 
             //TODO: Better target acquiring
             fleetMemberLookup.Update(ref state);
@@ -92,7 +94,12 @@ namespace SpaceGame.Detection.Systems
 
                     RangeBasedTargetingCollectorSingle collector = new RangeBasedTargetingCollectorSingle(state.EntityManager, ltw.ValueRO.Position, detectionRange.ValueRO.Value, teamTag.ValueRO.Team);
 
-                    SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements
+                    TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(list, teamTag.ValueRO.Team, TeamFilterMode.DifferentTeam, out var found, out var cachedDb);
+
+                    if (!found)
+                        continue;
+
+                    SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements
                         , ltw.ValueRO.Position, detectionRange.ValueRO.Value, ref collector);
 
                     if (collector.collectedEnemy != Entity.Null)
@@ -118,9 +125,12 @@ namespace SpaceGame.Detection.Systems
                 }
                 else
                 {
+                    TeamBasedSpatialDatabaseUtility.GetTeamBasedDatabase(list, teamTag.ValueRO.Team, TeamFilterMode.DifferentTeam, out var found, out var cachedDb);
                     RangeBasedTargetingCollectorSingle collector = new RangeBasedTargetingCollectorSingle(state.EntityManager, ltw.ValueRO.Position, detectionRange.ValueRO.Value, teamTag.ValueRO.Team);
+                    if (!found)
+                        continue;
 
-                    SpatialDatabase.QuerySphereCellProximityOrder(_CachedSpatialDatabase._SpatialDatabase, _CachedSpatialDatabase._SpatialDatabaseCells, _CachedSpatialDatabase._SpatialDatabaseElements
+                    SpatialDatabase.QuerySphereCellProximityOrder(cachedDb._SpatialDatabase, cachedDb._SpatialDatabaseCells, cachedDb._SpatialDatabaseElements
                         , ltw.ValueRO.Position, detectionRange.ValueRO.Value, ref collector);
 
                     if (collector.collectedEnemy != Entity.Null)
@@ -138,7 +148,11 @@ namespace SpaceGame.Detection.Systems
             }
 
             CurrentInterval = (CurrentInterval + 1) % Intervals;
+            
+            foreach (var db in list)
+                db.Dispose();
 
+            list.Dispose();
             if (ecb.ShouldPlayback)
                 ecb.Playback(state.EntityManager);
             ecb.Dispose();
