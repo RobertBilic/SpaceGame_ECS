@@ -36,6 +36,8 @@ namespace SpaceGame.Combat.Authoring
         [Header("Health")]
         public float Health;
         public GameObject HealthBar;
+        [Header("Destruction VFX")]
+        public OnDestructionVFXAuthoring DestructionVFXPrefab;
         [Header("Additional")]
         public List<AdditionalBakedComponentBase> AdditionalComponents;
     }
@@ -97,6 +99,9 @@ namespace SpaceGame.Combat.Authoring
             AddBuffer<CombatStateChangeWeight>(entity);
             AddBuffer<ExistingCombatStateSpecificComponent>(entity);
             AddBuffer<NewCombatStateSpecificComponent>(entity);
+
+            if (authoring.DestructionVFXPrefab != null)
+                AddComponent(entity, new OnDestructionVFXPrefab() { Prefab = GetEntity(authoring.DestructionVFXPrefab, TransformUsageFlags.Dynamic) });
         }
 
         protected override TransformUsageFlags GetUsageFlags() => TransformUsageFlags.Dynamic;

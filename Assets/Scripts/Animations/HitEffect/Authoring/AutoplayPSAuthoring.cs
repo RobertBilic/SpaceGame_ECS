@@ -1,11 +1,11 @@
 using Unity.Entities;
 using UnityEngine;
 
-class OnHitParticleSystemAuthoring : MonoBehaviour
+class AutoplayPSAuthoring : MonoBehaviour
 {
-    class OnHitParticleSystemAuthoringBaker : Baker<OnHitParticleSystemAuthoring>
+    class AutoplayPSAuthoringBaker : Baker<AutoplayPSAuthoring>
     {
-        public override void Bake(OnHitParticleSystemAuthoring authoring)
+        public override void Bake(AutoplayPSAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new AutoplayParticleSystem());

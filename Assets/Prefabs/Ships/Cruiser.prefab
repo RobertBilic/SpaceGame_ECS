@@ -85,6 +85,7 @@ MonoBehaviour:
   Turrets: []
   Health: 10000
   HealthBar: {fileID: 5888892028676618178}
+  DestructionVFXPrefab: {fileID: 9049528949421826134, guid: 6c185128103037f4d85d4d9ecacfe013, type: 3}
   AdditionalComponents:
   - {fileID: 7989647409675012451}
   - {fileID: 6130634025394638247}

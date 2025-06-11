@@ -46,7 +46,7 @@ public class CameraFramer : MonoBehaviour
             float camSizeX = (size.x / aspect) / (2f * viewportRect.height);
             targetCamera.orthographicSize = Mathf.Max(camSizeX, camSizeY);
 
-            Vector3 camPos = new Vector3(combined.center.x, combined.center.y, targetCamera.transform.position.z);
+            Vector3 camPos = new Vector3(combined.center.x, combined.center.y, -10.0f);
             targetCamera.transform.position = camPos;
         }
         else

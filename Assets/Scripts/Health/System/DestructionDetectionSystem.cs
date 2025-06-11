@@ -4,57 +4,49 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
-[UpdateInGroup(typeof(CombatLateUpdateGroup))]
+[UpdateInGroup(typeof(CombatLateUpdateGroup), OrderLast = true)]
 public partial struct DestructionDetectionSystem : ISystem
 {
-    private bool isInitialized;
-    private Entity explosionPrefab;
+    private ComponentLookup<OnDestructionVFXPrefab> destructionVFXPrefabLookup;
+    private ComponentLookup<BoundingRadius> boundingRadiusLookup;
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<PendingDestructionTag>();
+
+        destructionVFXPrefabLookup = state.GetComponentLookup<OnDestructionVFXPrefab>(true);
+        boundingRadiusLookup = state.GetComponentLookup<BoundingRadius>(true);
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-
-        if (!isInitialized)
-        {
-            foreach (var prefab in SystemAPI.Query<RefRO<ExplosionPrefab>>().WithOptions(EntityQueryOptions.IncludePrefab))
-            {
-                isInitialized = true;
-                explosionPrefab = prefab.ValueRO.Value;
-                break;
-            }
-        }
-
-        if (!isInitialized)
-            return;
+        destructionVFXPrefabLookup.Update(ref state);
+        boundingRadiusLookup.Update(ref state);
 
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-        foreach (var (localToWorld,health, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<Health>>().WithNone<PendingDestructionTag>().WithEntityAccess())
+        foreach (var (localToWorld,health, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<Health>>()
+            .WithAll<PendingDestructionTag>()
+            .WithEntityAccess())
         {
             if (health.ValueRO.Current <= 0f)
             {
                 ecb.DestroyEntity(entity);
 
-                var explosionEntity = ecb.Instantiate(explosionPrefab);
-
-                ecb.AddComponent(explosionEntity, new LocalTransform()
+                if (destructionVFXPrefabLookup.HasComponent(entity))
                 {
-                    Position = localToWorld.ValueRO.Position,
-                    Rotation = Unity.Mathematics.quaternion.identity,
-                    Scale = 1.0f
-                });
+                    var vfx = ecb.Instantiate(destructionVFXPrefabLookup[entity].Prefab);
+                    var scale = boundingRadiusLookup.HasComponent(entity) ? boundingRadiusLookup[entity].Value : 1.0f;
 
-                ecb.AddComponent(explosionEntity, new ExplosionAnimationState()
-                {
-                    CurrentFrame = 0,
-                    TimeSinceLastFrame = 0,
-                    TimeUntilNextFrame = 0
-                });
-
-
-                //TODO: For now just destroy it and spawn an explosion
-                //ecb.AddComponent<PendingDestructionTag>(entity);
-                //ecb.SetComponent(entity, new IsAlive() { Value = false });
+                    ecb.SetComponent<LocalTransform>(vfx, new LocalTransform()
+                    {
+                        Position = localToWorld.ValueRO.Position,
+                        Rotation = localToWorld.ValueRO.Rotation,
+                        Scale = scale
+                    });
+                }
             }
         }
 

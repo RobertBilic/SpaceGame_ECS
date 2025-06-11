@@ -17,6 +17,7 @@ public class CameraFollow : MonoBehaviour
     private Vector3 moveVelocity;
     private Vector3 manualPanPosition;
     private Vector3 targetPanPosition;
+    private Vector3 targetPosition;
 
     [SerializeField] private float panSmoothTime = 0.1f;
     [SerializeField] private float followSmoothTime = 0.3f;
@@ -168,14 +169,18 @@ public class CameraFollow : MonoBehaviour
 
     private void FollowTarget()
     {
-        if (!em.HasComponent<LocalTransform>(targetEntity))
-            return;
+        bool canRecenter = false;
+        if (em.HasComponent<LocalTransform>(targetEntity))
+        {
+            var shipTransform = em.GetComponentData<LocalTransform>(targetEntity);
+            targetPosition = shipTransform.Position;
+            canRecenter = true;
+        }
 
-        var shipTransform = em.GetComponentData<LocalTransform>(targetEntity);
-        Vector3 targetPos = (Vector3)shipTransform.Position + offset.normalized;
+        Vector3 targetPos = targetPosition + offset.normalized;
         targetPos.z = -20f;
 
-        if (isRecentering)
+        if (canRecenter && isRecentering)
         {
             manualPanPosition = targetPanPosition = Vector3.SmoothDamp(manualPanPosition, targetPos, ref moveVelocity, followSmoothTime);
             if (Vector3.Distance(manualPanPosition, targetPos) < 0.1f)

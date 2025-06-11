@@ -118,7 +118,7 @@ namespace SpaceGame.Combat.Missiles.System
                         Normal = math.up(),
                         Position = ltw.ValueRO.Position,
                         PrefabId = projectileId.ValueRO.Value,
-                        Scale = explosionRadius.ValueRO.Value / 2.0f
+                        Scale = explosionRadius.ValueRO.Value
                     }); 
                 }
 

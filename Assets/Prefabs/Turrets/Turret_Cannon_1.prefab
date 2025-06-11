@@ -174,12 +174,13 @@ MonoBehaviour:
   Range: 100
   ReloadTime: 3
   AmmoSize: 100
-  BulletId: bullet_basic_1
+  BulletId: bullet_basic_2
   bulletSpawnPositionsLocal:
   - {x: 0.7, y: -0.1, z: 0}
   - {x: 0.76, y: 0.15, z: 0}
   AdditionalComponents:
   - {fileID: 2489477764605293227}
+  AdditionalBuffers: []
 --- !u!114 &2489477764605293227
 MonoBehaviour:
   m_ObjectHideFlags: 0

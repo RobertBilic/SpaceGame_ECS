@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 0e038b6ecd8c11f42bbd383132e84470
+guid: f70baf3e816de2c4c88af00d6be94320
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4489969806306349799
-    second: Rocket Layer_0
-  - first:
-      213: 8907369367058865996
-    second: Rocket Layer_1
+      213: 2413909116440580770
+    second: Enemy_Scout_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -129,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rocket Layer_0
+      name: Enemy_Scout_0
       rect:
         serializedVersion: 2
-        x: 259
-        y: 57
-        width: 747
-        height: 866
+        x: 3
+        y: 32
+        width: 1019
+        height: 987
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -144,30 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7e29e1dffb39f4e30800000000000000
-      internalID: 4489969806306349799
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Rocket Layer_1
-      rect:
-        serializedVersion: 2
-        x: 279
-        y: 128
-        width: 132
-        height: 298
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c4f5dbefe355d9b70800000000000000
-      internalID: 8907369367058865996
+      spriteID: 2a2948d4d8def7120800000000000000
+      internalID: 2413909116440580770
       vertices: []
       indices: 
       edges: []
@@ -185,9 +160,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Rocket Layer_0: 4489969806306349799
-      Rocket Layer_1: 8907369367058865996
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

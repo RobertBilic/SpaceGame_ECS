@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 200
-  Radius: 0.1
+  Radius: 0.3
   OnHitPrefab: {fileID: 308508886727344827, guid: cf2ccb8edcc24f34591b507ef9f067e7, type: 3}
   OnHitLifetime: 0.5
 --- !u!114 &8080357040543857817

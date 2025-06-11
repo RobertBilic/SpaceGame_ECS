@@ -47,6 +47,9 @@ partial struct HealthDamageSystem : ISystem
             }
 
             damageRequest.Clear();
+            if (health.ValueRO.Current <= 0.0f)
+                ecb.AddComponent<PendingDestructionTag>(entity);
+
             ecb.RemoveComponent<NeedHealthUpdateTag>(entity);
         }
 
