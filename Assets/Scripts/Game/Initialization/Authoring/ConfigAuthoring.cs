@@ -24,6 +24,9 @@ namespace SpaceGame.Game.Initialization.Authoring
         public int ShipsSpatialDatabaseCellCapacity = 256;
         [Header("HitEffect")]
         public bool OnHitEffectsEnabled;
+        [Header("Fleets")]
+        [Tooltip("Enables fleets to be created dynamically")]
+        public bool EnableDynamicFleets;
     }
 
     class ConfigAuthoringBaker : Baker<ConfigAuthoring>
@@ -52,6 +55,9 @@ namespace SpaceGame.Game.Initialization.Authoring
                     Color = new Unity.Mathematics.float4(data.color.r, data.color.g, data.color.b, data.color.a),
                     Team = data.Team
                 });
+
+            if (authoring.EnableDynamicFleets)
+                AddComponent(entity, new EnableDynamicFleets());
         }
     }
 }

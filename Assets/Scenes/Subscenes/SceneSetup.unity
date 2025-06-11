@@ -178,6 +178,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
+      propertyPath: EnableDynamicFleets
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1160963361097616136, guid: 7d1466d672bbf934d8624f19bf0d9da1, type: 3}
       propertyPath: OnHitEffectsEnabled
       value: 1
       objectReference: {fileID: 0}

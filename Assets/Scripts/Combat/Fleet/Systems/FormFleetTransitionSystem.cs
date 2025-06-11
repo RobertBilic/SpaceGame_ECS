@@ -35,6 +35,7 @@ namespace SpaceGame.Combat.Fleets
             collectedEntities = new NativeList<Entity>(Allocator.Persistent);
             random = new Random(33221144);
             state.RequireForUpdate<NeedsCombatStateChange>();
+            state.RequireForUpdate<EnableDynamicFleets>();
         }
 
         [BurstCompile]
