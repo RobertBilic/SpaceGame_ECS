@@ -4,6 +4,10 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
+/// <summary>
+/// The Hybrid Renderer for ECS doesn't support Trail Renderers, this is a hacky way to do all the logic on the ECS side
+/// and "draw" the Trail Renderer with the standard renderer
+/// </summary>
 public class TrailRendererManager : MonoBehaviour
 {
     [SerializeField]
