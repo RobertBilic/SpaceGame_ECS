@@ -35,23 +35,35 @@ namespace SpaceGame.SpatialGrid.Systems
             ref var teamBasedSpatialDatabases = ref spatialDatabaseSingleton.TeamBasedDatabases.Value.TeamBasedDatabases;
 
             var grid = SystemAPI.GetComponentRO<SpatialDatabase>(spatialDatabaseSingleton.AllTargetablesDatabase).ValueRO.Grid;
-            SpatialDatabaseParallelComputeCellIndexJob cellIndexJob = new SpatialDatabaseParallelComputeCellIndexJob
+
+             
+            SpatialDatabaseTargetablesParallelComputeCellIndexJob targetableCellIndexJob = new SpatialDatabaseTargetablesParallelComputeCellIndexJob
             {
                 Grid = grid,
                 HitBoxBufferLookup = hitboxBufferLookup,
                 CellIndexBufferLookup = _cellIndexBufferLookUpRW
             };
 
-            state.Dependency = cellIndexJob.ScheduleParallel(state.Dependency);
-            ConstructDatabase(ref state, spatialDatabaseSingleton.AllTargetablesDatabase, -1);
+            state.Dependency = targetableCellIndexJob.ScheduleParallel(state.Dependency);
+
+            SpatialDatabaseTrailParallelComputeCellIndexJob trailCellIndexJob = new SpatialDatabaseTrailParallelComputeCellIndexJob()
+            {
+                Grid = grid,
+                CellIndexBufferLookup = _cellIndexBufferLookUpRW
+            };
+
+            state.Dependency = trailCellIndexJob.ScheduleParallel(state.Dependency);
+
+            ConstructTrailDatabase(ref state, spatialDatabaseSingleton.TrailDatabase);
+            ConstructTargetablesDatabase(ref state, spatialDatabaseSingleton.AllTargetablesDatabase, -1);
             for (int i = 0; i < teamBasedSpatialDatabases.Length; i++)
-                ConstructDatabase(ref state, teamBasedSpatialDatabases[i].Database, teamBasedSpatialDatabases[i].Team);
+                ConstructTargetablesDatabase(ref state, teamBasedSpatialDatabases[i].Database, teamBasedSpatialDatabases[i].Team);
 
             state.Dependency.Complete();
         }
 
         [BurstCompile]
-        public void ConstructDatabase(ref SystemState state, Entity database, int team)
+        public void ConstructTargetablesDatabase(ref SystemState state, Entity database, int team)
         {
 
             CachedSpatialDatabaseUnsafe cachedSpatialDatabase = new CachedSpatialDatabaseUnsafe
@@ -63,12 +75,39 @@ namespace SpaceGame.SpatialGrid.Systems
                 Team = team
             };
 
-            // Launch X jobs, each responsible for 1/Xth of spatial database cells
             JobHandle initialDep = state.Dependency;
             int parallelCount = math.max(1, 1);
             for (int s = 0; s < parallelCount; s++)
             {
-                BuildSpatialDatabaseParallelJob buildJob = new BuildSpatialDatabaseParallelJob
+                BuildTargetableSpatialDatabaseParallelJob buildJob = new BuildTargetableSpatialDatabaseParallelJob
+                {
+                    JobSequenceNb = s,
+                    JobsTotalCount = parallelCount,
+                    CachedSpatialDatabase = cachedSpatialDatabase,
+                    CellIndexBufferLookup = _cellIndexBufferLookUpRW
+                };
+                state.Dependency = JobHandle.CombineDependencies(state.Dependency, buildJob.ScheduleParallel(initialDep));
+            }
+
+        }
+
+        [BurstCompile]
+        public void ConstructTrailDatabase(ref SystemState state, Entity database)
+        {
+
+            CachedSpatialDatabaseUnsafe cachedSpatialDatabase = new CachedSpatialDatabaseUnsafe
+            {
+                SpatialDatabaseEntity = database,
+                SpatialDatabaseLookup = SystemAPI.GetComponentLookup<SpatialDatabase>(false),
+                CellsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseCell>(false),
+                ElementsBufferLookup = SystemAPI.GetBufferLookup<SpatialDatabaseElement>(false),
+            };
+
+            JobHandle initialDep = state.Dependency;
+            int parallelCount = math.max(1, 1);
+            for (int s = 0; s < parallelCount; s++)
+            {
+                BuildTrailSpatialDatabaseParallelJob buildJob = new BuildTrailSpatialDatabaseParallelJob
                 {
                     JobSequenceNb = s,
                     JobsTotalCount = parallelCount,

@@ -16,7 +16,7 @@ namespace SpaceGame.Combat
 
     public struct RangeBasedTargetingCollectorMultiple : ISpatialQueryCollector
     {
-        public RangeBasedTargetingCollectorMultiple(ref NativeList<Entity> collectedEnemies, EntityManager manager, float3 position, float range, TeamFilterMode filterMode,int team)
+        public RangeBasedTargetingCollectorMultiple(ref NativeHashSet<Entity> collectedEnemies, EntityManager manager, float3 position, float range, TeamFilterMode filterMode,int team)
         {
             this.em = manager;
             this.myTeamTag = team;
@@ -26,7 +26,7 @@ namespace SpaceGame.Combat
             this.collectedEnemies = collectedEnemies;
         }
 
-        public NativeList<Entity> collectedEnemies;
+        public NativeHashSet<Entity> collectedEnemies;
 
         private EntityManager em;
         private int myTeamTag;
