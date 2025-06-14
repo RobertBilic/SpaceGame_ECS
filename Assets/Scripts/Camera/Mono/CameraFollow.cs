@@ -9,6 +9,8 @@ using UnityEngine.Rendering.Universal;
 public class CameraFollow : MonoBehaviour
 {
     public Entity targetEntity;
+
+    private Entity cameraDataEntity;
     private EntityManager em;
     private Camera cam;
 
@@ -45,9 +47,30 @@ public class CameraFollow : MonoBehaviour
         timeSinceLastInput = float.PositiveInfinity;
     }
 
+    private void Start()
+    {
+        cameraDataEntity = em.CreateEntity();
+        em.AddComponentData(cameraDataEntity, new CameraData()
+        {
+            Aspect = cam.aspect,
+            OrtographicSize = cam.orthographicSize,
+            Position = cam.transform.position
+        });
+    }
+
     private void OnDestroy()
     {
         inputActions.Disable();
+    }
+
+    private void Update()
+    {
+        em.SetComponentData(cameraDataEntity, new CameraData()
+        {
+            Position = cam.transform.position,
+            Aspect = cam.aspect,
+            OrtographicSize = cam.orthographicSize
+        });
     }
 
     private void LateUpdate()
@@ -68,7 +91,7 @@ public class CameraFollow : MonoBehaviour
 
         if (cam != null)
         {
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, currentZoom, Time.deltaTime * 10f);
+            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, currentZoom, Time.unscaledDeltaTime * 10f);
 
             if (cam.TryGetComponent(out UniversalAdditionalCameraData cameraData))
             {
@@ -139,13 +162,13 @@ public class CameraFollow : MonoBehaviour
 
         if (input.sqrMagnitude > 0.01f)
         {
-            targetPanPosition += new Vector3(input.x, input.y, 0f) * panSpeed * Time.deltaTime;
+            targetPanPosition += new Vector3(input.x, input.y, 0f) * panSpeed * Time.unscaledDeltaTime;
             timeSinceLastInput = 0f;
             isRecentering = false;
         }
         else
         {
-            timeSinceLastInput += Time.deltaTime;
+            timeSinceLastInput += Time.unscaledDeltaTime;
             if (timeSinceLastInput > recentreDelay)
                 isRecentering = true;
         }

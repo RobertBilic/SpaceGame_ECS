@@ -22,13 +22,13 @@ namespace SpaceGame.Combat.Missiles.System
         private BufferLookup<DamageHealthRequestBuffer> DamageBufferLookup;
 
         private NativeHashSet<Entity> enemiesHitWithoutHealthUpdateTag;
-        private NativeList<Entity> enemiesHitThisPass;
+        private NativeHashSet<Entity> enemiesHitThisPass;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             enemiesHitWithoutHealthUpdateTag = new NativeHashSet<Entity>(256, Allocator.Persistent);
-            enemiesHitThisPass = new NativeList<Entity>(128, Allocator.Persistent);
+            enemiesHitThisPass = new NativeHashSet<Entity>(128, Allocator.Persistent);
 
             databaseLookup = state.GetComponentLookup<SpatialDatabase>(true);
             databaseCellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);

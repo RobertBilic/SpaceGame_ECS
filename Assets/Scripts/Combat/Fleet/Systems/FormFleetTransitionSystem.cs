@@ -13,7 +13,7 @@ namespace SpaceGame.Combat.Fleets
     [UpdateInGroup(typeof(CombatStateTransitionGroup))]
     public partial struct FormFleetTransitionSystem : ISystem
     {
-        private NativeList<Entity> collectedEntities;
+        private NativeHashSet<Entity> collectedEntities;
         private Random random;
         private float checkPeriod;
         private float timeSinceLastCheck;
@@ -32,7 +32,7 @@ namespace SpaceGame.Combat.Fleets
             spatialDatabaseElementLookup = state.GetBufferLookup<SpatialDatabaseElement>(true);
             spatialDatabaseCellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);
 
-            collectedEntities = new NativeList<Entity>(Allocator.Persistent);
+            collectedEntities = new NativeHashSet<Entity>(128, Allocator.Persistent);
             random = new Random(33221144);
             state.RequireForUpdate<NeedsCombatStateChange>();
             state.RequireForUpdate<EnableDynamicFleets>();
@@ -84,9 +84,9 @@ namespace SpaceGame.Combat.Fleets
 
                 int validEntities = 0;
                 
-                for(int i = 0; i < collectedEntities.Length; i++)
+                foreach(var collectedEntity in collectedEntities)
                 {
-                    if (state.EntityManager.HasComponent<FleetMember>(collectedEntities[i]) || state.EntityManager.HasComponent<FleetLeader>(collectedEntities[i]))
+                    if (state.EntityManager.HasComponent<FleetMember>(collectedEntity) || state.EntityManager.HasComponent<FleetLeader>(collectedEntity))
                         continue;
 
                     validEntities++;

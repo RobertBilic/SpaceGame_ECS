@@ -66,6 +66,7 @@ namespace SpaceGame.Game.Initialization.Systems
                     FrameCountScaled = 0
                 });
 
+                CreateTrailSpatialDatabase(ref state, in config, simulationCubeHalfExtents);
                 CreateTargetablesSpatialDatabase(ref state, in config, simulationCubeHalfExtents);
 
             }
@@ -75,6 +76,25 @@ namespace SpaceGame.Game.Initialization.Systems
         public void OnDestroy(ref SystemState state)
         {
             blobRef.Dispose();
+        }
+
+        private void CreateTrailSpatialDatabase(ref SystemState state, in Config config, float simulationCubeHalfExtents)
+        {
+            ref SpatialDatabaseSingleton spatialDatabaseSingleton = ref SystemAPI.GetSingletonRW<SpatialDatabaseSingleton>().ValueRW;
+            spatialDatabaseSingleton.TrailDatabase = state.EntityManager.Instantiate(config.SpatialDatabasePrefab);
+            SpatialDatabase spatialDatabase = state.EntityManager.GetComponentData<SpatialDatabase>(spatialDatabaseSingleton.TrailDatabase);
+            DynamicBuffer<SpatialDatabaseCell> cellsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseCell>(spatialDatabaseSingleton.TrailDatabase);
+            DynamicBuffer<SpatialDatabaseElement> elementsBuffer = state.EntityManager.GetBuffer<SpatialDatabaseElement>(spatialDatabaseSingleton.TrailDatabase);
+
+            SpatialDatabase.Initialize(
+                simulationCubeHalfExtents,
+                config.SpatialDatabaseSubdivisions,
+                config.ShipsSpatialDatabaseCellCapacity,
+                ref spatialDatabase,
+                ref cellsBuffer,
+                ref elementsBuffer);
+
+            state.EntityManager.SetComponentData(spatialDatabaseSingleton.TrailDatabase, spatialDatabase);
         }
 
         private void CreateTargetablesSpatialDatabase(ref SystemState state, in Config config, float simulationCubeHalfExtents)

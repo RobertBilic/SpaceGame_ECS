@@ -59,6 +59,8 @@ namespace SpaceGame.Combat.Systems
             timeComponent.ValueRW.DeltaTimeScaled = dt * timeMultiplier;
             timeComponent.ValueRW.ElapsedTimeScaled += timeComponent.ValueRO.DeltaTimeScaled;
 
+            UnityEngine.Time.timeScale = timeMultiplier;
+
             if (ecb.ShouldPlayback)
                 ecb.Playback(EntityManager);
             ecb.Dispose();

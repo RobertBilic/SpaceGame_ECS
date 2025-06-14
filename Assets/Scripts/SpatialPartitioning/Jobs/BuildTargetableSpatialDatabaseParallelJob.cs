@@ -8,7 +8,7 @@ using Unity.Transforms;
 
 [BurstCompile]
 [WithAll(typeof(TargetableTag))]
-public partial struct BuildSpatialDatabaseParallelJob : IJobEntity, IJobEntityChunkBeginEnd
+public partial struct BuildTargetableSpatialDatabaseParallelJob : IJobEntity, IJobEntityChunkBeginEnd
 {
     public int JobSequenceNb;
     public int JobsTotalCount;
