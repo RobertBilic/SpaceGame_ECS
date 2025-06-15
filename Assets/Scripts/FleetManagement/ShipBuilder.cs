@@ -17,7 +17,7 @@ public class ShipBuilder : MonoBehaviour
         {
             var scale = turretSlot.Scale * Vector3.one * transform.lossyScale.x;
             scale.z = 0.001f;
-            Gizmos.DrawWireCube(turretSlot.Position, scale);
+            Gizmos.DrawWireCube(transform.TransformPoint(turretSlot.Position), scale);
         }
         Gizmos.color = Color.blue;
 
@@ -25,7 +25,7 @@ public class ShipBuilder : MonoBehaviour
         {
             var scale = weaponSlot.Scale * Vector3.one * transform.lossyScale.x;
             scale.z = 0.001f;
-            Gizmos.DrawWireCube(weaponSlot.Position, scale);
+            Gizmos.DrawWireCube(transform.TransformPoint(weaponSlot.Position), scale);
         }
     }
 
