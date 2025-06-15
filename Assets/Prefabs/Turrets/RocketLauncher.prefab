@@ -233,10 +233,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RotationBase: {fileID: 803916211613963965}
   RotationSpeed: 1
-  Damage: 30
+  Damage: 130
   FiringRate: 0.5
   Range: 500
-  ReloadTime: 5
+  ReloadTime: 1.5
   AmmoSize: 1
   BulletId: missile_basic_1
   bulletSpawnPositionsLocal:

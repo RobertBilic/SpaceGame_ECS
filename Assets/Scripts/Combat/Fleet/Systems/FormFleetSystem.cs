@@ -12,7 +12,7 @@ namespace SpaceGame.Combat.Fleets
     public partial struct FormFleetSystem : ISystem
     {
         private NativeList<Entity> processedEntities;
-        private NativeList<Entity> currentlyProcessedEntities;
+        private NativeHashSet<Entity> currentlyProcessedEntities;
 
         ComponentLookup<SpatialDatabase> spatialDatabaseLookup;
         BufferLookup<SpatialDatabaseElement> spatialDatabaseElementLookup;
@@ -25,7 +25,7 @@ namespace SpaceGame.Combat.Fleets
             spatialDatabaseElementLookup = state.GetBufferLookup<SpatialDatabaseElement>(true);
             spatialDatabaseCellLookup = state.GetBufferLookup<SpatialDatabaseCell>(true);
             processedEntities = new NativeList<Entity>(Allocator.Persistent);
-            currentlyProcessedEntities = new NativeList<Entity>(Allocator.Persistent);
+            currentlyProcessedEntities = new NativeHashSet<Entity>(1024, Allocator.Persistent);
             state.RequireForUpdate<FormFleetTag>();
         }
 
@@ -70,22 +70,22 @@ namespace SpaceGame.Combat.Fleets
 
                 //TODO: Arbitrary fleet Management, add fleet archetypes
 
-                if (currentlyProcessedEntities.Length < 2)
+                if (currentlyProcessedEntities.Count < 2)
                     continue;
 
-                NativeList<float> shipRadii = new NativeList<float>(currentlyProcessedEntities.Length, Allocator.Temp);
-                NativeList<Entity> validEntities = new NativeList<Entity>(currentlyProcessedEntities.Length, Allocator.Temp);
+                NativeList<float> shipRadii = new NativeList<float>(currentlyProcessedEntities.Count, Allocator.Temp);
+                NativeList<Entity> validEntities = new NativeList<Entity>(currentlyProcessedEntities.Count, Allocator.Temp);
 
-                for (int i = 0; i < currentlyProcessedEntities.Length; i++)
+                foreach(var processedEntity in currentlyProcessedEntities)
                 {
-                    if (!state.EntityManager.HasComponent<FormFleetTag>(currentlyProcessedEntities[i]))
+                    if (!state.EntityManager.HasComponent<FormFleetTag>(processedEntity))
                         continue;
 
-                    if (processedEntities.Contains(currentlyProcessedEntities[i]))
+                    if (processedEntities.Contains(processedEntity))
                         continue;
 
-                    validEntities.Add(currentlyProcessedEntities[i]);
-                    shipRadii.Add(state.EntityManager.GetComponentData<BoundingRadius>(currentlyProcessedEntities[i]).Value);
+                    validEntities.Add(processedEntity);
+                    shipRadii.Add(state.EntityManager.GetComponentData<BoundingRadius>(processedEntity).Value);
                 }
 
                 if(validEntities.Length < 2)

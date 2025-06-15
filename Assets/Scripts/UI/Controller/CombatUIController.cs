@@ -13,7 +13,7 @@ public class CombatUIController : GenericGameStateUIController<CombatStateUI>
 
     private void Update()
     {
-        SetFPS(1.0f / Time.deltaTime);
+        SetFPS(1.0f / Time.unscaledDeltaTime);
     }
 
     private void SetFPS(float fps)

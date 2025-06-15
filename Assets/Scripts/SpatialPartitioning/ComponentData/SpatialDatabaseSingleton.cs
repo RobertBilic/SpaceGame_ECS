@@ -5,6 +5,7 @@ namespace SpaceGame.SpatialGrid.Components
     public struct SpatialDatabaseSingleton : IComponentData
     {
         public Entity AllTargetablesDatabase;
+        public Entity TrailDatabase;
         public BlobAssetReference<TeamSpatialDatabaseLookup> TeamBasedDatabases;
     }
 

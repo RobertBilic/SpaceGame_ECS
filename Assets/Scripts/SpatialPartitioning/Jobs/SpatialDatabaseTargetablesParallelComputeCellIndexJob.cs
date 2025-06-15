@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using SpaceGame.SpatialGrid.Components;
+using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,7 +7,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
-public partial struct SpatialDatabaseParallelComputeCellIndexJob : IJobEntity
+[WithAll(typeof(TargetableTag))]
+public partial struct SpatialDatabaseTargetablesParallelComputeCellIndexJob : IJobEntity
 {
     public UniformOriginGrid Grid;
 
