@@ -196,7 +196,10 @@ MonoBehaviour:
   DetectionRange: 200
   Weapons: []
   Turrets: []
-  Health: 50000
+  Shield: 2500
+  Armor: 2500
+  Hull: 2500
+  ResistanceAsset: {fileID: 11400000, guid: c585b5cd93ed8cf4093a18b7e7af2e45, type: 2}
   HealthBar: {fileID: 4942211788187107185}
   DestructionVFXPrefab: {fileID: 9049528949421826134, guid: 6c185128103037f4d85d4d9ecacfe013, type: 3}
   AdditionalComponents:

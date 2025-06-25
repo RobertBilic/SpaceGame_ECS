@@ -1,4 +1,5 @@
 using SpaceGame.Combat.Components;
+using SpaceGame.Combat.Defences;
 using SpaceGame.Combat.StateTransition.Components;
 using SpaceGame.Detection.Component;
 using SpaceGame.Movement.Components;
@@ -33,8 +34,11 @@ namespace SpaceGame.Combat.Authoring
         public List<ForwardWeaponAuthoring> Weapons;
         public List<TurretAuthoring> Turrets;
 
-        [Header("Health")]
-        public float Health;
+        [Header("Defences")]
+        public float Shield;
+        public float Armor;
+        public float Hull;
+        public ResistanceMatrixAsset ResistanceAsset;
         public GameObject HealthBar;
         [Header("Destruction VFX")]
         public OnDestructionVFXAuthoring DestructionVFXPrefab;
@@ -46,8 +50,43 @@ namespace SpaceGame.Combat.Authoring
     {
         protected override void BakeAdditionalData(Entity entity, ShipAuthoring authoring)
         {
+            var defenceLayerBuffer = AddBuffer<DefenceLayer>(entity);
+
+            defenceLayerBuffer.Add(new DefenceLayer()
+            {
+                Max = authoring.Shield,
+                Type = DefenceLayerType.Shield,
+                Value = authoring.Shield
+            });
+            defenceLayerBuffer.Add(new DefenceLayer()
+            {
+                Max = authoring.Armor,
+                Type = DefenceLayerType.Armor,
+                Value = authoring.Armor
+            });
+            defenceLayerBuffer.Add(new DefenceLayer()
+            {
+                Max = authoring.Hull,
+                Type = DefenceLayerType.Hull,
+                Value = authoring.Hull
+            });
+
+            var resistanceBuffer = AddBuffer<ResistanceEntry>(entity);
+
+            if(authoring.ResistanceAsset != null)
+            {
+                foreach(var entry in authoring.ResistanceAsset.Entries)
+                {
+                    resistanceBuffer.Add(new ResistanceEntry()
+                    {
+                        Layer = entry.LayerType,
+                        Resistance = entry.Value,
+                        Type = entry.DamageType
+                    });
+                }
+            }
+
             AddComponent(entity, new CombatPower() { Value = authoring.CombatPower });
-            AddComponent(entity, new Health() { Current = authoring.Health, Max = authoring.Health });
             AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
             AddComponent(entity, new CurrentRotation() { Value = 0.0f });
             AddComponent(entity, new ShipMovementBehaviourState() { Value = ShipMovementBehaviour.MoveToTarget });

@@ -10,6 +10,7 @@ namespace SpaceGame.Combat.Components
 
         public float Range;
         public float Damage;
+        public DamageType DamageType;
         public float LastFireTime;
         public float FiringRate;
         public Entity RotationBase;

@@ -170,6 +170,7 @@ MonoBehaviour:
   RotationBase: {fileID: 2233223112315394719}
   RotationSpeed: 2
   Damage: 10
+  DamageType: 2
   FiringRate: 30
   Range: 100
   ReloadTime: 3

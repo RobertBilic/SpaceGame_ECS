@@ -111,6 +111,7 @@ namespace SpaceGame.Combat.Systems
                         {
                             BulletId = bulletId.Value,
                             Damage = damage.ValueRO.Value,
+                            DamageType = damage.ValueRO.Type,
                             Heading = heading.ValueRO.Value,
                             Position = spawnPosition,
                             Range = range.ValueRO.Value,

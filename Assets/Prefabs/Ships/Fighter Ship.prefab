@@ -140,6 +140,7 @@ MonoBehaviour:
   RotationPadding: 10
   Range: 100
   Damage: 2
+  DamageType: 1
   FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0
@@ -365,7 +366,10 @@ MonoBehaviour:
   - {fileID: 769587223710832835}
   - {fileID: 4525104627493519601}
   Turrets: []
-  Health: 100
+  Shield: 150
+  Armor: 150
+  Hull: 150
+  ResistanceAsset: {fileID: 11400000, guid: c585b5cd93ed8cf4093a18b7e7af2e45, type: 2}
   HealthBar: {fileID: 8667436750793339829}
   DestructionVFXPrefab: {fileID: 9049528949421826134, guid: 6c185128103037f4d85d4d9ecacfe013, type: 3}
   AdditionalComponents:
@@ -533,6 +537,7 @@ MonoBehaviour:
   RotationPadding: 10
   Range: 100
   Damage: 2
+  DamageType: 1
   FiringRate: 10
   RecoilTarget: {fileID: 0}
   RecoilDuration: 0

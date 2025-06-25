@@ -17,6 +17,7 @@ namespace SpaceGame.Combat.Components
         public float ParentScale;
         public float Range;
         public float Damage;
+        public DamageType DamageType;
     }
 
     [InternalBufferCapacity(128)]

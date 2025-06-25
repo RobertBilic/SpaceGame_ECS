@@ -75,7 +75,7 @@ namespace SpaceGame.Combat.Systems
                 state.EntityManager.SetComponentData(projectileEntity, new Lifetime { Value = lifeTime });
                 state.EntityManager.SetComponentData(projectileEntity, new Heading() { Value = request.Heading });
                 state.EntityManager.SetComponentData(projectileEntity, new PreviousPosition() { Value = request.Position });
-                state.EntityManager.SetComponentData(projectileEntity, new Damage() { Value = request.Damage });
+                state.EntityManager.SetComponentData(projectileEntity, new Damage() { Value = request.Damage, Type = request.DamageType });
                 state.EntityManager.SetComponentData(projectileEntity, new TeamTag() { Team = request.Team });
                 state.EntityManager.SetComponentData(projectileEntity, new ProjectileId() { Value = prefabData.Id });
             }

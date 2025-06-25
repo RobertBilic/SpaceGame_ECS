@@ -13,6 +13,7 @@ namespace SpaceGame.Combat.Authoring
 
         [Header("Combat")]
         public float Damage;
+        public DamageType DamageType;
         public float FiringRate;
         public float Range;
         public float ReloadTime;
