@@ -7,3 +7,9 @@ public struct ColorMaterialOverride : IComponentData
 {
     public float4 Value;
 }
+
+[MaterialProperty("_BackgroundColor")]
+public struct BackgroundColorMaterialOverride : IComponentData
+{
+    public float4 Value;
+}

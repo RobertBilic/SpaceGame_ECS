@@ -1,3 +1,4 @@
+using SpaceGame;
 using SpaceGame.Animations.Components;
 using SpaceGame.Combat.Components;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ public class ForwardWeaponAuthoring : MonoBehaviour
     [Header("Combat Stats")]
     public float Range;
     public float Damage;
+    public DamageType DamageType;
     public float FiringRate;
 
     
@@ -40,6 +42,7 @@ public class ForwardWeaponAuthoring : MonoBehaviour
             AddComponent(entity, new ForwardWeapon()
             {
                 Damage = authoring.Damage,
+                DamageType = authoring.DamageType,
                 FiringRate = authoring.FiringRate,
                 LastFireTime = 0,
                 Range = authoring.Range,

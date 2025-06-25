@@ -26,7 +26,7 @@ namespace SpaceGame.Combat.Authoring
             AddComponent(entity, new IsAlive() { });
             AddComponent(entity, new RotationSpeed() { Value = authoring.RotationSpeed });
             AddComponent(entity, new Range() { Value = authoring.Range });
-            AddComponent(entity, new Damage() { Value = authoring.Damage });
+            AddComponent(entity, new Damage() { Value = authoring.Damage, Type = authoring.DamageType });
             AddComponent(entity, new FiringRate() { Value = authoring.FiringRate });
             AddComponent(entity, new LastFireTime() { Value = 0.0f });
             AddComponent(entity, new TurretTag());

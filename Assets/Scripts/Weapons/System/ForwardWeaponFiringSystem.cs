@@ -152,8 +152,10 @@ namespace SpaceGame.Combat.Systems
                         {
                             buffer.Add(new ProjectileSpawnRequest()
                             {
+                                Target = target.ValueRO.Value,
                                 BulletId = weapon.BulletId,
                                 Damage = weapon.Damage,
+                                DamageType = weapon.DamageType,
                                 Heading = finalForward,
                                 Position = spawnPosition,
                                 Range =  weapon.Range,

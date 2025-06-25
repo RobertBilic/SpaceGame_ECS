@@ -1,3 +1,4 @@
+using SpaceGame.Combat.Defences;
 using SpaceGame.Game.Initialization.Components;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -6,9 +7,10 @@ using UnityEngine;
 namespace SpaceGame.Game.Initialization.Authoring
 {
     [System.Serializable]
-    class HealthBarColorPerTeamData
+    class HealthBarColoringPerLayerData
     {
-        public Color color;
+        public Color Color;
+        public DefenceLayerType Layer;
         public int Team;
     }
 
@@ -17,7 +19,7 @@ namespace SpaceGame.Game.Initialization.Authoring
         public int GameSize;
         public int TeamCount;
         [Header("Health Bar")]
-        public List<HealthBarColorPerTeamData> HealthBarSettings;
+        public List<HealthBarColoringPerLayerData> HealthBarSettings;
         [Header("Spatial Database Settings")]
         public GameObject SpatialDatabasePrefab;
         public int SpatialDatabaseSubdivisions = 5;
@@ -47,12 +49,13 @@ namespace SpaceGame.Game.Initialization.Authoring
 
             AddComponent(entity, new HitEffectEnabled() { Enabled = authoring.OnHitEffectsEnabled });
 
-            var colorBuffer = AddBuffer<HealthBarColorPerTeam>(entity);
+            var colorBuffer = AddBuffer<HealthBarColorPerDefenceLayer>(entity);
 
             foreach (var data in authoring.HealthBarSettings)
-                colorBuffer.Add(new HealthBarColorPerTeam()
+                colorBuffer.Add(new HealthBarColorPerDefenceLayer()
                 {
-                    Color = new Unity.Mathematics.float4(data.color.r, data.color.g, data.color.b, data.color.a),
+                    Color = new Unity.Mathematics.float4(data.Color.r, data.Color.g, data.Color.b, data.Color.a),
+                    Layer = data.Layer,
                     Team = data.Team
                 });
 

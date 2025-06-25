@@ -27,26 +27,23 @@ public partial struct DestructionDetectionSystem : ISystem
 
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-        foreach (var (localToWorld,health, entity) in SystemAPI.Query<RefRO<LocalToWorld>,RefRO<Health>>()
+        foreach (var (localToWorld, entity) in SystemAPI.Query<RefRO<LocalToWorld>>()
             .WithAll<PendingDestructionTag>()
             .WithEntityAccess())
         {
-            if (health.ValueRO.Current <= 0f)
+            ecb.DestroyEntity(entity);
+
+            if (destructionVFXPrefabLookup.HasComponent(entity))
             {
-                ecb.DestroyEntity(entity);
+                var vfx = ecb.Instantiate(destructionVFXPrefabLookup[entity].Prefab);
+                var scale = boundingRadiusLookup.HasComponent(entity) ? boundingRadiusLookup[entity].Value : 1.0f;
 
-                if (destructionVFXPrefabLookup.HasComponent(entity))
+                ecb.SetComponent<LocalTransform>(vfx, new LocalTransform()
                 {
-                    var vfx = ecb.Instantiate(destructionVFXPrefabLookup[entity].Prefab);
-                    var scale = boundingRadiusLookup.HasComponent(entity) ? boundingRadiusLookup[entity].Value : 1.0f;
-
-                    ecb.SetComponent<LocalTransform>(vfx, new LocalTransform()
-                    {
-                        Position = localToWorld.ValueRO.Position,
-                        Rotation = localToWorld.ValueRO.Rotation,
-                        Scale = scale
-                    });
-                }
+                    Position = localToWorld.ValueRO.Position,
+                    Rotation = localToWorld.ValueRO.Rotation,
+                    Scale = scale
+                });
             }
         }
 
