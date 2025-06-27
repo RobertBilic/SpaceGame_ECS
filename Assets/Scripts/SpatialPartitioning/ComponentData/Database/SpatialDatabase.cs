@@ -21,14 +21,11 @@ public struct SpatialDatabase : IComponentData
         cellsBuffer.Capacity = 16;
         storageBuffer.Capacity = 16;
 
-        // Init grid
         spatialDatabase.Grid = new UniformOriginGrid(halfExtents, subdivisions);
 
-        // Reallocate 
         cellsBuffer.Resize(spatialDatabase.Grid.CellCount, NativeArrayOptions.ClearMemory);
         storageBuffer.Resize(spatialDatabase.Grid.CellCount * cellEntriesCapacity, NativeArrayOptions.ClearMemory);
 
-        // Init cells data
         for (int i = 0; i < cellsBuffer.Length; i++)
         {
             SpatialDatabaseCell cell = cellsBuffer[i];
@@ -49,7 +46,6 @@ public struct SpatialDatabase : IComponentData
             SpatialDatabaseCell cell = cellsBuffer[i];
             cell.StartIndex = totalDesiredStorage;
 
-            // Handle calculating an increased max storage for this cell
             cell.ElementsCapacity = math.select(cell.ElementsCapacity,
                 (int)math.ceil((cell.ElementsCapacity + cell.ExcessElementsCount) * ElementsCapacityGrowFactor),
                 cell.ExcessElementsCount > 0);
@@ -75,15 +71,12 @@ public struct SpatialDatabase : IComponentData
         {
             SpatialDatabaseCell cell = cellsBuffer[cellIndex];
 
-            // Check capacity
             if (cell.ElementsCount + 1 > cell.ElementsCapacity)
             {
-                // Remember excess count for resizing next time we clear
                 cell.ExcessElementsCount++;
             }
             else
             {
-                // Add entry at cell index
                 storageBuffer[cell.StartIndex + cell.ElementsCount] = element;
                 cell.ElementsCount++;
             }
@@ -101,15 +94,12 @@ public struct SpatialDatabase : IComponentData
         {
             SpatialDatabaseCell cell = cellsBuffer[cellIndex];
 
-            // Check capacity
             if (cell.ElementsCount + 1 > cell.ElementsCapacity)
             {
-                // Remember excess count for resizing next time we clear
                 cell.ExcessElementsCount++;
             }
             else
             {
-                // Add entry at cell index
                 storageBuffer[cell.StartIndex + cell.ElementsCount] = element;
                 cell.ElementsCount++;
             }
@@ -148,19 +138,16 @@ public struct SpatialDatabase : IComponentData
         {
             for (int y = minCoords.y; y <= maxCoords.y; y++)
             {
-                for (int z = minCoords.z; z <= maxCoords.z; z++)
+                for (int x = minCoords.x; x <= maxCoords.x; x++)
                 {
-                    for (int x = minCoords.x; x <= maxCoords.x; x++)
+                    int3 coords = new int3(x, y, 0);
+                    int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
+                    SpatialDatabaseCell cell = cellsBuffer[cellIndex];
+                    collector.OnVisitCell(in cell, in elementsBuffer,
+                        out bool shouldEarlyExit);
+                    if (shouldEarlyExit)
                     {
-                        int3 coords = new int3(x, y, z);
-                        int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
-                        SpatialDatabaseCell cell = cellsBuffer[cellIndex];
-                        collector.OnVisitCell(in cell, in elementsBuffer,
-                            out bool shouldEarlyExit);
-                        if (shouldEarlyExit)
-                        {
-                            return;
-                        }
+                        return;
                     }
                 }
             }
@@ -193,7 +180,7 @@ public struct SpatialDatabase : IComponentData
     where T : unmanaged, ISpatialQueryCollector
     {
         UniformOriginGrid grid = spatialDatabase.Grid;
-        float3 halfExtents = new float3(radius); 
+        float3 halfExtents = new float3(radius);
         float3 aabbMin = center - halfExtents;
         float3 aabbMax = center + halfExtents;
 
@@ -209,46 +196,42 @@ public struct SpatialDatabase : IComponentData
             for (int l = 0; l <= maxLayer; l++)
             {
                 int2 yRange = new int2(sourceCoord.y - l, sourceCoord.y + l);
-                int2 zRange = new int2(sourceCoord.z - l, sourceCoord.z + l);
                 int2 xRange = new int2(sourceCoord.x - l, sourceCoord.x + l);
 
                 for (int y = yRange.x; y <= yRange.y; y++)
                 {
-                    for (int z = zRange.x; z <= zRange.y; z++)
+                    for (int x = xRange.x; x <= xRange.y; x++)
                     {
-                        for (int x = xRange.x; x <= xRange.y; x++)
+                        int3 coords = new int3(x, y, 0);
+
+                        if (coords.x < minCoords.x || coords.x > maxCoords.x ||
+                            coords.y < minCoords.y || coords.y > maxCoords.y)
+                            continue;
+
+                        int3 coordDist = math.abs(coords - sourceCoord);
+
+                        int maxCoordsDist = math.max(coordDist.x,
+                            math.max(coordDist.y, coordDist.z));
+
+                        if (maxCoordsDist != l)
                         {
-                            int3 coords = new int3(x, y, z);
+                            x = xRange.y - 1;
+                            continue;
+                        }
 
-                            if (coords.x < minCoords.x || coords.x > maxCoords.x ||
-                                coords.y < minCoords.y || coords.y > maxCoords.y ||
-                                coords.z < minCoords.z || coords.z > maxCoords.z)
-                                continue;
+                        float3 cellCenter = UniformOriginGrid.GetCellCenter(grid.BoundsMin, grid.CellSize, coords);
+                        float3 cellHalfSize = new float3(grid.CellSize * 0.5f);
+                        float3 cellMin = cellCenter - cellHalfSize;
+                        float3 cellMax = cellCenter + cellHalfSize;
 
-                            int3 coordDist = math.abs(coords - sourceCoord);
-                            int maxCoordsDist = math.max(coordDist.x,
-                                math.max(coordDist.y, coordDist.z));
+                        if (IntersectAABBWithSphere(cellMin, cellMax, center, radiusSq))
+                        {
+                            int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
+                            SpatialDatabaseCell cell = cellsBuffer[cellIndex];
 
-                            if (maxCoordsDist != l)
-                            {
-                                x = xRange.y - 1;
-                                continue;
-                            }
-
-                            float3 cellCenter = UniformOriginGrid.GetCellCenter(grid.BoundsMin, grid.CellSize, coords);
-                            float3 cellHalfSize = new float3(grid.CellSize * 0.5f);
-                            float3 cellMin = cellCenter - cellHalfSize;
-                            float3 cellMax = cellCenter + cellHalfSize;
-
-                            if (IntersectAABBWithSphere(cellMin, cellMax, center, radiusSq))
-                            {
-                                int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
-                                SpatialDatabaseCell cell = cellsBuffer[cellIndex];
-
-                                collector.OnVisitCell(in cell, in elementsBuffer, out bool shouldExit);
-                                if (shouldExit)
-                                    return;
-                            }
+                            collector.OnVisitCell(in cell, in elementsBuffer, out bool shouldExit);
+                            if (shouldExit)
+                                return;
                         }
                     }
                 }
@@ -279,63 +262,48 @@ public struct SpatialDatabase : IComponentData
             int maxLayer = math.max(highestCoordDistances.x,
                 math.max(highestCoordDistances.y, highestCoordDistances.z));
 
-            // Iterate layers of cells around the original cell
             for (int l = 0; l <= maxLayer; l++)
             {
                 int2 yRange = new int2(sourceCoord.y - l, sourceCoord.y + l);
-                int2 zRange = new int2(sourceCoord.z - l, sourceCoord.z + l);
                 int2 xRange = new int2(sourceCoord.x - l, sourceCoord.x + l);
 
                 for (int y = yRange.x; y <= yRange.y; y++)
                 {
-                    int yDistToEdge = math.min(y - minCoords.y, maxCoords.y - y); // positive is inside
+                    int yDistToEdge = math.min(y - minCoords.y, maxCoords.y - y);
 
-                    // Skip coords outside of query coords range
                     if (yDistToEdge < 0)
                     {
                         continue;
                     }
 
-                    for (int z = zRange.x; z <= zRange.y; z++)
-                    {
-                        int zDistToEdge = math.min(z - minCoords.z, maxCoords.z - z); // positive is inside
 
-                        // Skip coords outside of query coords range
-                        if (zDistToEdge < 0)
+                    for (int x = xRange.x; x <= xRange.y; x++)
+                    {
+                        int xDistToEdge = math.min(x - minCoords.x, maxCoords.x - x);
+
+                        if (xDistToEdge < 0)
                         {
                             continue;
                         }
 
-                        for (int x = xRange.x; x <= xRange.y; x++)
+                        int3 coords = new int3(x, y, 0);
+                        int3 coordDistToCenter = math.abs(coords - sourceCoord);
+                        int maxCoordsDist = math.max(coordDistToCenter.x,
+                            math.max(coordDistToCenter.y, coordDistToCenter.z));
+
+                        if (maxCoordsDist != l)
                         {
-                            int xDistToEdge = math.min(x - minCoords.x, maxCoords.x - x); // positive is inside
+                            x = xRange.y - 1;
+                            continue;
+                        }
 
-                            // Skip coords outside of query coords range
-                            if (xDistToEdge < 0)
-                            {
-                                continue;
-                            }
-
-                            int3 coords = new int3(x, y, z);
-                            int3 coordDistToCenter = math.abs(coords - sourceCoord);
-                            int maxCoordsDist = math.max(coordDistToCenter.x,
-                                math.max(coordDistToCenter.y, coordDistToCenter.z));
-
-                            // Skip all inner coords not belonging to the external layer
-                            if (maxCoordsDist != l)
-                            {
-                                x = xRange.y - 1;
-                                continue;
-                            }
-
-                            int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
-                            SpatialDatabaseCell cell = cellsBuffer[cellIndex];
-                            collector.OnVisitCell(in cell, in elementsBuffer,
-                                out bool shouldEarlyExit);
-                            if (shouldEarlyExit)
-                            {
-                                return;
-                            }
+                        int cellIndex = UniformOriginGrid.GetCellIndexFromCoords(in grid, coords);
+                        SpatialDatabaseCell cell = cellsBuffer[cellIndex];
+                        collector.OnVisitCell(in cell, in elementsBuffer,
+                            out bool shouldEarlyExit);
+                        if (shouldEarlyExit)
+                        {
+                            return;
                         }
                     }
                 }

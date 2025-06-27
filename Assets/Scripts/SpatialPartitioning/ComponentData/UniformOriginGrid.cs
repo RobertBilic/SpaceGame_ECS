@@ -11,7 +11,6 @@ public struct UniformOriginGrid
     
     public int CellCount;
     public int CellCountPerDimension;
-    public int CellCountPerPlane;
     public float CellSize;
     public float3 BoundsMin;
     public float3 BoundsMax;
@@ -23,7 +22,6 @@ public struct UniformOriginGrid
         
         CellCount = (int)math.pow(8f, subdivisions);
         CellCountPerDimension = (int)math.pow(2f, subdivisions);
-        CellCountPerPlane = CellCountPerDimension * CellCountPerDimension;
         CellSize = (halfExtents * 2f) / (float)CellCountPerDimension;
         BoundsMin = new float3(-halfExtents);
         BoundsMax = new float3(halfExtents);
@@ -50,9 +48,7 @@ public struct UniformOriginGrid
         return position.x > grid.BoundsMin.x &&
                position.x < grid.BoundsMax.x &&
                position.y > grid.BoundsMin.y &&
-               position.y < grid.BoundsMax.y &&
-               position.z > grid.BoundsMin.z &&
-               position.z < grid.BoundsMax.z;
+               position.y < grid.BoundsMax.y;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,8 +59,9 @@ public struct UniformOriginGrid
         {
             x = (int)math.floor(localPos.x / grid.CellSize),
             y = (int)math.floor(localPos.y / grid.CellSize),
-            z = (int)math.floor(localPos.z / grid.CellSize),
-        };
+            z = 0
+        }; 
+
         cellCoords = math.clamp(cellCoords, int3.zero, new int3(grid.CellCountPerDimension - 1));
         return cellCoords;
     }
@@ -75,8 +72,8 @@ public struct UniformOriginGrid
         return new int3
         {
             x = index % grid.CellCountPerDimension,
-            y = index / grid.CellCountPerPlane,
-            z = (index % grid.CellCountPerPlane) / grid.CellCountPerDimension,
+            y = index / grid.CellCountPerDimension,
+            z = 0
         };
     }
 
@@ -95,24 +92,23 @@ public struct UniformOriginGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int GetCellIndexFromCoords(in UniformOriginGrid grid, int3 coords)
     {
-        return (coords.x) +
-                (coords.z * grid.CellCountPerDimension) +
-                (coords.y * grid.CellCountPerPlane);
+        return (coords.x) + (coords.y * grid.CellCountPerDimension);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool AABBIntersectAABB(float3 aabb1Min, float3 aabb1Max, float3 aabb2Min, float3 aabb2Max)
     {
         return (aabb1Min.x <= aabb2Max.x && aabb1Max.x >= aabb2Min.x) &&
-               (aabb1Min.y <= aabb2Max.y && aabb1Max.y >= aabb2Min.y) &&
-               (aabb1Min.z <= aabb2Max.z && aabb1Max.z >= aabb2Min.z);
+               (aabb1Min.y <= aabb2Max.y && aabb1Max.y >= aabb2Min.y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float3 GetCellCenter(float3 spatialDatabaseBoundsMin, float cellSize, int3 cellCoords)
     {
         float3 minCenter = spatialDatabaseBoundsMin + new float3(cellSize * 0.5f);
-        return minCenter + ((float3)cellCoords * cellSize);
+        var center =  minCenter + ((float3)cellCoords * cellSize);
+        center.z = 0;
+        return center;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
