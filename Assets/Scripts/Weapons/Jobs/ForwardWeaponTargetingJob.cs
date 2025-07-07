@@ -19,18 +19,25 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
     public BufferLookup<HitBoxElement> HitboxElement;
     public int Team;
 
-    public void Execute(Entity entity,
-                        ref Target target,
-                        in DynamicBuffer<ForwardWeaponElement> weaponRefs,
-                        in LocalToWorld localToWorld,
-                        in TeamTag team)
+    public EntityCommandBuffer.ParallelWriter Ecb;
+    public int NumberOfJobs;
+    public int JobNumber;
+
+    public void Execute([ChunkIndexInQuery] int chunkIndex,
+        Entity entity,
+        in DynamicBuffer<ForwardWeaponElement> weaponRefs,
+        in LocalToWorld localToWorld,
+        in TeamTag team)
     {
+        if (entity.Index % NumberOfJobs != JobNumber)
+            return;
+
         if (team.Team != Team)
             return;
 
         if (weaponRefs.Length == 0)
         {
-            target.Value = Entity.Null;
+            Ecb.SetComponent<Target>(chunkIndex, entity, new Target() { Value = Entity.Null });
             return;
         }
 
@@ -55,7 +62,7 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
 
         if (maxRange <= 0f)
         {
-            target.Value = Entity.Null;
+            Ecb.SetComponent<Target>(chunkIndex, entity, new Target() { Value = Entity.Null });
             return;
         }
 
@@ -77,6 +84,6 @@ public partial struct ForwardWeaponTargetingJob : IJobEntity
             ref collector
         );
 
-        target.Value = collector.FoundTarget;
+        Ecb.SetComponent<Target>(chunkIndex, entity, new Target() { Value = collector.FoundTarget });
     }
 }

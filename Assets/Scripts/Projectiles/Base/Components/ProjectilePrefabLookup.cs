@@ -4,6 +4,7 @@ using Unity.Entities;
 
 public struct ProjectilePrefabLookup
 {
+    [ReadOnly]
     public BlobArray<ProjectilePrefab> Entries;
 
     public ProjectilePrefab GetPrefab(FixedString32Bytes id)
